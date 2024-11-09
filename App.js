@@ -9,8 +9,9 @@ import ChangeLocation from './Screens/ChangeLocation';
 import Explore from './Screens/Explore';
 import Joined from './Screens/Joined';
 import Color from './Styles/Color';
+import Setting from './Screens/Setting';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { SafeAreaView, View } from 'react-native';
+import { Pressable, SafeAreaView, View } from 'react-native';
 import Style from './Styles/Style';
 import {
   SafeAreaProvider,
@@ -118,9 +119,21 @@ export default function App() {
       <Tab.Screen 
         name="Profile" 
         component={Profile} 
-        options = {{
+        options = {({ navigation }) => ({
+          title: 'Profile',
+          headerRight: () => (
+            <Pressable onPress={() => navigation.navigate('Setting')}>
+              <FontAwesome5 name="cog" size={24} color={Color.white} style={{ marginRight: 15 }} />
+            </Pressable>
+          ),
+          headerStyle: { backgroundColor: Color.navigatorBg },
+          headerTintColor: Color.white,
           tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
-        }}
+
+        })}
+        // {
+        //   tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
+        // }}
         />
     </Tab.Navigator>
     )
@@ -140,6 +153,15 @@ export default function App() {
             headerTintColor: Color.white,
             headerBackTitleVisible: false,
           }}/>
+          <Stack.Screen 
+            name="Setting" 
+            component={Setting} 
+            options={{
+              title: "Settings", 
+              headerStyle: { backgroundColor: Color.navigatorBg }, 
+              headerTintColor: Color.white,
+            }}
+          />
         </Stack.Navigator>
     )
   }
