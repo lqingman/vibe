@@ -10,6 +10,8 @@ import Explore from './Screens/Explore';
 import Joined from './Screens/Joined';
 import Color from './Styles/Color';
 import Setting from './Screens/Setting';
+import Login from './Screens/Login';
+import Signup from './Screens/Signup';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Pressable, SafeAreaView, View } from 'react-native';
 import Style from './Styles/Style';
@@ -17,13 +19,34 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './Firebase/firebaseSetup';
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const TopTab = createMaterialTopTabNavigator();
-
+const AuthStack = <>
+  <Stack.Screen name="Login" component={Login} />
+  <Stack.Screen name="Signup" component={Signup} />
+</>;
 export default function App() {
+  const [isUserLogin, setIsUserLogin] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      console.log('User:', user);
+      if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/firebase.User
+        setIsUserLogin(true);
+      } else {
+      // User is signed out
+        setIsUserLogin(false);
+      }
+    })
+  }, []);
   // Create the Material Top Tab Navigator for the Home Screen
   function HomeTopTabs() {
     const insets = useSafeAreaInsets();
@@ -141,27 +164,31 @@ export default function App() {
 
   function StackNavigator() {
     return(
-        <Stack.Navigator initialRouteName='Tab'>
-          {/* Create the tab navigator */}
-          <Stack.Screen name="Tab" children={tabNavigator} options={{headerShown: false}}/>
-          {/* Create the Home screen */}
-          <Stack.Screen name="ChangeLocation" 
-          component={ChangeLocation} 
-          options={{
-            title:"Change Your Location", 
-            headerStyle:{backgroundColor:Color.navigatorBg}, 
-            headerTintColor: Color.white,
-            headerBackTitleVisible: false,
-          }}/>
-          <Stack.Screen 
-            name="Setting" 
-            component={Setting} 
-            options={{
-              title: "Settings", 
-              headerStyle: { backgroundColor: Color.navigatorBg }, 
-              headerTintColor: Color.white,
-            }}
-          />
+        <Stack.Navigator initialRouteName={isUserLogin ? 'Tab' : 'Login'}>
+          {isUserLogin ? (
+            <>
+              {/* Create the tab navigator */}
+              <Stack.Screen name="Tab" children={tabNavigator} options={{headerShown: false}}/>
+              {/* Create the Home screen */}
+              <Stack.Screen name="ChangeLocation" 
+              component={ChangeLocation} 
+              options={{
+                title:"Change Your Location", 
+                headerStyle:{backgroundColor:Color.navigatorBg}, 
+                headerTintColor: Color.white,
+                headerBackTitleVisible: false,
+              }}/>
+              <Stack.Screen 
+                name="Setting" 
+                component={Setting} 
+                options={{
+                  title: "Settings", 
+                  headerStyle: { backgroundColor: Color.navigatorBg }, 
+                  headerTintColor: Color.white,
+                }}
+              />
+            </>
+          ) : AuthStack}
         </Stack.Navigator>
     )
   }
