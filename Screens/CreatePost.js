@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput,TouchableWithoutFeedback, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard } from 'react-native';
+import { View, Text, TextInput,TouchableWithoutFeedback, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -12,7 +12,9 @@ export default function CreatePost() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [inputDate, setInputDate] = useState('');
+  const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
 
@@ -34,11 +36,27 @@ export default function CreatePost() {
     const currentDate = selectedDate;
     setShowDatePicker(false); // Hide the date picker on both platforms
     setDate(currentDate);
-    setInputDate(currentDate.toDateString());
+    setInputDate(currentDate.toLocaleDateString());
   };
+  const onChangeTime = (event, selectedTime) => {
+    const currentTime = selectedTime;
+    setShowTimePicker(false); 
+    setDate(currentTime);
+    setInputTime(currentTime.toLocaleTimeString());
+  };
+  const onChangeDateTime = (event, selectedDateTime) => {
+    const currentDateTime = selectedDateTime;
+    // setShowDatePicker(false); // Hide the date picker on both platforms
+    setDate(currentDateTime);
+    setInputDate(currentDateTime.toLocaleDateString());
+    setInputTime(currentDateTime.toLocaleTimeString());
+  }
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
 
+  };
+  const toggleTimePicker = () => {
+    setShowTimePicker(!showTimePicker);
   };
   const validateInputs = () => {
     if (!title) {
@@ -73,7 +91,7 @@ export default function CreatePost() {
         date: inputDate,
         description: description,
         location: location,
-        image: image,
+        // image: image,
         owner: auth.currentUser.uid
 
     };
@@ -90,7 +108,7 @@ export default function CreatePost() {
         padding: 20,
       }}
     >
-      
+    {/* image feature to be improved */}
     <TouchableOpacity onPress={pickImage} style={{ marginBottom: 20 }}>
       {image ? (
         <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
@@ -106,12 +124,12 @@ export default function CreatePost() {
       value={title}
       onChangeText={setTitle}
       style={styles.input}
-      onSubmitEditing={Keyboard.dismiss}
+      // onSubmitEditing={Keyboard.dismiss}
     />
 
     
     
-    <TouchableWithoutFeedback onPress={toggleDatePicker}>
+    {/* <TouchableWithoutFeedback onPress={toggleDatePicker}>
       
       <TextInput
           // style={styles.input}
@@ -121,15 +139,47 @@ export default function CreatePost() {
           editable={false} 
       />
       
-    </TouchableWithoutFeedback>
-    {showDatePicker && (
+    </TouchableWithoutFeedback> */}
+    {Platform.OS === 'ios'?(
+      <View style={{flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'}}>
+      <Text>{"Start Time"}</Text>
       <DateTimePicker
         value={date}
-        mode="date"
-        display="inline" // Use inline display for the date picker
-        onChange={onChangeDate}
-        
+        mode="datetime"
+        display="default" // Use inline display for the date picker
+        onChange={onChangeDateTime}
       />
+      </View>
+    ) : (
+      <>
+        <TouchableOpacity onPress={toggleDatePicker} style={styles.input}>
+            <Text>{inputDate || "Select Date"}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            // display="inline" // Use inline display for the date picker
+            display="default"
+            onChange={onChangeDate}
+            
+          />
+        )}
+        <TouchableOpacity onPress={toggleTimePicker} style={styles.input}>
+            <Text>{inputTime || "Select Time"}</Text>
+          </TouchableOpacity>
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={date}
+              mode="time"
+              display="default"
+              onChange={onChangeTime}
+            />
+          )}
+        </>
     )}
   
   <TextInput
