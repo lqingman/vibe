@@ -60,7 +60,7 @@ export default function Signup({ navigation }) {
           favorites: [],
           joined: []
         }
-        writeToDB(newUser, 'users');
+        await writeToDB(newUser, 'users', user.uid); // Use user.uid as the document ID
         // Navigate to the Login screen or Home screen after successful signup
         // navigation.navigate('Home');
       } catch (error) {

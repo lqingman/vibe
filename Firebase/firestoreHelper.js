@@ -1,16 +1,32 @@
-import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import { database } from "./firebaseSetup";
 
-export async function writeToDB(data, collectionName) {
+export async function writeToDB(data, collectionName, docId=null) {
     try {
-        
-        const docRef = await addDoc(collection(database, collectionName), data);
+        if (docId) {
+            const docRef = doc(collection(database, collectionName), docId);
+            await setDoc(docRef, data);
+            return docRef;
+        } else {
+            const docRef = await addDoc(collection(database, collectionName), data);
+            return docRef;
+        }
     }
     catch (err) {
        console.log('write to db ', err)
     }
 }
-
+export async function updateArrayField(userId, field, value) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        await updateDoc(userDocRef, {
+            [field]: arrayUnion(value)
+        });
+    } catch (err) {
+        console.error(`Error updating ${field} for user ${userId}:`, err);
+        throw err;
+    }
+}
 export async function deleteFromDB(id, collectionName) {
     try { 
         await deleteAllFromDB('goals/' + id + '/users');

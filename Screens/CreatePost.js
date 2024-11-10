@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
+import { writeToDB, updateArrayField } from '../Firebase/firestoreHelper';
 
 export default function CreatePost() {
   const insets = useSafeAreaInsets();
@@ -81,7 +81,7 @@ export default function CreatePost() {
     // }
     return true;
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateInputs()) return;
     // confirm before submitting
     
@@ -96,9 +96,18 @@ export default function CreatePost() {
         owner: auth.currentUser.uid
 
     };
-    // addDiet(newDiet); // Update the data array using context
-    writeToDB(newPost, 'post');
-    Alert.alert('Post created successfully');
+    try {
+      const docRef = await writeToDB(newPost, 'posts');
+      const postId = docRef.id;
+
+      // Update the user's posts array with the new post ID
+      await updateArrayField(auth.currentUser.uid, 'posts', postId);
+
+      Alert.alert('Post created successfully');
+    } catch (error) {
+      console.error('Error creating post:', error);
+      Alert.alert('Error creating post', error.message);
+    }
 
 
 };
