@@ -2,8 +2,11 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import the createUserWithEmailAndPassword function
 import { auth } from '../Firebase/firebaseSetup'; // Import the auth object
+import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
+
+
 export default function Signup({ navigation }) {
-//   const [name, setName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,6 +48,19 @@ export default function Signup({ navigation }) {
         const user = userCredential.user;
         console.log('User created:', user);
         Alert.alert('Signup successful', `Welcome, ${user.email}`);
+        const newUser = {
+          name: name,
+          email: email,
+          uid: user.uid,
+          picture: '',
+          bio: '',
+          age: '',
+          gender: '',
+          posts: [],
+          favorites: [],
+          joined: []
+        }
+        writeToDB(newUser, 'users');
         // Navigate to the Login screen or Home screen after successful signup
         // navigation.navigate('Home');
       } catch (error) {
@@ -57,12 +73,12 @@ export default function Signup({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Signup</Text>
-      {/* <TextInput
+      <TextInput
         style={styles.input}
         placeholder="Name"
         value={name}
         onChangeText={setName}
-      /> */}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"

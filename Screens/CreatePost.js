@@ -75,10 +75,10 @@ export default function CreatePost() {
       Alert.alert('Location is required');
       return false;
     }
-    if (!image) {
-      Alert.alert('Image is required');
-      return false;
-    }
+    // if (!image) {
+    //   Alert.alert('Image is required');
+    //   return false;
+    // }
     return true;
   };
   const handleSubmit = () => {
@@ -89,6 +89,7 @@ export default function CreatePost() {
     const newPost = {
         title: title,
         date: inputDate,
+        time: inputTime,
         description: description,
         location: location,
         // image: image,
