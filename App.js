@@ -2,7 +2,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Home from './Screens/Home';
 import CreatePost from './Screens/CreatePost';
 import Profile from './Screens/Profile';
 import ChangeLocation from './Screens/ChangeLocation';
