@@ -1,10 +1,257 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, Image, StyleSheet, FlatList, ScrollView } from 'react-native'
+import React, { useEffect } from 'react'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Entypo from '@expo/vector-icons/Entypo';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import CusPressable from '../Components/CusPressable';
+import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { auth } from '../Firebase/firebaseSetup';
+import { useState } from 'react';
 
-export default function Details() {
+
+export default function Details({route}) {
+  const data = route.params.activity
+  const [joined, setJoined] = useState(false);
+  //console.log(data)
+
+  // function checkJoined() {
+  //   let joined = [];
+  //   getUserData(auth.currentUser.uid)
+  //   .then(user => {
+  //       if (user) {
+  //           joined = user.joined;  // Assuming "favs" is the name of the array field
+  //           //console.log("User Data:", user);
+  //           //console.log("Favorited:", favs);
+  //       } else {
+  //           console.log("User data not found");
+  //       }
+  //   })
+  //   .catch(error => {
+  //       console.log("Error fetching user data:", error);
+  //   });
+
+  //   if (joined.includes(data.id)) {
+  //     setJoined(true);
+  //   }
+  // }
+  // checkJoined();
+  // Function to check if the user has joined the activity
+  useEffect(() => {
+    async function checkJoined() {
+      try {
+        const user = await getUserData(auth.currentUser.uid);
+        if (user && user.joined && user.joined.includes(data.id)) {
+          setJoined(true);
+        }
+      } catch (error) {
+        console.log("Error fetching user data:", error);
+      }
+    }
+
+    checkJoined();
+  }, [data.id]);
+
+  function handleJoinPress() {
+    if (joined) {
+      deleteArrayField(auth.currentUser.uid, 'joined', data.id);
+    } else {
+      updateArrayField(auth.currentUser.uid, 'joined', data.id);
+    }
+    setJoined(!joined);
+  }
+
   return (
-    <View>
-      <Text>Details</Text>
+    <View style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        showsVerticalScrollIndicator={false} // Hides vertical scroll bar
+        showsHorizontalScrollIndicator={false} // Hides horizontal scroll bar
+      >
+        <Image style={styles.image} source={{uri: data.image}} />
+        <View style={styles.titleView}>
+          <Text style={styles.titleText}>{data.title}</Text>
+        </View>
+        <View style={styles.dateView}>
+          <FontAwesome name="calendar" size={24} color="purple" />
+          <Text style={styles.dateText}>{data.date}</Text>
+        </View>
+        <View style={styles.timeView}>
+          <FontAwesome5 name="clock" size={24} color="purple" />
+          <Text style={styles.timeText}>{data.time}</Text>
+        </View>
+        <View style={styles.locationView}>
+          <Entypo name="location-pin" size={24} color="purple" />
+          <Text style={styles.locationText}>{data.location}</Text>
+        </View>
+        <View style={styles.descriptionView}>
+        <MaterialIcons name="description" size={24} color="purple" />
+          <Text style={styles.descriptionText}>{data.description}Ready to elevate your game and meet fellow tennis enthusiasts? Whether you're a beginner looking to practice your serve or an advanced player aiming for some friendly competition, our tennis meetup is the perfect opportunity to connect, play, and improve!</Text>
+        </View>
+        <View style={styles.mapView}>
+          <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
+        </View>
+      </ScrollView>
+      {joined ?
+      <View style={styles.leaveView}>
+        <CusPressable
+          componentStyle={{
+            width: '50%',
+            alignSelf: 'center',
+            justifyContent: 'center',
+            marginLeft: 30,
+          }}
+          childrenStyle={{
+            flexDirection: 'row',
+            padding: 10,
+            backgroundColor: 'purple',
+            borderRadius: 10,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          pressedHandler={handleJoinPress}
+        >
+          <Text style={styles.joinButtonText}>Leave Event!</Text>
+        </CusPressable>
+        <CusPressable
+          componentStyle={{
+            width: '20%',
+            justifyContent: 'center',
+            marginLeft: 10,
+          }}
+          childrenStyle={{
+            padding: 10,
+            //backgroundColor: 'purple',
+            borderRadius: 10,
+            alignItems: 'center',
+          }}
+          pressedHandler={() => console.log('Pressed')}
+        >
+          <Ionicons name="notifications" size={30} color="purple" />
+        </CusPressable>
+      </View>
+      :
+      <View style={styles.joinView}>
+        <CusPressable
+          componentStyle={{
+            width: '50%',
+            alignSelf: 'center',
+            justifyContent: 'center',
+          }}
+          childrenStyle={{
+            padding: 10,
+            backgroundColor: 'purple',
+            borderRadius: 10,
+            alignItems: 'center',
+          }}
+          pressedHandler={handleJoinPress}
+        >
+          <Text style={styles.joinButtonText}>Join Event</Text>
+        </CusPressable>
+      </View>
+      }
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 10,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    borderRadius: 16,
+    marginBottom: 10,
+  },
+  dateView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dateText: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  timeView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timeText: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  locationView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  locationText: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  descriptionView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    //alignItems: 'center',
+  },
+  descriptionText: {
+    marginLeft: 10,
+    fontSize: 16,
+    width: '90%',
+  },
+  titleView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  mapView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  map: {
+    width: '90%',
+    height: 200,
+    borderRadius: 16,
+    marginBottom: 100,
+  },
+  joinView: {
+    position: 'absolute',
+    bottom: 10,
+    width: '110%',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderTopColor: 'lightgrey',
+    borderTopWidth: 1,
+  },
+  joinButtonText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  leaveView: {
+    position: 'absolute',
+    bottom: 10,
+    width: '110%',
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
+    borderTopColor: 'lightgrey',
+    borderTopWidth: 1,
+  },
+})

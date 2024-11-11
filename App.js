@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
+import Details from './Screens/Details';
 
 
 const Stack = createNativeStackNavigator();
@@ -178,10 +179,10 @@ export default function App() {
                 headerBackTitleVisible: false,
               }}/>
               <Stack.Screen 
-                name="Setting" 
-                component={Setting} 
+                name="Details" 
+                component={Details} 
                 options={{
-                  title: "Settings", 
+                  title: "Details", 
                   headerStyle: { backgroundColor: Color.navigatorBg }, 
                   headerTintColor: Color.white,
                 }}

@@ -1,5 +1,6 @@
-import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
 import { database } from "./firebaseSetup";
+
 
 export async function writeToDB(data, collectionName, docId=null) {
     try {
@@ -16,6 +17,7 @@ export async function writeToDB(data, collectionName, docId=null) {
        console.log('write to db ', err)
     }
 }
+
 export async function updateArrayField(userId, field, value) {
     try {
         const userDocRef = doc(database, 'users', userId);
@@ -24,6 +26,18 @@ export async function updateArrayField(userId, field, value) {
         });
     } catch (err) {
         console.error(`Error updating ${field} for user ${userId}:`, err);
+        throw err;
+    }
+}
+
+export async function deleteArrayField(userId, field, value) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        await updateDoc(userDocRef, {
+            [field]: arrayRemove(value)
+        });
+    } catch (err) {
+        console.error(`Error deleting ${field} for user ${userId}:`, err);
         throw err;
     }
 }
@@ -86,3 +100,36 @@ export async function getAllDocuments(collectionName) {
         console.log(err);
     }
 }
+
+export async function getUserData(userId) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            //console.log("User Data:", userData);
+            return userData;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.log("Error getting user data:", error);
+    }
+}
+
+export async function searchByTitleKeyword(keyword) {
+    try{
+        const activitiesRef = collection(database, 'posts');
+        const q = query(activitiesRef, where('keywords', 'array-contains', keyword));
+        const querySnapshot = await getDocs(q);
+
+        const results = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return results;
+    }
+    catch (error) {
+        console.log('search by title keyword', error);
+    }
+}
+  

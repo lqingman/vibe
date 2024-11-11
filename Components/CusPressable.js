@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native'
 import React from 'react'
 import Style from '../Styles/Style';
 
-export default function PressableButton({ children, pressedHandler, componentStyle, pressedStyle, childrenStyle, android_ripple, longPressHandler }) { 
+export default function CusPressable({ children, pressedHandler, componentStyle, pressedStyle, childrenStyle, android_ripple, longPressHandler }) { 
   return (
     <Pressable 
       onPress={pressedHandler} 
@@ -15,9 +15,11 @@ export default function PressableButton({ children, pressedHandler, componentSty
       android_ripple={android_ripple}
       onLongPress={longPressHandler}
     >
-      <View style={childrenStyle}>
-        {children}
-      </View>
+      {({ pressed }) => (
+        <View style={childrenStyle}>
+          {typeof children === 'function' ? children(pressed) : children}
+        </View>
+      )}
     </Pressable>
   );
 }
