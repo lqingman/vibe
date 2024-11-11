@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView } from 'react-native'
+import { View, Text, Image, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native'
 import React, { useEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -6,7 +6,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addCommentToPost, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 
@@ -14,6 +14,10 @@ import { useState } from 'react';
 export default function Details({route}) {
   const data = route.params.activity
   const [joined, setJoined] = useState(false);
+  const [comment, setComment] = useState('');
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   //console.log(data)
 
   // function checkJoined() {
@@ -53,6 +57,22 @@ export default function Details({route}) {
     checkJoined();
   }, [data.id]);
 
+  useEffect(() => {
+    async function loadComments() {
+      try {
+        const commentsData = await fetchComments(data.id);
+        setComments(commentsData);
+      } catch (error) {
+        console.error("Error loading comments: ", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadComments();
+    console.log('Comments:', comments);
+  }, [data.id]);
+
   function handleJoinPress() {
     if (joined) {
       deleteArrayField(auth.currentUser.uid, 'joined', data.id);
@@ -60,6 +80,17 @@ export default function Details({route}) {
       updateArrayField(auth.currentUser.uid, 'joined', data.id);
     }
     setJoined(!joined);
+  }
+
+  function handleAddComment() {
+    // Add comment to the activity
+    let newComment = {
+      text: comment,
+      owner: auth.currentUser.uid,
+    };
+    addCommentToPost(data.id, newComment)
+      .then(commentDoc => console.log('Comment added:', commentDoc))
+      .catch(error => console.error(error));
   }
 
   return (
@@ -91,6 +122,43 @@ export default function Details({route}) {
         </View>
         <View style={styles.mapView}>
           <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
+        </View>
+        <View style={styles.commentView}>
+          <Text style={styles.commentText}>Comments</Text>
+          <View style={styles.commentButtonContainer}>
+          <TextInput 
+            style={styles.commentInput} 
+            placeholder="Add a comment..." 
+            value={comment}
+            onChangeText={setComment}
+            />
+          <CusPressable
+            componentStyle={{
+              width: '30%',
+              alignSelf: 'center',
+              justifyContent: 'center',
+              marginLeft: 10,
+            }}
+            childrenStyle={{
+              padding: 10,
+              backgroundColor: 'purple',
+              borderRadius: 10,
+              alignItems: 'center',
+            }}
+            pressedHandler={handleAddComment}
+          >
+            <Text style={styles.joinButtonText}>Comment</Text>
+          </CusPressable>
+          </View>
+          <FlatList
+            data={data.comments}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.comment}>
+                <Text style={styles.commentText}>{item.text}</Text>
+              </View>
+            )}
+        />
         </View>
       </ScrollView>
       {joined ?
@@ -225,7 +293,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 200,
     borderRadius: 16,
-    marginBottom: 100,
+    marginBottom: 30,
   },
   joinView: {
     position: 'absolute',
@@ -253,5 +321,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopColor: 'lightgrey',
     borderTopWidth: 1,
+  },
+  commentView: {
+    marginVertical: 10,
+    marginBottom: 100,
+  },
+  commentText: {
+    fontSize: 16,
+  },
+  commentInput: {
+    width: '70%',
+    height: 50,
+    padding: 10,
+    backgroundColor: 'lightgrey',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  commentButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })

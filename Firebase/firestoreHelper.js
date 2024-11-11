@@ -132,4 +132,41 @@ export async function searchByTitleKeyword(keyword) {
         console.log('search by title keyword', error);
     }
 }
+
+export async function addCommentToPost(postId, commentData) {
+    try {
+      // Reference the specific post document
+      const postRef = doc(database, 'posts', postId);
+      
+      // Reference the 'comments' sub-collection within the post document
+      const commentsRef = collection(postRef, 'comments');
+      
+      // Add the comment to the 'comments' sub-collection
+      const commentDoc = await addDoc(commentsRef, {
+        ...commentData,
+        timestamp: new Date(), // Add timestamp for when comment was added
+      });
+      console.log('Comment added with ID: ', commentDoc.id);
+      return commentDoc;
+    } catch (error) {
+      console.error('Error adding comment: ', error);
+    }
+  }
+
+// Fetch comments from the "comments" sub-collection for a specific post
+export async function fetchComments(postId) {
+    try {
+      const commentsRef = collection(doc(database, 'posts', postId), 'comments');
+      const snapshot = await getDocs(commentsRef);
+  
+      // Map through each document to get its data
+      const commentsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      return commentsData;
+    } catch (error) {
+      console.error("Error fetching comments: ", error);
+    }
+  }
   
