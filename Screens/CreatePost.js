@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput,TouchableWithoutFeedback, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
+import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB, updateArrayField } from '../Firebase/firestoreHelper';
+import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
-export default function CreatePost() {
+export default function CreatePost({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -17,6 +18,68 @@ export default function CreatePost() {
   const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
+  const [limit, setLimit] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [postId, setPostId] = useState('');
+
+  useEffect(() => {
+    if (route.params?.post) {
+      const post = route.params.post;
+      setTitle(post.title);
+      setDescription(post.description);
+      setDate(new Date(post.date));
+      setInputDate(post.date);
+      setInputTime(post.time);
+      setLocation(post.location);
+      setImage(post.image);
+      setLimit(post.limit);
+      setIsEditing(true);
+      setPostId(post.id);
+      
+    }
+  }, [route.params?.post]);
+
+  useLayoutEffect(() => {
+    if (isEditing) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Pressable onPress={confirmDelete}>
+            <FontAwesome5 name="trash" size={24} color="white" style={{ marginRight: 15 }} />
+          </Pressable>
+        ),
+      });
+    }
+  }, [navigation, isEditing]);
+
+  const confirmDelete = () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this post?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: handleDelete,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deletePost(postId, auth.currentUser.uid);
+      Alert.alert('Post deleted successfully');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      Alert.alert('Error deleting post', error.message);
+    }
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -83,6 +146,10 @@ export default function CreatePost() {
     //   Alert.alert('Image is required');
     //   return false;
     // }
+    if (limit <= 1) {
+      Alert.alert('Limit must be greater than 1');
+      return false;
+    }
     return true;
   };
 
@@ -109,21 +176,43 @@ export default function CreatePost() {
         time: inputTime,
         description: description,
         location: location,
-        // image: image,
-        owner: auth.currentUser.uid
+        image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
+        limit: limit,
+        owner: auth.currentUser.uid,
 
     };
+    if (!isEditing) {
+      newPost.attendee = []; // Only include attendee list when creating a new post
+    }
     try {
-      const docRef = await writeToDB(newPost, 'posts');
-      const postId = docRef.id;
+      if (isEditing) {
+        await updatePost(postId, newPost);
+        Alert.alert('Post updated successfully');
 
-      // Update the user's posts array with the new post ID
-      await updateArrayField(auth.currentUser.uid, 'posts', postId);
+      } else {
+        const docRef = await writeToDB(newPost, 'posts');
+        const postId = docRef.id;
+        await updateArrayField(auth.currentUser.uid, 'posts', postId);
+        Alert.alert('Post created successfully');
+        
+      }
+      // Reset the state variables
+      setTitle('');
+      setDescription('');
+      setDate(new Date());
+      setInputDate('');
+      setInputTime('');
+      setLocation('');
+      setImage(null);
+      setIsEditing(false);
+      setPostId('');
+      setLimit(0);
+      navigation.goBack();
 
-      Alert.alert('Post created successfully');
+      
     } catch (error) {
-      console.error('Error creating post:', error);
-      Alert.alert('Error creating post', error.message);
+      console.error('Error saving post:', error);
+      Alert.alert('Error saving post', error.message);
     }
 };
   return (
@@ -207,7 +296,7 @@ export default function CreatePost() {
         </>
     )}
   
-  <TextInput
+    <TextInput
       placeholder="Description"
       value={description}
       onChangeText={setDescription}
@@ -216,14 +305,25 @@ export default function CreatePost() {
     />
 
     <TextInput
+      placeholder="Limit"
+      value={limit.toString()}
+      onChangeText={(text) => setLimit(parseInt(text))}
+      keyboardType="numeric"
+      style={styles.input}
+    />
+
+    <TextInput
       placeholder="Location"
       value={location}
       onChangeText={setLocation}
 
     />
+    <View style={styles.mapView}>
+          <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
+        </View>
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={() => { /* Handle cancel */ }} />
-      <Button title="Create Post" onPress={handleSubmit} />
+      <Button title="Submit" onPress={handleSubmit} />
     </View>
   </View>
   );
@@ -246,7 +346,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    // marginTop: 20,
     marginHorizontal: 30,
+  },
+  mapView: {
+    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  map: {
+    width: '90%',
+    height: 150,
+    borderRadius: 10,
+    // marginBottom: 100,
   },
 })
