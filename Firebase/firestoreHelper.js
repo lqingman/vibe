@@ -27,6 +27,17 @@ export async function updateArrayField(userId, field, value) {
         throw err;
     }
 }
+
+export async function updateUserProfile(userId, updatedData) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        await updateDoc(userDocRef, updatedData);
+    } catch (err) {
+        console.error(`Error updating profile for user ${userId}:`, err);
+        throw err;
+    }
+}
+
 export async function deleteFromDB(id, collectionName) {
     try { 
         await deleteAllFromDB('goals/' + id + '/users');
