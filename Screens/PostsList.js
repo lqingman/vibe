@@ -4,6 +4,7 @@ import { auth, database } from '../Firebase/firebaseSetup';
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import ActivityCard from '../Components/ActivityCard';
 import { useNavigation } from '@react-navigation/native';
+import { deleteArrayField } from '../Firebase/firestoreHelper';
 
 
 export default function PostsList({ dataSource }) {
@@ -17,7 +18,7 @@ export default function PostsList({ dataSource }) {
       let postIds = [];
       const userDocRef = doc(database, 'users', auth.currentUser.uid);
 
-      const unsubscribeUser = onSnapshot(userDocRef, (userDoc) => {
+      const unsubscribeUser = onSnapshot(userDocRef, async (userDoc) => {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           if (dataSource === 'posted') {
@@ -28,9 +29,19 @@ export default function PostsList({ dataSource }) {
 
           if (postIds.length > 0) {
             const q = query(collection(database, 'posts'), where('__name__', 'in', postIds));
-            const unsubscribePosts = onSnapshot(q, (querySnapshot) => {
+            const unsubscribePosts = onSnapshot(q, async (querySnapshot) => {
               const postsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
               setPosts(postsData);
+
+              // Cleanup invalid post IDs
+              const validPostIds = new Set(postsData.map(post => post.id));
+              const invalidPostIds = postIds.filter(postId => !validPostIds.has(postId));
+              if (invalidPostIds.length > 0) {
+                await Promise.all(invalidPostIds.map(postId => deleteArrayField(auth.currentUser.uid, 'favorites', postId)));
+              }
+
+
+
               setLoading(false);
             });
 
