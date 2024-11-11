@@ -12,35 +12,40 @@ export default function PostsList({ dataSource }) {
   const navigation = useNavigation();
 
   useEffect(() => {
-    setLoading(true);
-    let q;
-    if (dataSource === 'posted') {
-      q = query(collection(database, 'posts'), where('owner', '==', auth.currentUser.uid));
-    } else if (dataSource === 'liked') {
+    const fetchData = async () => {
+      setLoading(true);
+      let postIds = [];
       const userDocRef = doc(database, 'users', auth.currentUser.uid);
-      getDoc(userDocRef).then(userDoc => {
+
+      const unsubscribeUser = onSnapshot(userDocRef, (userDoc) => {
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          const favorites = userData.favorites || [];
-          if (favorites.length > 0) {
-            console.log('favorites:', favorites);
-            q = query(collection(database, 'posts'), where('__name__', 'in', favorites));
+          if (dataSource === 'posted') {
+            postIds = userData.posts || [];
+          } else if (dataSource === 'liked') {
+            postIds = userData.favorites || [];
+          }
+
+          if (postIds.length > 0) {
+            const q = query(collection(database, 'posts'), where('__name__', 'in', postIds));
+            const unsubscribePosts = onSnapshot(q, (querySnapshot) => {
+              const postsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              setPosts(postsData);
+              setLoading(false);
+            });
+
+            return () => unsubscribePosts();
+          } else {
+            setPosts([]);
+            setLoading(false);
           }
         }
       });
-    }
 
-    if (q) {
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const postsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setPosts(postsData);
-        setLoading(false);
-      });
+      return () => unsubscribeUser();
+    };
 
-      return () => unsubscribe();
-    } else {
-      setLoading(false);
-    }
+    fetchData();
   }, [dataSource]);
 
 
