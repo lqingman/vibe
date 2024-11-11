@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput,TouchableWithoutFeedback, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB, updateArrayField } from '../Firebase/firestoreHelper';
+import { writeToDB, updateArrayField, updatePost } from '../Firebase/firestoreHelper';
 
-export default function CreatePost() {
+export default function CreatePost({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -17,7 +17,24 @@ export default function CreatePost() {
   const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [postId, setPostId] = useState('');
 
+  useEffect(() => {
+    if (route.params?.post) {
+      const post = route.params.post;
+      setTitle(post.title);
+      setDescription(post.description);
+      setDate(new Date(post.date));
+      setInputDate(post.date);
+      setInputTime(post.time);
+      setLocation(post.location);
+      setImage(post.image);
+      setIsEditing(true);
+      setPostId(post.id);
+      
+    }
+  }, [route.params?.post]);
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -109,21 +126,38 @@ export default function CreatePost() {
         time: inputTime,
         description: description,
         location: location,
-        image: image,
+        image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
         owner: auth.currentUser.uid
 
     };
     try {
-      const docRef = await writeToDB(newPost, 'posts');
-      const postId = docRef.id;
+      if (isEditing) {
+        await updatePost(postId, newPost);
+        Alert.alert('Post updated successfully');
 
-      // Update the user's posts array with the new post ID
-      await updateArrayField(auth.currentUser.uid, 'posts', postId);
+      } else {
+        const docRef = await writeToDB(newPost, 'posts');
+        const postId = docRef.id;
+        await updateArrayField(auth.currentUser.uid, 'posts', postId);
+        Alert.alert('Post created successfully');
+        
+      }
+      // Reset the state variables
+      setTitle('');
+      setDescription('');
+      setDate(new Date());
+      setInputDate('');
+      setInputTime('');
+      setLocation('');
+      setImage(null);
+      setIsEditing(false);
+      setPostId('');
+      navigation.goBack();
 
-      Alert.alert('Post created successfully');
+      
     } catch (error) {
-      console.error('Error creating post:', error);
-      Alert.alert('Error creating post', error.message);
+      console.error('Error saving post:', error);
+      Alert.alert('Error saving post', error.message);
     }
 };
   return (
@@ -223,7 +257,7 @@ export default function CreatePost() {
     />
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={() => { /* Handle cancel */ }} />
-      <Button title="Create Post" onPress={handleSubmit} />
+      <Button title="Submit" onPress={handleSubmit} />
     </View>
   </View>
   );
