@@ -8,7 +8,7 @@ export default function Joined() {
       <Text>Joined</Text>
       <ActivityCard
         onPress={() => console.log('Pressed')}
-        source={require('../assets/images/users/32.jpeg')}
+        // source={require('../assets/images/users/32.jpeg')}
         content={
           <Text>Activity 1</Text>
         }

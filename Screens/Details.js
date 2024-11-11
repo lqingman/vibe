@@ -1,5 +1,5 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable } from 'react-native'
+import React, { useEffect, useLayoutEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -11,7 +11,8 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 
 
-export default function Details({route}) {
+
+export default function Details({route, navigation}) {
   const data = route.params.activity
   const [joined, setJoined] = useState(false);
   const [comment, setComment] = useState('');
@@ -72,6 +73,18 @@ export default function Details({route}) {
     loadComments();
     console.log('Comments:', comments);
   }, [data.id]);
+  
+  useLayoutEffect(() => {
+    if (auth.currentUser.uid === data.owner) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Pressable onPress={() => navigation.navigate('CreatePost', { post: data })}>
+            <FontAwesome5 name="edit" size={24} color="white" style={{ marginRight: 15 }} />
+          </Pressable>
+        ),
+      });
+    }
+  }, [navigation, data]);
 
   function handleJoinPress() {
     if (joined) {

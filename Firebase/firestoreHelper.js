@@ -52,6 +52,27 @@ export async function updateUserProfile(userId, updatedData) {
     }
 }
 
+export async function updatePost(postId, updatedData) {
+    try {
+        const postDocRef = doc(database, 'posts', postId);
+        await updateDoc(postDocRef, updatedData);
+    } catch (err) {
+        console.error(`Error updating post ${postId}:`, err);
+        throw err;
+    }
+}
+
+export async function deletePost(postId, userId) {
+    try {
+        const postDocRef = doc(database, 'posts', postId);
+        await deleteDoc(postDocRef);
+        await deleteArrayField(userId, 'posts', postId);
+    } catch (err) {
+        console.error(`Error deleting post ${postId}:`, err);
+        throw err;
+    }
+}
+
 export async function deleteFromDB(id, collectionName) {
     try { 
         await deleteAllFromDB('goals/' + id + '/users');
