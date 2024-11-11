@@ -38,5 +38,5 @@ yarn-error.*
 # assets
 assets/
 
-# data
-data/
+# # data
+# data/
