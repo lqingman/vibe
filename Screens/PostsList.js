@@ -3,10 +3,13 @@ import { View, FlatList, StyleSheet, Text } from 'react-native';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import ActivityCard from '../Components/ActivityCard';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function PostsList({ dataSource }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -54,7 +57,7 @@ export default function PostsList({ dataSource }) {
         data={posts}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <ActivityCard data={item} />
+          <ActivityCard data={item} onPress={() => navigation.navigate('Details', { activity: item })}/>
         )}
         ListEmptyComponent={<Text>No posts found</Text>}
       />
