@@ -18,8 +18,6 @@ export default function CreatePost() {
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
 
-  
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -32,18 +30,21 @@ export default function CreatePost() {
       setImage(result.uri);
     }
   };
+
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
     setShowDatePicker(false); // Hide the date picker on both platforms
     setDate(currentDate);
     setInputDate(currentDate.toLocaleDateString());
   };
+
   const onChangeTime = (event, selectedTime) => {
     const currentTime = selectedTime;
     setShowTimePicker(false); 
     setDate(currentTime);
     setInputTime(currentTime.toLocaleTimeString());
   };
+
   const onChangeDateTime = (event, selectedDateTime) => {
     const currentDateTime = selectedDateTime;
     // setShowDatePicker(false); // Hide the date picker on both platforms
@@ -51,13 +52,16 @@ export default function CreatePost() {
     setInputDate(currentDateTime.toLocaleDateString());
     setInputTime(currentDateTime.toLocaleTimeString());
   }
+
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
 
   };
+
   const toggleTimePicker = () => {
     setShowTimePicker(!showTimePicker);
   };
+
   const validateInputs = () => {
     if (!title) {
       Alert.alert('Title is required');
@@ -81,13 +85,26 @@ export default function CreatePost() {
     // }
     return true;
   };
+
+  function generateKeywords(title) {
+    // Convert title to lowercase
+    const lowerTitle = title.toLowerCase();
+
+    // Remove punctuation and split by spaces
+    const keywords = lowerTitle.match(/\b(\w+)\b/g); // Matches all word characters (ignoring punctuation)
+
+    return keywords || [];
+  }
+
   const handleSubmit = async () => {
     if (!validateInputs()) return;
     // confirm before submitting
     
+    const keywords = generateKeywords(title);
 
     const newPost = {
         title: title,
+        keywords: keywords,
         date: inputDate,
         time: inputTime,
         description: description,
@@ -108,8 +125,6 @@ export default function CreatePost() {
       console.error('Error creating post:', error);
       Alert.alert('Error creating post', error.message);
     }
-
-
 };
   return (
     <View

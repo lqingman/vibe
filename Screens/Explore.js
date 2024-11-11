@@ -1,11 +1,11 @@
 import { View, StyleSheet } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB } from '../Firebase/firestoreHelper';
+import { searchByTitleKeyword, writeToDB } from '../Firebase/firestoreHelper';
 import { ACTIVITIES } from '../data';
 
 
@@ -30,13 +30,27 @@ export default function Explore({ navigation }) {
 // });
 
   //search bar
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = useState('tennis');
+  const [results, setResults] = useState([]);
 
   const updateSearch = (search) => {
     setSearch(search);
   };
 
-  //const result = 
+  useEffect(() => {
+    async function fetchResults(keyword) {
+        try {
+            const searchResults = await searchByTitleKeyword(keyword);
+            setResults(searchResults); // Store results in state
+            console.log("Results:", searchResults);
+        } catch (error) {
+            console.error("Error retrieving results:", error);
+        }
+    }
+    fetchResults(search);
+}, []); 
+
+  
 
   return (
     <View style={{flex:1}}>
@@ -86,7 +100,7 @@ export default function Explore({ navigation }) {
         </View>
 
       <ActivityCard
-        data={data}
+        data={results[0]}
         onPress={() => { console.log('pressed'); navigation.navigate('Details')}}
       />
     </View>

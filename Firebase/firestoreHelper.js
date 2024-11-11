@@ -1,4 +1,4 @@
-import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where } from "firebase/firestore";
 import { database } from "./firebaseSetup";
 
 
@@ -104,6 +104,20 @@ export async function getUserData(userId) {
         }
     } catch (error) {
         console.log("Error getting user data:", error);
+    }
+}
+
+export async function searchByTitleKeyword(keyword) {
+    try{
+        const activitiesRef = collection(database, 'posts');
+        const q = query(activitiesRef, where('keywords', 'array-contains', keyword));
+        const querySnapshot = await getDocs(q);
+
+        const results = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return results;
+    }
+    catch (error) {
+        console.log('search by title keyword', error);
     }
 }
   
