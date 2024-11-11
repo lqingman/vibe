@@ -18,6 +18,7 @@ export default function CreatePost({ route, navigation }) {
   const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
+  const [limit, setLimit] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
 
@@ -31,6 +32,7 @@ export default function CreatePost({ route, navigation }) {
       setInputTime(post.time);
       setLocation(post.location);
       setImage(post.image);
+      setLimit(post.limit);
       setIsEditing(true);
       setPostId(post.id);
       
@@ -144,6 +146,10 @@ export default function CreatePost({ route, navigation }) {
     //   Alert.alert('Image is required');
     //   return false;
     // }
+    if (limit <= 1) {
+      Alert.alert('Limit must be greater than 1');
+      return false;
+    }
     return true;
   };
 
@@ -171,9 +177,13 @@ export default function CreatePost({ route, navigation }) {
         description: description,
         location: location,
         image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
-        owner: auth.currentUser.uid
+        limit: limit,
+        owner: auth.currentUser.uid,
 
     };
+    if (!isEditing) {
+      newPost.attendee = []; // Only include attendee list when creating a new post
+    }
     try {
       if (isEditing) {
         await updatePost(postId, newPost);
@@ -196,6 +206,7 @@ export default function CreatePost({ route, navigation }) {
       setImage(null);
       setIsEditing(false);
       setPostId('');
+      setLimit(0);
       navigation.goBack();
 
       
@@ -285,7 +296,7 @@ export default function CreatePost({ route, navigation }) {
         </>
     )}
   
-  <TextInput
+    <TextInput
       placeholder="Description"
       value={description}
       onChangeText={setDescription}
@@ -294,11 +305,22 @@ export default function CreatePost({ route, navigation }) {
     />
 
     <TextInput
+      placeholder="Limit"
+      value={limit.toString()}
+      onChangeText={(text) => setLimit(parseInt(text))}
+      keyboardType="numeric"
+      style={styles.input}
+    />
+
+    <TextInput
       placeholder="Location"
       value={location}
       onChangeText={setLocation}
 
     />
+    <View style={styles.mapView}>
+          <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
+        </View>
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={() => { /* Handle cancel */ }} />
       <Button title="Submit" onPress={handleSubmit} />
@@ -324,7 +346,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    // marginTop: 20,
     marginHorizontal: 30,
+  },
+  mapView: {
+    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  map: {
+    width: '90%',
+    height: 150,
+    borderRadius: 10,
+    // marginBottom: 100,
   },
 })

@@ -38,7 +38,7 @@ export default function Profile() {
         <Text style={styles.info}>Gender: {userData.gender}</Text>
         <Text style={styles.info}>Joined: {userData.joined.length}</Text>
         <Text style={styles.info}>Posted: {userData.posts.length}</Text>
-        <Text style={styles.info}>Liked: {userData.favorites.length}</Text>
+        {/* <Text style={styles.info}>Liked: {userData.favorites.length}</Text> */}
       </View>
       <View style={styles.tabContainer}>
         <Tab.Navigator>
