@@ -195,7 +195,16 @@ export default function App() {
                 headerStyle: { backgroundColor: Color.navigatorBg },
                 headerTintColor: Color.white,
               }}
-            />
+              />
+              <Stack.Screen
+                name="CreatePost"
+                component={CreatePost}
+                options={{
+                  title: "Edit Post",
+                  headerStyle: { backgroundColor: Color.navigatorBg },
+                  headerTintColor: Color.white,
+                }}
+              />
             </>
           ) : AuthStack}
         </Stack.Navigator>
