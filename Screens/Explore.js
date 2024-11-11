@@ -4,15 +4,31 @@ import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
+import { auth, database } from '../Firebase/firebaseSetup';
+import { writeToDB } from '../Firebase/firestoreHelper';
+import { ACTIVITIES } from '../data';
 
 
-export default function Explore() {
+
+export default function Explore({ navigation }) {
+  //const navigation = useNavigation();
+
   //fakedata
-  const data = {
-    image: 'https://www.kentchiromed.com/wp-content/uploads/2024/02/Top-Basketball-Courts-Ottawa-Summer.webp',
-    date: '2021-08-31',
-    location: 'Toronto',
-  }
+  // const data = {
+  //   image: 'https://www.kentchiromed.com/wp-content/uploads/2024/02/Top-Basketball-Courts-Ottawa-Summer.webp',
+  //   date: '2021-08-31',
+  //   location: 'Toronto',
+  // }
+//   async function writeAllActivities() {
+//     for (const a of ACTIVITIES) {
+//         await writeToDB(a, 'posts'); 
+//     }
+//   }
+
+// writeAllActivities().catch(error => {
+//     console.error("Error writing activities:", error);
+// });
+
   //search bar
   const [search, setSearch] = React.useState('');
 
@@ -71,7 +87,7 @@ export default function Explore() {
 
       <ActivityCard
         data={data}
-        onPress={() => console.log('Pressed')}
+        onPress={() => { console.log('pressed'); navigation.navigate('Details')}}
       />
     </View>
   )

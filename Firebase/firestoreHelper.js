@@ -1,5 +1,6 @@
-import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 import { database } from "./firebaseSetup";
+
 
 export async function writeToDB(data, collectionName, docId=null) {
     try {
@@ -16,6 +17,7 @@ export async function writeToDB(data, collectionName, docId=null) {
        console.log('write to db ', err)
     }
 }
+
 export async function updateArrayField(userId, field, value) {
     try {
         const userDocRef = doc(database, 'users', userId);
@@ -86,3 +88,22 @@ export async function getAllDocuments(collectionName) {
         console.log(err);
     }
 }
+
+export async function getUserData(userId) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            //console.log("User Data:", userData);
+            return userData;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.log("Error getting user data:", error);
+    }
+}
+  

@@ -11,9 +11,13 @@ export default function FavoriteButton({favorited, componentStyle, childrenStyle
     <CusPressable
       componentStyle={componentStyle}
       childrenStyle={childrenStyle}
-      onPress={onPress}
+      pressedHandler={onPress}
     >
-      <FontAwesome name="heart" size={24} color={favorited ? 'red' : 'white'} />
+      {favorited ?
+      <FontAwesome name="heart" size={24} color={'red'} />
+      :
+      <FontAwesome name="heart-o" size={24} color="black" />
+      }
     </CusPressable>
   )
 }
