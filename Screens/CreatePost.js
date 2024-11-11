@@ -109,7 +109,7 @@ export default function CreatePost() {
         time: inputTime,
         description: description,
         location: location,
-        // image: image,
+        image: image,
         owner: auth.currentUser.uid
 
     };
