@@ -1,19 +1,26 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import React from 'react'
 import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
-import FavoriteButton from '../Components/FavoriteButton';
 
 
 export default function Explore() {
+  //fakedata
+  const data = {
+    image: 'https://www.kentchiromed.com/wp-content/uploads/2024/02/Top-Basketball-Courts-Ottawa-Summer.webp',
+    date: '2021-08-31',
+    location: 'Toronto',
+  }
   //search bar
   const [search, setSearch] = React.useState('');
 
   const updateSearch = (search) => {
     setSearch(search);
   };
+
+  //const result = 
 
   return (
     <View style={{flex:1}}>
@@ -62,14 +69,10 @@ export default function Explore() {
           </CusPressable>
         </View>
 
-      {/* <ActivityCard
+      <ActivityCard
+        data={data}
         onPress={() => console.log('Pressed')}
-        source={require('../assets/images/users/32.jpeg')}
-        content={
-          <Text style={styles.text}>Activity 1</Text>
-        }
-      /> */}
-      <FavoriteButton favorited={false}></FavoriteButton>
+      />
     </View>
   )
 }
