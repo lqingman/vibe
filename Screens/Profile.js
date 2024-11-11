@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import PostsList from './PostsList';
 
 const Tab = createMaterialTopTabNavigator();
@@ -11,15 +11,14 @@ export default function Profile() {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const userDocRef = doc(database, 'users', auth.currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
+    const userDocRef = doc(database, 'users', auth.currentUser.uid);
+    const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
       if (userDoc.exists()) {
         setUserData(userDoc.data());
       }
-    };
+    });
 
-    fetchUserProfile();
+    return () => unsubscribe();
   }, []);
 
   if (!userData) {
