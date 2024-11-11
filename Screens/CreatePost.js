@@ -67,10 +67,10 @@ export default function CreatePost({ route, navigation }) {
       { cancelable: true }
     );
   };
-  
+
   const handleDelete = async () => {
     try {
-      await deletePost(postId);
+      await deletePost(postId, auth.currentUser.uid);
       Alert.alert('Post deleted successfully');
       navigation.goBack();
     } catch (error) {

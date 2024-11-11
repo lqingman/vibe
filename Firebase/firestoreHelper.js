@@ -62,10 +62,11 @@ export async function updatePost(postId, updatedData) {
     }
 }
 
-export async function deletePost(postId) {
+export async function deletePost(postId, userId) {
     try {
         const postDocRef = doc(database, 'posts', postId);
         await deleteDoc(postDocRef);
+        await deleteArrayField(userId, 'posts', postId);
     } catch (err) {
         console.error(`Error deleting post ${postId}:`, err);
         throw err;
