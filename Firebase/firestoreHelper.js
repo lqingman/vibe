@@ -1,4 +1,4 @@
-import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
 import { database } from "./firebaseSetup";
 
 
@@ -26,6 +26,18 @@ export async function updateArrayField(userId, field, value) {
         });
     } catch (err) {
         console.error(`Error updating ${field} for user ${userId}:`, err);
+        throw err;
+    }
+}
+
+export async function deleteArrayField(userId, field, value) {
+    try {
+        const userDocRef = doc(database, 'users', userId);
+        await updateDoc(userDocRef, {
+            [field]: arrayRemove(value)
+        });
+    } catch (err) {
+        console.error(`Error deleting ${field} for user ${userId}:`, err);
         throw err;
     }
 }

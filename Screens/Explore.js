@@ -44,7 +44,7 @@ export default function Explore({ navigation }) {
             setResults(searchResults); // Store results in state
             console.log("Results:", searchResults);
         } catch (error) {
-            console.error("Error retrieving results:", error);
+            //console.error("Error retrieving results:", error);
         }
     }
     fetchResults(search);
@@ -101,7 +101,7 @@ export default function Explore({ navigation }) {
 
       <ActivityCard
         data={results[0]}
-        onPress={() => { console.log('pressed'); navigation.navigate('Details')}}
+        onPress={() => { navigation.navigate('Details', {activity: results[0]}) }}
       />
     </View>
   )

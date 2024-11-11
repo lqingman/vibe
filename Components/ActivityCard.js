@@ -17,9 +17,9 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
     getUserData(auth.currentUser.uid)
     .then(user => {
         if (user) {
-            let favs = user.favorites;  // Assuming "favs" is the name of the array field
-            console.log("User Data:", user);
-            console.log("Favorited:", favs);
+            favs = user.favorites;  // Assuming "favs" is the name of the array field
+            //console.log("User Data:", user);
+            //console.log("Favorited:", favs);
         } else {
             console.log("User data not found");
         }
