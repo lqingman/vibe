@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput,TouchableWithoutFeedback, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
+import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB, updateArrayField, updatePost } from '../Firebase/firestoreHelper';
+import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function CreatePost({ route, navigation }) {
   const insets = useSafeAreaInsets();
@@ -35,6 +36,49 @@ export default function CreatePost({ route, navigation }) {
       
     }
   }, [route.params?.post]);
+
+  useLayoutEffect(() => {
+    if (isEditing) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Pressable onPress={confirmDelete}>
+            <FontAwesome5 name="trash" size={24} color="white" style={{ marginRight: 15 }} />
+          </Pressable>
+        ),
+      });
+    }
+  }, [navigation, isEditing]);
+
+  const confirmDelete = () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this post?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: handleDelete,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  
+  const handleDelete = async () => {
+    try {
+      await deletePost(postId);
+      Alert.alert('Post deleted successfully');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      Alert.alert('Error deleting post', error.message);
+    }
+  };
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,

@@ -62,6 +62,15 @@ export async function updatePost(postId, updatedData) {
     }
 }
 
+export async function deletePost(postId) {
+    try {
+        const postDocRef = doc(database, 'posts', postId);
+        await deleteDoc(postDocRef);
+    } catch (err) {
+        console.error(`Error deleting post ${postId}:`, err);
+        throw err;
+    }
+}
 
 export async function deleteFromDB(id, collectionName) {
     try { 
