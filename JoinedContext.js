@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserData } from './Firebase/firestoreHelper';
 import { auth, database } from './Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const JoinedContext = createContext();
 
@@ -11,42 +12,53 @@ export function useJoined() {
 
 export function JoinedProvider({ children }) {
   const [joinedActivities, setJoinedActivities] = useState([]);
+  const [userId, setUserId] = useState(null);
 
-  // Fetch user data and update the joined activities
-  // useEffect(() => {
-  //   async function fetchJoinedActivities() {
-  //     try {
-  //       const user = await getUserData(auth.currentUser.uid);
-  //       if (user && user.joined) {
-  //         setJoinedActivities(user.joined);
-  //       }
-  //     } catch (error) {
-  //       console.log('Error fetching user data:', error);
-  //     }
-  //   }
-
-  //   fetchJoinedActivities();
-  //   console.log('Joined activities:', joinedActivities);
-  // }, []);
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(database, 'users', auth.currentUser.uid),
-      (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const userData = docSnapshot.data();
-          setJoinedActivities(userData.joined || []);
-        }
+    // Listen for changes in the user's authentication state
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+
+        // Start listening to joined activities once the user is authenticated
+        const unsubscribeFirestore = onSnapshot(
+          doc(database, 'users', user.uid),
+          (docSnapshot) => {
+            if (docSnapshot.exists()) {
+              const userData = docSnapshot.data();
+              setJoinedActivities(userData.joined || []);
+            }
+          }
+        );
+
+        // Clean up the Firestore listener when the component unmounts or user logs out
+        return () => unsubscribeFirestore();
+      } else {
+        // User is logged out, clear joined activities
+        setJoinedActivities([]);
+        setUserId(null);
       }
-    );
-  
-    return () => unsubscribe(); // Cleanup on unmount
+    });
+
+    // Cleanup auth listener on component unmount
+    return () => unsubscribeAuth();
   }, []);
 
-  const updateJoinedStatus = (activityId, isJoining) => {
-    if (isJoining) {
-      setJoinedActivities(prev => [...prev, activityId]);
-    } else {
-      setJoinedActivities(prev => prev.filter(id => id !== activityId));
+  const updateJoinedStatus = async (activityId, isJoining) => {
+    if (!userId) return; // Ensure there is a user before updating
+
+    try {
+      setJoinedActivities((prev) => {
+        const updatedJoined = isJoining
+          ? [...prev, activityId]
+          : prev.filter((id) => id !== activityId);
+
+        // Write changes to Firebase
+        updateArrayField('users', userId, 'joined', updatedJoined);
+        return updatedJoined;
+      });
+    } catch (error) {
+      console.log('Error updating joined status:', error);
     }
   };
 
