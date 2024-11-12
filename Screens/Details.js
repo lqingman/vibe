@@ -11,31 +11,22 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
 import JoinOptions from '../Components/JoinOptions';
+import { useJoined } from '../JoinedContext';
 
 
 export default function Details({route, navigation}) {
   const data = route.params.activity
-  const [joined, setJoined] = useState(false);
+  // const [joined, setJoined] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
   console.log("details", data)
+  const { joinedActivities, updateJoinedStatus } = useJoined(); // Access context
+  const [joined, setJoined] = useState(joinedActivities.includes(data.id));
 
-  // Function to check if the user has joined the activity
   useEffect(() => {
-    async function checkJoined() {
-      try {
-        const user = await getUserData(auth.currentUser.uid);
-        if (user && user.joined && user.joined.includes(data.id)) {
-          setJoined(true);
-        }
-      } catch (error) {
-        console.log("Error fetching user data:", error);
-      }
-    }
-
-    checkJoined();
-  }, [data.id]);
+    setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
+  }, [joinedActivities]);
 
   useEffect(() => {
     async function loadComments() {
@@ -48,7 +39,7 @@ export default function Details({route, navigation}) {
   }
 
     loadComments();
-    console.log('Comments:', comments);
+    //console.log('Comments:', comments);
   }, [data.id]);
   
   useLayoutEffect(() => {
@@ -64,16 +55,18 @@ export default function Details({route, navigation}) {
   }, [navigation, data]);
 
   function handleJoinPress() {
-    if (joined) {
-      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
-      setNumAttendees(numAttendees - 1);
-    } else {
+    const isJoining = !joined; // Toggle join/leave
+    updateJoinedStatus(data.id, isJoining); // Update context state
+    setJoined(isJoining); // Update local state for immediate UI change
+    if (isJoining) {
+      setNumAttendees(numAttendees + 1);
       updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
       updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
-      setNumAttendees(numAttendees + 1);
+    } else {
+      setNumAttendees(numAttendees - 1);
+      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
+      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
     }
-    setJoined(!joined);
   }
 
   function updateComments(newComment) {

@@ -3,28 +3,31 @@ import React, { useEffect, useState } from 'react'
 import ActivityCard from '../Components/ActivityCard';
 import { getPostData, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
+import { useJoined } from '../JoinedContext';
 
-export default function Joined() {
-  const [joinedActivities, setJoinedActivities] = useState([]);
+export default function Joined({navigation}) {
+  // const [joinedActivities, setJoinedActivities] = useState([]);
   const [postData, setPostData] = useState([]);
+  const { joinedActivities } = useJoined();
+  console.log("Joined activities:", joinedActivities);
 
-  // get user data and joined activities
-  useEffect(() => {
-    async function fetchJoined() {
-      try {
-        const user = await getUserData(auth.currentUser.uid);
-        if (user && user.joined) {
-          setJoinedActivities(user.joined);
-        }
-      } catch (error) {
-        console.log("Error fetching user data:", error);
-      }
-    }
+  // // get user data and joined activities
+  // useEffect(() => {
+  //   async function fetchJoined() {
+  //     try {
+  //       const user = await getUserData(auth.currentUser.uid);
+  //       if (user && user.joined) {
+  //         setJoinedActivities(user.joined);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching user data:", error);
+  //     }
+  //   }
 
-    fetchJoined();
-  }, []);
+  //   fetchJoined();
+  // }, []);
 
-  // Fetch post data for each joined activity
+  //Fetch post data for each joined activity
   useEffect(() => {
     if (joinedActivities.length > 0) {
       async function fetchPostData() {
@@ -47,15 +50,17 @@ export default function Joined() {
 
   return (
     <View>
-      {joinedActivities.length === 0 ? <Text>No joined activities</Text> :
+      {joinedActivities.length === 0 ? (
+        <Text>No joined activities</Text>
+      ) : (
         <FlatList
           data={postData}
-          renderItem={({ item }) => (
-            <ActivityCard data={item} />
-          )}
-          keyExtractor={item => item.id}
+          renderItem={({ item }) => <ActivityCard data={item} 
+          onPress={() => { console.log('item', item); navigation.navigate('Details', {activity: item}) }}
+          />}
+          keyExtractor={(item) => item.id}
         />
-      }
+      )}
     </View>
   )
 }

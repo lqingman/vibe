@@ -147,7 +147,7 @@ export async function getPostData(postId) {
 
         if (postSnapshot.exists()) {
             const postData = postSnapshot.data();
-            //console.log("User Data:", userData);
+            postData.id = postSnapshot.id;
             return postData;
         } else {
             console.log("No such document!");
@@ -203,6 +203,7 @@ export async function addCommentToPost(postId, commentData) {
 // Fetch comments from the "comments" sub-collection for a specific post
 export async function fetchComments(postId) {
     try {
+      console.log('Fetching comments for post ID:', postId);
       const commentsRef = collection(doc(database, 'posts', postId), 'comments');
       const snapshot = await getDocs(commentsRef);
   
