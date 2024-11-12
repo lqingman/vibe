@@ -192,7 +192,7 @@ export default function CreatePost({ route, navigation }) {
       } else {
         const docRef = await writeToDB(newPost, 'posts');
         const postId = docRef.id;
-        await updateArrayField(auth.currentUser.uid, 'posts', postId);
+        await updateArrayField('users', auth.currentUser.uid, 'posts', postId);
         Alert.alert('Post created successfully');
         
       }
