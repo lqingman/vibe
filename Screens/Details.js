@@ -81,132 +81,6 @@ export default function Details({route, navigation}) {
   }
 
   return (
-    // <View style={styles.container}>
-    //   <ScrollView 
-    //     style={styles.container}
-    //     showsVerticalScrollIndicator={false} // Hides vertical scroll bar
-    //     showsHorizontalScrollIndicator={false} // Hides horizontal scroll bar
-    //   >
-    //     <Image style={styles.image} source={{uri: data.image}} />
-    //     <View style={styles.titleView}>
-    //       <Text style={styles.titleText}>{data.title}</Text>
-    //     </View>
-    //     <View style={styles.dateView}>
-    //       <FontAwesome name="calendar" size={24} color="purple" />
-    //       <Text style={styles.dateText}>{data.date}</Text>
-    //     </View>
-    //     <View style={styles.timeView}>
-    //       <FontAwesome5 name="clock" size={24} color="purple" />
-    //       <Text style={styles.timeText}>{data.time}</Text>
-    //     </View>
-    //     <View style={styles.locationView}>
-    //       <Entypo name="location-pin" size={24} color="purple" />
-    //       <Text style={styles.locationText}>{data.location}</Text>
-    //     </View>
-    //     <View style={styles.descriptionView}>
-    //     <MaterialIcons name="description" size={24} color="purple" />
-    //       <Text style={styles.descriptionText}>{data.description}Ready to elevate your game and meet fellow tennis enthusiasts? Whether you're a beginner looking to practice your serve or an advanced player aiming for some friendly competition, our tennis meetup is the perfect opportunity to connect, play, and improve!</Text>
-    //     </View>
-    //     <View style={styles.mapView}>
-    //       <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
-    //     </View>
-    //     <View style={styles.commentView}>
-    //       <Text style={styles.commentText}>Comments</Text>
-    //       <View style={styles.commentButtonContainer}>
-    //       <TextInput 
-    //         style={styles.commentInput} 
-    //         placeholder="Add a comment..." 
-    //         value={comment}
-    //         onChangeText={setComment}
-    //         />
-    //       <CusPressable
-    //         componentStyle={{
-    //           width: '30%',
-    //           alignSelf: 'center',
-    //           justifyContent: 'center',
-    //           marginLeft: 10,
-    //         }}
-    //         childrenStyle={{
-    //           padding: 10,
-    //           backgroundColor: 'purple',
-    //           borderRadius: 10,
-    //           alignItems: 'center',
-    //         }}
-    //         pressedHandler={handleAddComment}
-    //       >
-    //         <Text style={styles.joinButtonText}>Comment</Text>
-    //       </CusPressable>
-    //       </View>
-    //       <FlatList
-    //         data={data.comments}
-    //         keyExtractor={(item) => item.id}
-    //         renderItem={({ item }) => (
-    //           <View style={styles.comment}>
-    //             <Text style={styles.commentText}>{item.text}</Text>
-    //           </View>
-    //         )}
-    //     />
-    //     </View>
-    //   </ScrollView>
-    //   {joined ?
-    //   <View style={styles.leaveView}>
-    //     <CusPressable
-    //       componentStyle={{
-    //         width: '50%',
-    //         alignSelf: 'center',
-    //         justifyContent: 'center',
-    //         marginLeft: 30,
-    //       }}
-    //       childrenStyle={{
-    //         flexDirection: 'row',
-    //         padding: 10,
-    //         backgroundColor: 'purple',
-    //         borderRadius: 10,
-    //         alignItems: 'center',
-    //         justifyContent: 'center',
-    //       }}
-    //       pressedHandler={handleJoinPress}
-    //     >
-    //       <Text style={styles.joinButtonText}>Leave Event!</Text>
-    //     </CusPressable>
-    //     <CusPressable
-    //       componentStyle={{
-    //         width: '20%',
-    //         justifyContent: 'center',
-    //         marginLeft: 10,
-    //       }}
-    //       childrenStyle={{
-    //         padding: 10,
-    //         //backgroundColor: 'purple',
-    //         borderRadius: 10,
-    //         alignItems: 'center',
-    //       }}
-    //       pressedHandler={() => console.log('Pressed')}
-    //     >
-    //       <Ionicons name="notifications" size={30} color="purple" />
-    //     </CusPressable>
-    //   </View>
-    //   :
-    //   <View style={styles.joinView}>
-    //     <CusPressable
-    //       componentStyle={{
-    //         width: '50%',
-    //         alignSelf: 'center',
-    //         justifyContent: 'center',
-    //       }}
-    //       childrenStyle={{
-    //         padding: 10,
-    //         backgroundColor: 'purple',
-    //         borderRadius: 10,
-    //         alignItems: 'center',
-    //       }}
-    //       pressedHandler={handleJoinPress}
-    //     >
-    //       <Text style={styles.joinButtonText}>Join Event</Text>
-    //     </CusPressable>
-    //   </View>
-    //   }
-    // </View>
     <View style={styles.container}>
       <FlatList
         data={comments}
@@ -254,7 +128,7 @@ export default function Details({route, navigation}) {
             borderRadius: 10,
             alignItems: 'center',
           }}
-          pressedHandler={() => console.log('Pressed')}
+          pressedHandler={() => console.log('Set notifications')} // TODO: Implement notifications
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>

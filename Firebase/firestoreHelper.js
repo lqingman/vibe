@@ -140,6 +140,24 @@ export async function getUserData(userId) {
     }
 }
 
+export async function getPostData(postId) {
+    try {
+        const postDocRef = doc(database, 'posts', postId);
+        const postSnapshot = await getDoc(postDocRef);
+
+        if (postSnapshot.exists()) {
+            const postData = postSnapshot.data();
+            //console.log("User Data:", userData);
+            return postData;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.log("Error getting post data:", error);
+    }
+}
+
 export async function searchByTitleKeyword(keyword) {
     try{
         const activitiesRef = collection(database, 'posts');
