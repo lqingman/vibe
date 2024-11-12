@@ -42,15 +42,13 @@ export default function Explore({ navigation }) {
         try {
             const searchResults = await searchByTitleKeyword(keyword);
             setResults(searchResults); // Store results in state
-            console.log("Results:", searchResults);
+            //console.log("Results:", searchResults);
         } catch (error) {
             //console.error("Error retrieving results:", error);
         }
     }
     fetchResults(search);
 }, []); 
-
-  
 
   return (
     <View style={{flex:1}}>

@@ -10,85 +10,20 @@ import { addCommentToPost, deleteArrayField, fetchComments, getUserData, updateA
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import JoinOptions from '../Components/JoinOptions';
-import { useJoined } from '../JoinedContext';
 
-
-export default function Details({route, navigation}) {
-  const data = route.params.activity
-  // const [joined, setJoined] = useState(false);
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
-  const [numAttendees, setNumAttendees] = useState(data.attendee.length);
-  console.log("details", data)
-  const { joinedActivities, updateJoinedStatus } = useJoined(); // Access context
-  const [joined, setJoined] = useState(joinedActivities.includes(data.id));
-
-  useEffect(() => {
-    setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
-  }, [joinedActivities]);
-
-  useEffect(() => {
-    async function loadComments() {
-      try {
-        const commentsData = await fetchComments(data.id);
-        setComments(commentsData);
-      } catch (error) {
-        console.error("Error loading comments: ", error);
-    }
-  }
-
-    loadComments();
-    //console.log('Comments:', comments);
-  }, [data.id]);
-  
-  useLayoutEffect(() => {
-    if (auth.currentUser.uid === data.owner) {
-      navigation.setOptions({
-        headerRight: () => (
-          <Pressable onPress={() => navigation.navigate('CreatePost', { post: data })}>
-            <FontAwesome5 name="edit" size={24} color="white" style={{ marginRight: 15 }} />
-          </Pressable>
-        ),
-      });
-    }
-  }, [navigation, data]);
-
+export default function JoinOptions({joined}) {
   function handleJoinPress() {
-    const isJoining = !joined; // Toggle join/leave
-    updateJoinedStatus(data.id, isJoining); // Update context state
-    setJoined(isJoining); // Update local state for immediate UI change
-    if (isJoining) {
-      setNumAttendees(numAttendees + 1);
-      updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+    if (joined) {
+      deleteArrayField(auth.currentUser.uid, 'joined', data.id);
     } else {
-      setNumAttendees(numAttendees - 1);
-      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      updateArrayField(auth.currentUser.uid, 'joined', data.id);
     }
+    setJoined(!joined);
   }
-
-  function updateComments(newComment) {
-    setComments([...comments, newComment]);
-  }
-
+  
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={comments}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.comment}>
-            <Text style={styles.commentText}>User {item.owner}:</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
-          </View>
-        )}
-        ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
-        ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-        extraData={comments}
-      />
-      {joined ?
+    <View>
+    {joined ?
       <View style={styles.leaveView}>
         <CusPressable
           componentStyle={{
@@ -121,7 +56,7 @@ export default function Details({route, navigation}) {
             borderRadius: 10,
             alignItems: 'center',
           }}
-          pressedHandler={() => console.log('Set notifications')} // TODO: Implement notifications
+          pressedHandler={() => console.log('Pressed')}
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>
@@ -154,7 +89,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingBottom: 100,
+    padding: 10,
+  },
+  media: {
+    flex: 1,
   },
   image: {
     width: '100%',
@@ -251,10 +189,9 @@ const styles = StyleSheet.create({
   },
   commentView: {
     marginVertical: 10,
-    marginBottom: 100,
+    marginBottom: 10,
   },
   commentText: {
-    marginLeft: 10,
     fontSize: 16,
   },
   commentInput: {

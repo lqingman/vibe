@@ -18,26 +18,26 @@ export async function writeToDB(data, collectionName, docId=null) {
     }
 }
 
-export async function updateArrayField(userId, field, value) {
+export async function updateArrayField(collectionName, documentId, field, value) {
     try {
-        const userDocRef = doc(database, 'users', userId);
+        const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayUnion(value)
         });
     } catch (err) {
-        console.error(`Error updating ${field} for user ${userId}:`, err);
+        console.error(`Error updating ${field} for document ${documentId}:`, err);
         throw err;
     }
 }
 
-export async function deleteArrayField(userId, field, value) {
+export async function deleteArrayField(collectionName, documentId, field, value) {
     try {
-        const userDocRef = doc(database, 'users', userId);
+        const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayRemove(value)
         });
     } catch (err) {
-        console.error(`Error deleting ${field} for user ${userId}:`, err);
+        console.error(`Error deleting ${field} for document ${documentId}:`, err);
         throw err;
     }
 }
@@ -140,6 +140,24 @@ export async function getUserData(userId) {
     }
 }
 
+export async function getPostData(postId) {
+    try {
+        const postDocRef = doc(database, 'posts', postId);
+        const postSnapshot = await getDoc(postDocRef);
+
+        if (postSnapshot.exists()) {
+            const postData = postSnapshot.data();
+            postData.id = postSnapshot.id;
+            return postData;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.log("Error getting post data:", error);
+    }
+}
+
 export async function searchByTitleKeyword(keyword) {
     try{
         const activitiesRef = collection(database, 'posts');
@@ -153,4 +171,50 @@ export async function searchByTitleKeyword(keyword) {
         console.log('search by title keyword', error);
     }
 }
+
+export async function addCommentToPost(postId, commentData) {
+    try {
+      // Reference the specific post document
+      const postRef = doc(database, 'posts', postId);
+      
+      // Reference the 'comments' sub-collection within the post document
+      const commentsRef = collection(postRef, 'comments');
+      
+      // Add the comment to the 'comments' sub-collection
+      const commentDoc = await addDoc(commentsRef, {
+        ...commentData,
+        timestamp: new Date(), // Add timestamp for when comment was added
+      });
+      
+      // Add the Firebase-generated document ID to the comment data
+      const commentWithId = {
+        ...commentData,
+        id: commentDoc.id, // Set the 'id' field to the generated doc ID
+        timestamp: new Date(),
+      };
+  
+      console.log('Comment added with ID: ', commentDoc.id);
+      return commentWithId;
+    } catch (error) {
+      console.error('Error adding comment: ', error);
+    }
+  }  
+
+// Fetch comments from the "comments" sub-collection for a specific post
+export async function fetchComments(postId) {
+    try {
+      console.log('Fetching comments for post ID:', postId);
+      const commentsRef = collection(doc(database, 'posts', postId), 'comments');
+      const snapshot = await getDocs(commentsRef);
+  
+      // Map through each document to get its data
+      const commentsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      return commentsData;
+    } catch (error) {
+      console.error("Error fetching comments: ", error);
+    }
+  }
   
