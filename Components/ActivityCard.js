@@ -65,7 +65,8 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
 
 const styles = StyleSheet.create({
   card: {
-    width: 200,
+    marginLeft: 20,
+    width: "90%",
     height: 300,
     backgroundColor: 'white',
     borderRadius: 16,

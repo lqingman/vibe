@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -6,32 +6,12 @@ import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { searchByTitleKeyword, writeToDB } from '../Firebase/firestoreHelper';
-import { ACTIVITIES } from '../data';
-
 
 
 export default function Explore({ navigation }) {
-  //const navigation = useNavigation();
-
-  //fakedata
-  // const data = {
-  //   image: 'https://www.kentchiromed.com/wp-content/uploads/2024/02/Top-Basketball-Courts-Ottawa-Summer.webp',
-  //   date: '2021-08-31',
-  //   location: 'Toronto',
-  // }
-//   async function writeAllActivities() {
-//     for (const a of ACTIVITIES) {
-//         await writeToDB(a, 'posts'); 
-//     }
-//   }
-
-// writeAllActivities().catch(error => {
-//     console.error("Error writing activities:", error);
-// });
-
-  //search bar
-  const [search, setSearch] = useState('tennis');
+  const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
+  
 
   const updateSearch = (search) => {
     setSearch(search);
@@ -40,6 +20,7 @@ export default function Explore({ navigation }) {
   useEffect(() => {
     async function fetchResults(keyword) {
         try {
+            console.log(search)
             const searchResults = await searchByTitleKeyword(keyword);
             setResults(searchResults); // Store results in state
             console.log("Results:", searchResults);
@@ -47,10 +28,8 @@ export default function Explore({ navigation }) {
             //console.error("Error retrieving results:", error);
         }
     }
-    fetchResults(search);
-}, []); 
-
-  
+    fetchResults(search.toLowerCase());
+}, [search]); 
 
   return (
     <View style={{flex:1}}>
@@ -76,7 +55,7 @@ export default function Explore({ navigation }) {
         />
         
         <CusPressable
-          pressedHandler={() => console.log('Pressed')}
+          pressedHandler={() => console.log('filter pressed')} //to do
           componentStyle={{
             height: 60,
             width: "10%",
@@ -98,10 +77,16 @@ export default function Explore({ navigation }) {
             <FontAwesome5 name="filter" size={22} color="lightgrey" />
           </CusPressable>
         </View>
-
-      <ActivityCard
-        data={results[0]}
-        onPress={() => { navigation.navigate('Details', {activity: results[0]}) }}
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => 
+          <ActivityCard
+            data={item}
+            onPress={() => { navigation.navigate('Details', {activity: item}) }}
+          />
+        }
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
       />
     </View>
   )
