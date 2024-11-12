@@ -167,12 +167,20 @@ export async function addCommentToPost(postId, commentData) {
         ...commentData,
         timestamp: new Date(), // Add timestamp for when comment was added
       });
+      
+      // Add the Firebase-generated document ID to the comment data
+      const commentWithId = {
+        ...commentData,
+        id: commentDoc.id, // Set the 'id' field to the generated doc ID
+        timestamp: new Date(),
+      };
+  
       console.log('Comment added with ID: ', commentDoc.id);
-      return commentDoc;
+      return commentWithId;
     } catch (error) {
       console.error('Error adding comment: ', error);
     }
-  }
+  }  
 
 // Fetch comments from the "comments" sub-collection for a specific post
 export async function fetchComments(postId) {
