@@ -56,7 +56,7 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
           childrenStyle={{
             paddingRight: 10,
           }}
-          onPress={() => updateArrayField(auth.currentUser.uid, 'favorites', data.id)}
+          onPress={() => updateArrayField('users', auth.currentUser.uid, 'favorites', data.id)}
           favorited={checkFavorited()}
         />
     </CusPressable>
