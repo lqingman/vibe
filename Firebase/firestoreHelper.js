@@ -18,26 +18,26 @@ export async function writeToDB(data, collectionName, docId=null) {
     }
 }
 
-export async function updateArrayField(userId, field, value) {
+export async function updateArrayField(collectionName, documentId, field, value) {
     try {
-        const userDocRef = doc(database, 'users', userId);
+        const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayUnion(value)
         });
     } catch (err) {
-        console.error(`Error updating ${field} for user ${userId}:`, err);
+        console.error(`Error updating ${field} for document ${documentId}:`, err);
         throw err;
     }
 }
 
-export async function deleteArrayField(userId, field, value) {
+export async function deleteArrayField(collectionName, documentId, field, value) {
     try {
-        const userDocRef = doc(database, 'users', userId);
+        const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayRemove(value)
         });
     } catch (err) {
-        console.error(`Error deleting ${field} for user ${userId}:`, err);
+        console.error(`Error deleting ${field} for document ${documentId}:`, err);
         throw err;
     }
 }

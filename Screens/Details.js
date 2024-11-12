@@ -18,7 +18,7 @@ export default function Details({route, navigation}) {
   const [joined, setJoined] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [numAttendees, setNumAttendees] = useState(data.attendee.length);
   console.log("details", data)
 
   // Function to check if the user has joined the activity
@@ -44,10 +44,8 @@ export default function Details({route, navigation}) {
         setComments(commentsData);
       } catch (error) {
         console.error("Error loading comments: ", error);
-      } finally {
-        setLoading(false);
-      }
     }
+  }
 
     loadComments();
     console.log('Comments:', comments);
@@ -67,9 +65,13 @@ export default function Details({route, navigation}) {
 
   function handleJoinPress() {
     if (joined) {
-      deleteArrayField(auth.currentUser.uid, 'joined', data.id);
+      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
+      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      setNumAttendees(numAttendees - 1);
     } else {
-      updateArrayField(auth.currentUser.uid, 'joined', data.id);
+      updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
+      updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      setNumAttendees(numAttendees + 1);
     }
     setJoined(!joined);
   }
@@ -215,7 +217,7 @@ export default function Details({route, navigation}) {
             <Text style={styles.commentText}>{item.text}</Text>
           </View>
         )}
-        ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments}/>}
+        ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
         ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
         extraData={comments}
       />

@@ -11,8 +11,8 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 
 
-export default function StaticDetail({data, updateComments}) {
-  console.log("received data:",data)
+export default function StaticDetail({data, updateComments, numAttendees}) {
+  //console.log("received data:",data)
   if (!data) return null; // Only render if data exists
   const [comment, setComment] = useState('');
 
@@ -53,9 +53,14 @@ export default function StaticDetail({data, updateComments}) {
         <Text style={styles.locationText}>{data.location}</Text>
       </View>
 
+      <View style={styles.attendeesView}>
+        <Ionicons name="people" size={24} color="purple" />
+        <Text style={styles.attendeesText}>{numAttendees}/{data.limit}</Text>
+      </View>
+
       <View style={styles.descriptionView}>
       <MaterialIcons name="description" size={24} color="purple" />
-        <Text style={styles.descriptionText}>{data.description}Ready to elevate your game and meet fellow tennis enthusiasts? Whether you're a beginner looking to practice your serve or an advanced player aiming for some friendly competition, our tennis meetup is the perfect opportunity to connect, play, and improve!</Text>
+        <Text style={styles.descriptionText}>{data.description}</Text>
       </View>
 
       <View style={styles.mapView}>
@@ -224,5 +229,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey',
     width: '110%',
+  },
+  attendeesView: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  attendeesText: {
+    marginLeft: 10,
+    fontSize: 16,
   },
 })
