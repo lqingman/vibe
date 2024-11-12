@@ -1,5 +1,5 @@
 import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
-import { database } from "./firebaseSetup";
+import { auth, database } from "./firebaseSetup";
 
 
 export async function writeToDB(data, collectionName, docId=null) {
@@ -215,6 +215,45 @@ export async function fetchComments(postId) {
       return commentsData;
     } catch (error) {
       console.error("Error fetching comments: ", error);
+    }
+  }
+
+  export async function addOrUpdateNotification(postId, time) {
+    try {
+        const userDocRef = doc(database, 'users', auth.currentUser.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const notifications = userData.notifications || [];
+
+            // Check if a notification for this postId already exists
+            const existingNotification = notifications.find(notif => notif.postId === postId);
+
+            if (existingNotification) {
+                // If a notification exists, update the time
+                await updateDoc(userDocRef, {
+                    notifications: arrayRemove(existingNotification)
+                });
+
+                const updatedNotification = { ...existingNotification, time };
+                await updateDoc(userDocRef, {
+                    notifications: arrayUnion(updatedNotification)
+                });
+                console.log("Notification time updated for post:", postId);
+            } else {
+                // If no existing notification, add a new one
+                const newNotification = { postId, time };
+                await updateDoc(userDocRef, {
+                    notifications: arrayUnion(newNotification)
+                });
+                console.log("New notification added for post:", postId);
+            }
+        } else {
+            console.log("User document does not exist.");
+        }
+    } catch (error) {
+        console.error("Error adding or updating notification:", error);
     }
   }
   

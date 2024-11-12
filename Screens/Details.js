@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput } from 'react-native'
+import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Modal } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -6,7 +6,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addCommentToPost, addNotificationToUser, addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
@@ -23,6 +23,9 @@ export default function Details({route, navigation}) {
   console.log("details", data)
   const { joinedActivities, updateJoinedStatus } = useJoined(); // Access context
   const [joined, setJoined] = useState(joinedActivities.includes(data.id));
+
+  const [modalVisible, setModalVisible] = useState(false); // Modal state
+  const [selectedTime, setSelectedTime] = useState(null);
 
   useEffect(() => {
     setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
@@ -67,6 +70,17 @@ export default function Details({route, navigation}) {
       deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
       deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
     }
+  }
+
+  function handleNotificationPress() {
+    setModalVisible(true);
+  }
+
+  function handleTimeSelect(time) {
+    setSelectedTime(time);
+    setModalVisible(false);
+    console.log(`Notification set for ${time}`);
+    addOrUpdateNotification(data.id, time);
   }
 
   function updateComments(newComment) {
@@ -121,7 +135,7 @@ export default function Details({route, navigation}) {
             borderRadius: 10,
             alignItems: 'center',
           }}
-          pressedHandler={() => console.log('Set notifications')} // TODO: Implement notifications
+          pressedHandler={handleNotificationPress} // TODO: Implement notifications
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>
@@ -146,6 +160,36 @@ export default function Details({route, navigation}) {
         </CusPressable>
       </View>
       }
+      {/* Notification Modal */}
+      <View style={styles.modalContainer}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Set Notification</Text>
+            <Pressable onPress={() => handleTimeSelect('5 minutes')}>
+              <Text style={styles.modalOption}>5 minutes before</Text>
+            </Pressable>
+            <Pressable onPress={() => handleTimeSelect('10 minutes')}>
+              <Text style={styles.modalOption}>10 minutes before</Text>
+            </Pressable>
+            <Pressable onPress={() => handleTimeSelect('30 minutes')}>
+              <Text style={styles.modalOption}>30 minutes before</Text>
+            </Pressable>
+            <Pressable onPress={() => handleTimeSelect('1 hour')}>
+              <Text style={styles.modalOption}>1 hour before</Text>
+            </Pressable>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      </View>
     </View>
   )
 }
@@ -269,5 +313,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalOption: {
+    fontSize: 18,
+    paddingVertical: 10,
+    color: 'purple',
+  },
+  closeButton: {
+    marginTop: 20,
+  },
+  closeButtonText: {
+    color: 'red',
+    fontSize: 16,
   },
 })
