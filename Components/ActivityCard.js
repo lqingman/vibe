@@ -1,39 +1,68 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import CusPressable from './CusPressable';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FavoriteButton from './FavoriteButton';
 import { app, auth, database } from '../Firebase/firebaseSetup';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 
 
 export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle, onPress}) {
   if (!data) return null; // Only render if data exists
-  let favorited = false;
+  const [favorited, setFavorited] = React.useState(false);
 
-  function checkFavorited() {
-    let favs = [];
-    getUserData(auth.currentUser.uid)
-    .then(user => {
-        if (user) {
-            favs = user.favorites;  // Assuming "favs" is the name of the array field
-            //console.log("User Data:", user);
-            //console.log("Favorited:", favs);
-        } else {
-            console.log("User data not found");
-        }
-    })
-    .catch(error => {
-        console.log("Error fetching user data:", error);
-    });
+  // function checkFavorited() {
+  //   let favs = [];
+  //   getUserData(auth.currentUser.uid)
+  //   .then(user => {
+  //       if (user) {
+  //           favs = user.favorites;  // Assuming "favs" is the name of the array field
+  //           //console.log("User Data:", user);
+  //           //console.log("Favorited:", favs);
+  //       } else {
+  //           console.log("User data not found");
+  //       }
+  //   })
+  //   .catch(error => {
+  //       console.log("Error fetching user data:", error);
+  //   });
 
-    if (favs.includes(data.id)) {
-      favorited = true;
-    }
-    favorited = false;
-  }
+  //   if (favs.includes(data.id)) {
+  //     favorited = true;
+  //   }
+  //   favorited = false;
+  // }
   //console.log(data)
+
+  useEffect(() => {
+    // Check if the activity is already favorited when the component mounts
+    async function checkFavorited() {
+      try {
+        const user = await getUserData(auth.currentUser.uid);
+        if (user && user.favorites && user.favorites.includes(data.id)) {
+          setFavorited(true);
+        }
+      } catch (error) {
+        console.log("Error fetching user data:", error);
+      }
+    }
+    checkFavorited();
+  }, [data.id]);
+
+  const handleFavoritePress = async () => {
+    try {
+      if (favorited) {
+        await deleteArrayField('users', auth.currentUser.uid, 'favorites', data.id);
+      } else {
+        await updateArrayField('users', auth.currentUser.uid, 'favorites', data.id);
+      }
+      setFavorited(!favorited); // Toggle the state to trigger re-render
+    } catch (error) {
+      console.log("Error updating favorites:", error);
+    }
+  };
+
   return (
     <CusPressable
       pressedHandler={onPress}
@@ -56,8 +85,8 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
           childrenStyle={{
             paddingRight: 10,
           }}
-          onPress={() => updateArrayField(auth.currentUser.uid, 'favorites', data.id)}
-          favorited={checkFavorited()}
+          onPress={handleFavoritePress}
+          favorited={favorited}
         />
     </CusPressable>
   );
