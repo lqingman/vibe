@@ -174,6 +174,8 @@ export default function CreatePost({ route, navigation }) {
     setIsEditing(false);
     setPostId('');
     setLimit(0);
+    setShowDatePicker(false);
+    setShowTimePicker(false);
     navigation.goBack();
   }
   const handleSubmit = async () => {
