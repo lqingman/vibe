@@ -22,7 +22,6 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
-import { JoinedProvider } from './JoinedContext';
 
 
 const Stack = createNativeStackNavigator();
@@ -231,11 +230,9 @@ export default function App() {
     // forceInset={{ top: "always", bottom: "never" }}
     // > 
     <SafeAreaProvider>
-      <JoinedProvider>
-        <NavigationContainer>
-          <StackNavigator />
-        </NavigationContainer>
-      </JoinedProvider>
+      <NavigationContainer>
+        <StackNavigator />
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

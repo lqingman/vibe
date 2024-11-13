@@ -7,59 +7,39 @@ import { addCommentToPost, addNotificationToUser, addOrUpdateNotification, delet
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import { useJoined } from '../JoinedContext';
 
 
 export default function Details({route, navigation}) {
   let data = route.params.activity
-  // const [joined, setJoined] = useState(false);
+  const [joined, setJoined] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
   console.log("details", data)
-  const { joinedActivities, updateJoinedStatus } = useJoined(); // Access context
-  const [joined, setJoined] = useState(joinedActivities.includes(data.id));
 
   const [modalVisible, setModalVisible] = useState(false); // Modal state
   const [selectedTime, setSelectedTime] = useState(null);
 
-  // useEffect(() => {
-  //   setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
-  // }, [joinedActivities]);
-
-  // useEffect(() => {
-  //   async function loadComments() {
-  //     try {
-  //       const commentsData = await fetchComments(data.id);
-  //       setComments(commentsData);
-  //     } catch (error) {
-  //       console.error("Error loading comments: ", error);
-  //   }
-  // }
-
-  //   loadComments();
-  //   //console.log('Comments:', comments);
-  // }, []);
-  
-  // useLayoutEffect(() => {
-  //   if (auth.currentUser.uid === data.owner) {
-  //     navigation.setOptions({
-  //       headerRight: () => (
-  //         <Pressable onPress={() => navigation.navigate('CreatePost', { post: data })}>
-  //           <FontAwesome5 name="edit" size={24} color="white" style={{ marginRight: 15 }} />
-  //         </Pressable>
-  //       ),
-  //     });
-  //   }
-  // }, [navigation, data]);
+  // Check if the user has joined the activity
   useEffect(() => {
     // Update local state only if necessary
-    const isJoined = joinedActivities.includes(data.id);
-    if (isJoined !== joined) {
-      setJoined(isJoined);
+    async function checkJoinedStatus() {
+      try{
+        let userData = await getUserData(auth.currentUser.uid);
+        let joinedActivities = userData.joined || [];
+        const isJoined = joinedActivities.includes(data.id);
+        if (isJoined !== joined) {
+          setJoined(isJoined);
+        }
+      }
+      catch (error) {
+        console.error('Error checking joined status:', error);
+      }
     }
-  }, [joinedActivities, joined, data.id]); // Including `joined` and `data.id` to avoid unnecessary updates
+    checkJoinedStatus();
+  }, [joined, data.id]); 
   
+  // Load comments when the component mounts
   useEffect(() => {
     async function loadComments() {
       try {
@@ -71,8 +51,9 @@ export default function Details({route, navigation}) {
     }
   
     loadComments();
-  }, [data.id]); // Add `data.id` to reload comments if it changes
+  }, [data.id]); 
   
+  // Set the header button to edit the post if the user is the owner
   useLayoutEffect(() => {
     if (auth.currentUser.uid === data.owner) {
       navigation.setOptions({
@@ -83,9 +64,9 @@ export default function Details({route, navigation}) {
         ),
       });
     }
-  }, [navigation, data.owner, data, auth.currentUser.uid]); // Adding more specific dependencies
+  }, [navigation, data.owner, data, auth.currentUser.uid]); 
   
-
+  // Add a comment to the activity
   async function handleJoinPress() {
     const isJoining = !joined; 
 
@@ -110,16 +91,15 @@ export default function Details({route, navigation}) {
       console.error('Error updating joined status:', error);
     }
   }
-
-    //updateJoinedStatus(data.id, isJoining);
     setJoined(isJoining); 
-    
   }
 
+  // Set a notification for the activity
   function handleNotificationPress() {
     setModalVisible(true);
   }
 
+  // Set the notification time and add it to the user's notifications
   function handleTimeSelect(time) {
     setSelectedTime(time);
     setModalVisible(false);
@@ -127,6 +107,7 @@ export default function Details({route, navigation}) {
     addOrUpdateNotification(data.id, time);
   }
 
+  // Add a comment to the activity
   function updateComments(newComment) {
     setComments([...comments, newComment]);
   }
@@ -179,7 +160,7 @@ export default function Details({route, navigation}) {
             borderRadius: 10,
             alignItems: 'center',
           }}
-          pressedHandler={handleNotificationPress} // TODO: Implement notifications
+          pressedHandler={handleNotificationPress} 
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>
@@ -206,33 +187,33 @@ export default function Details({route, navigation}) {
       }
       {/* Notification Modal */}
       <View style={styles.modalContainer}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Set Notification</Text>
-            <Pressable onPress={() => handleTimeSelect('5 minutes')}>
-              <Text style={styles.modalOption}>5 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('10 minutes')}>
-              <Text style={styles.modalOption}>10 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('30 minutes')}>
-              <Text style={styles.modalOption}>30 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('1 hour')}>
-              <Text style={styles.modalOption}>1 hour before</Text>
-            </Pressable>
-            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Set Notification</Text>
+              <Pressable onPress={() => handleTimeSelect('5 minutes')}>
+                <Text style={styles.modalOption}>5 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('10 minutes')}>
+                <Text style={styles.modalOption}>10 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('30 minutes')}>
+                <Text style={styles.modalOption}>30 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('1 hour')}>
+                <Text style={styles.modalOption}>1 hour before</Text>
+              </Pressable>
+              <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </View>
   )
@@ -357,12 +338,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContainer: {
     flex: 1,
