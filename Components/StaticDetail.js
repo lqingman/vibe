@@ -1,12 +1,12 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput } from 'react-native'
-import React, { useEffect, useLayoutEffect } from 'react'
+import { View, Text, Image, StyleSheet, TextInput } from 'react-native'
+import React from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addCommentToPost } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 
@@ -16,6 +16,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
   if (!data) return null; // Only render if data exists
   const [comment, setComment] = useState('');
 
+  // Handle the add comment button press
   function handleAddComment() {
     // Add comment to the activity
     let newComment = {
@@ -30,14 +31,17 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
 
   return (
     <View style={styles.container}>
+      {/* show image */}
       <View style={styles.media}>
         <Image style={styles.image} source={{uri: data.image}} />
       </View>
 
+      {/* show title */}
       <View style={styles.titleView}>
         <Text style={styles.titleText}>{data.title}</Text>
       </View>
 
+      {/* show date, time, location, attendees, description */}
       <View style={styles.dateView}>
         <FontAwesome name="calendar" size={24} color="purple" />
         <Text style={styles.dateText}>{data.date}</Text>
@@ -63,10 +67,12 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
         <Text style={styles.descriptionText}>{data.description}</Text>
       </View>
 
+      {/* show map */}
       <View style={styles.mapView}>
         <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
       </View>
 
+      {/* show comment input and button */}
       <View style={styles.commentView}>
         <View style={styles.commentButtonContainer}>
           <TextInput 
@@ -93,6 +99,8 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
             <Text style={styles.joinButtonText}>Comment</Text>
           </CusPressable>
         </View>
+        
+        {/* show comments */}
         <View style={styles.commentsView}>
           <Text style={styles.commentText}>Comments</Text>
         </View>

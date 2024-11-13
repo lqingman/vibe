@@ -1,36 +1,44 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Modal } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost, addNotificationToUser, addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import JoinOptions from '../Components/JoinOptions';
-import { useJoined } from '../JoinedContext';
 
 
 export default function Details({route, navigation}) {
-  const data = route.params.activity
-  // const [joined, setJoined] = useState(false);
-  const [comment, setComment] = useState('');
+  let data = route.params.activity
+  const [joined, setJoined] = useState(false);
   const [comments, setComments] = useState([]);
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
-  console.log("details", data)
-  const { joinedActivities, updateJoinedStatus } = useJoined(); // Access context
-  const [joined, setJoined] = useState(joinedActivities.includes(data.id));
+  //console.log("details", data)
 
   const [modalVisible, setModalVisible] = useState(false); // Modal state
   const [selectedTime, setSelectedTime] = useState(null);
 
+  // Check if the user has joined the activity
   useEffect(() => {
-    setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
-  }, [joinedActivities]);
-
+    // Update local state only if necessary
+    async function checkJoinedStatus() {
+      try{
+        let userData = await getUserData(auth.currentUser.uid);
+        let joinedActivities = userData.joined || [];
+        const isJoined = joinedActivities.includes(data.id);
+        if (isJoined !== joined) {
+          setJoined(isJoined);
+        }
+      }
+      catch (error) {
+        console.error('Error checking joined status:', error);
+      }
+    }
+    checkJoinedStatus();
+  }, [joined, data.id]); 
+  
+  // Load comments when the component mounts
   useEffect(() => {
     async function loadComments() {
       try {
@@ -38,13 +46,13 @@ export default function Details({route, navigation}) {
         setComments(commentsData);
       } catch (error) {
         console.error("Error loading comments: ", error);
+      }
     }
-  }
-
-    loadComments();
-    //console.log('Comments:', comments);
-  }, [data.id]);
   
+    loadComments();
+  }, [data.id]); 
+  
+  // Set the header button to edit the post if the user is the owner
   useLayoutEffect(() => {
     if (auth.currentUser.uid === data.owner) {
       navigation.setOptions({
@@ -55,27 +63,42 @@ export default function Details({route, navigation}) {
         ),
       });
     }
-  }, [navigation, data]);
+  }, [navigation, data.owner, data, auth.currentUser.uid]); 
+  
+  // Add a comment to the activity
+  async function handleJoinPress() {
+    const isJoining = !joined; 
 
-  function handleJoinPress() {
-    const isJoining = !joined; // Toggle join/leave
-    updateJoinedStatus(data.id, isJoining); // Update context state
-    setJoined(isJoining); // Update local state for immediate UI change
     if (isJoining) {
-      setNumAttendees(numAttendees + 1);
-      updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
-    } else {
-      setNumAttendees(numAttendees - 1);
-      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      try{
+        setNumAttendees(numAttendees + 1);
+        console.log('Join pressed', data.id);
+        await updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
+        await updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      } catch (error) {
+        console.error('Error updating joined status:', error);
+      }
+    }
+    else {
+      try {
+        setNumAttendees(numAttendees - 1);
+        console.log('Leave pressed', data.id);
+        await deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
+        await deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+    }
+    catch (error) {
+      console.error('Error updating joined status:', error);
     }
   }
+    setJoined(isJoining); 
+  }
 
+  // Set a notification for the activity
   function handleNotificationPress() {
     setModalVisible(true);
   }
 
+  // Set the notification time and add it to the user's notifications
   function handleTimeSelect(time) {
     setSelectedTime(time);
     setModalVisible(false);
@@ -83,12 +106,14 @@ export default function Details({route, navigation}) {
     addOrUpdateNotification(data.id, time);
   }
 
+  // Add a comment to the activity
   function updateComments(newComment) {
     setComments([...comments, newComment]);
   }
 
   return (
     <View style={styles.container}>
+      {/* Show all details */}
       <FlatList
         data={comments}
         keyExtractor={(item) => item.id}
@@ -102,6 +127,7 @@ export default function Details({route, navigation}) {
         ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
         extraData={comments}
       />
+      {/* Join/Leave button */}
       {joined ?
       <View style={styles.leaveView}>
         <CusPressable
@@ -135,7 +161,7 @@ export default function Details({route, navigation}) {
             borderRadius: 10,
             alignItems: 'center',
           }}
-          pressedHandler={handleNotificationPress} // TODO: Implement notifications
+          pressedHandler={handleNotificationPress} 
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>
@@ -162,33 +188,33 @@ export default function Details({route, navigation}) {
       }
       {/* Notification Modal */}
       <View style={styles.modalContainer}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Set Notification</Text>
-            <Pressable onPress={() => handleTimeSelect('5 minutes')}>
-              <Text style={styles.modalOption}>5 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('10 minutes')}>
-              <Text style={styles.modalOption}>10 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('30 minutes')}>
-              <Text style={styles.modalOption}>30 minutes before</Text>
-            </Pressable>
-            <Pressable onPress={() => handleTimeSelect('1 hour')}>
-              <Text style={styles.modalOption}>1 hour before</Text>
-            </Pressable>
-            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Set Notification</Text>
+              <Pressable onPress={() => handleTimeSelect('5 minutes')}>
+                <Text style={styles.modalOption}>5 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('10 minutes')}>
+                <Text style={styles.modalOption}>10 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('30 minutes')}>
+                <Text style={styles.modalOption}>30 minutes before</Text>
+              </Pressable>
+              <Pressable onPress={() => handleTimeSelect('1 hour')}>
+                <Text style={styles.modalOption}>1 hour before</Text>
+              </Pressable>
+              <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </View>
   )
@@ -313,12 +339,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContainer: {
     flex: 1,
