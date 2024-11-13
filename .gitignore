@@ -36,7 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # assets
-assets/
+# assets/
 
 # # data
 # data/
