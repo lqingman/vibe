@@ -102,33 +102,6 @@ export async function deletePost(postId, userId) {
     }
 }
 
-// Delete a goal from the database
-export async function deleteFromDB(id, collectionName) {
-    try { 
-        await deleteAllFromDB('goals/' + id + '/users');
-        await deleteDoc(doc(database, collectionName, id));
-      
-    }
-    catch (err) {
-      console.log(err)
-    }
-  }
-
-  // Delete all documents from a collection
-export async function deleteAllFromDB(collectionName) {
-    try {
-        // get all the docs from the collection
-        const quereySnapshot = await getDocs(collection(database, collectionName));
-        // delete each doc
-        quereySnapshot.forEach((docSnapshot) => {
-            deleteDoc(doc(database, collectionName, docSnapshot.id));
-            
-        });
-    } catch (err) {
-        console.log(err);
-    }
-}
-
 //get user data from the database
 export async function getUserData(userId) {
     try {
