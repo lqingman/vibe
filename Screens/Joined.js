@@ -12,6 +12,9 @@ export default function Joined({navigation}) {
 
   // Listen for changes to the joined activities in real-time
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     const unsubscribe = onSnapshot(
       doc(database, 'users', auth.currentUser.uid), // Reference to the user's document in the 'users' collection
       (docSnapshot) => {

@@ -21,6 +21,9 @@ export default function Details({route, navigation}) {
 
   // Check if the user has joined the activity
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     // Update local state only if necessary
     async function checkJoinedStatus() {
       try{
@@ -54,6 +57,9 @@ export default function Details({route, navigation}) {
   
   // Set the header button to edit the post if the user is the owner
   useLayoutEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     if (auth.currentUser.uid === data.owner) {
       navigation.setOptions({
         headerRight: () => (
