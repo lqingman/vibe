@@ -67,11 +67,27 @@ export async function updatePost(postId, updatedData) {
         throw err;
     }
 }
-
+// Delete all documents from a sub-collection
+async function deleteSubCollection(parentDocRef, subCollectionName) {
+    const subCollectionRef = collection(parentDocRef, subCollectionName);
+    const subCollectionSnapshot = await getDocs(subCollectionRef);
+    if (!subCollectionSnapshot.empty) {
+        const deletePromises = subCollectionSnapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+    }
+}
 // Delete a post from the database
 export async function deletePost(postId, userId) {
     try {
         const postDocRef = doc(database, 'posts', postId);
+
+        // Check if the comments sub-collection exists and delete it if it does
+        const commentsRef = collection(postDocRef, 'comments');
+        const commentsSnapshot = await getDocs(commentsRef);
+        if (!commentsSnapshot.empty) {
+            await deleteSubCollection(postDocRef, 'comments');
+        }
+
         await deleteDoc(postDocRef);
         // await deleteArrayField('users', userId, 'posts', postId);
         const userDocRef = doc(database, 'users', userId);
@@ -108,33 +124,6 @@ export async function deleteAllFromDB(collectionName) {
             deleteDoc(doc(database, collectionName, docSnapshot.id));
             
         });
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-export async function updateGoalWarning(id, collectionName) {
-    try {
-        const goalDoc = doc(database, collectionName, id);
-        await updateDoc(goalDoc, { warning: true });
-    } catch (err) {
-        console.log('Error updating goal warning: ', err);
-    }
-}
-
-export async function getAllDocuments(collectionName) {
-    try {
-        const quereySnapshot = await getDocs(collection(database, collectionName));
-        const data = [];
-        if (!quereySnapshot.empty) {
-            quereySnapshot.forEach((docSnapshot) => {
-              data.push({
-                id: docSnapshot.id, // Add the document ID
-                ...docSnapshot.data(), // Add the document data
-              });
-            });
-        }
-        return data;
     } catch (err) {
         console.log(err);
     }
