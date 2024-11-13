@@ -33,12 +33,12 @@ export default function PostsList({ dataSource }) {
               const postsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
               setPosts(postsData);
 
-              // Cleanup invalid post IDs
-              const validPostIds = new Set(postsData.map(post => post.id));
-              const invalidPostIds = postIds.filter(postId => !validPostIds.has(postId));
-              if (invalidPostIds.length > 0) {
-                await Promise.all(invalidPostIds.map(postId => deleteArrayField(auth.currentUser.uid, 'favorites', postId)));
-              }
+            //   // Cleanup invalid post IDs
+            //   const validPostIds = new Set(postsData.map(post => post.id));
+            //   const invalidPostIds = postIds.filter(postId => !validPostIds.has(postId));
+            //   if (invalidPostIds.length > 0) {
+            //     await Promise.all(invalidPostIds.map(postId => deleteArrayField(auth.currentUser.uid, 'favorites', postId)));
+            //   }
 
 
 

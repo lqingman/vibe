@@ -71,7 +71,13 @@ export async function deletePost(postId, userId) {
     try {
         const postDocRef = doc(database, 'posts', postId);
         await deleteDoc(postDocRef);
-        await deleteArrayField(userId, 'posts', postId);
+        // await deleteArrayField('users', userId, 'posts', postId);
+        const userDocRef = doc(database, 'users', userId);
+
+        await updateDoc(userDocRef, {
+            posts: arrayRemove(postId)
+        });
+
     } catch (err) {
         console.error(`Error deleting post ${postId}:`, err);
         throw err;
