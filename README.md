@@ -107,7 +107,7 @@ The database looks like the following sreenshots:
 
 
 
-## Contributing
+## Contribution
 # Joy:
 Firebase:
 Implemented getUserData, getPostData, searchByTitleKeyword, addCommentToPost, fetchComments, addOrUpdateNotification
@@ -124,7 +124,7 @@ Styles:
 Implemented Style and Color files
 
 App.js:
-Implemented all navigation structure, including  HomeTopTabs, tabNavigator, StackNavigator.
+Implemented all navigation structure expect for the auth stack, including  HomeTopTabs, tabNavigator, and StackNavigator.
 
 
 
