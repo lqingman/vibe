@@ -12,7 +12,7 @@ import Setting from './Screens/Setting';
 import Login from './Screens/Login';
 import Signup from './Screens/Signup';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { Pressable, SafeAreaView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Style from './Styles/Style';
 import {
   SafeAreaProvider,
@@ -27,13 +27,18 @@ import Details from './Screens/Details';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const TopTab = createMaterialTopTabNavigator();
+
+// Create the Auth Stack Navigator
 const AuthStack = <>
   <Stack.Screen name="Login" component={Login} />
   <Stack.Screen name="Signup" component={Signup} />
 </>;
+
+// Create the Home Screen
 export default function App() {
   const [isUserLogin, setIsUserLogin] = useState(false);
 
+  // Listen for authentication state changes
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       console.log('User:', user);
@@ -47,6 +52,7 @@ export default function App() {
       }
     })
   }, []);
+
   // Create the Material Top Tab Navigator for the Home Screen
   function HomeTopTabs() {
     const insets = useSafeAreaInsets();
@@ -94,6 +100,7 @@ export default function App() {
     );
   }
 
+  // Create the Bottom Tab Navigator
   function tabNavigator() {
     return (
       // Create the bottom tab navigator 
@@ -123,26 +130,17 @@ export default function App() {
       <Tab.Screen 
         name="Home" 
         component={HomeTopTabs} 
-        // options = {{
-        //   title: 'Home',
-        //   headerShown: true,
-        //   tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} 
-        //   headerRight: () => (
-        //     <Pressable onPress={() => navigation.navigate('Setting')}>
-        //       <FontAwesome5 name="cog" size={24} color={Color.white} style={{ marginRight: 15 }} />
-        //     </Pressable>
-        //   ),
-          options = {({ navigation }) => ({
-            title: 'Home',
-            headerShown: true,
-            headerRight: () => (
-              <Pressable onPress={() => navigation.navigate('ChangeLocation')}>
-                <FontAwesome5 name="map-marked" size={22} color={Color.white} style={{ marginRight: 15 }} />
-              </Pressable>
-            ),
-            tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
-          })}
-          />
+        options = {({ navigation }) => ({
+          title: 'Home',
+          headerShown: true,
+          headerRight: () => (
+            <Pressable onPress={() => navigation.navigate('ChangeLocation')}>
+              <FontAwesome5 name="map-marked" size={22} color={Color.white} style={{ marginRight: 15 }} />
+            </Pressable>
+          ),
+          tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
+        })}
+      />
       {/* Create the CreatePost screen */}
       <Tab.Screen 
         name="CreatePost" 
@@ -168,67 +166,62 @@ export default function App() {
           tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
 
         })}
-        // {
-        //   tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
-        // }}
-        />
+      />
     </Tab.Navigator>
     )
   }
 
+  // Create the Stack Navigator
   function StackNavigator() {
     return(
-        <Stack.Navigator initialRouteName={isUserLogin ? 'Tab' : 'Login'}>
-          {isUserLogin ? (
-            <>
-              {/* Create the tab navigator */}
-              <Stack.Screen name="Tab" children={tabNavigator} options={{headerShown: false}}/>
-              {/* Create the Home screen */}
-              <Stack.Screen name="ChangeLocation" 
-              component={ChangeLocation} 
+      <Stack.Navigator initialRouteName={isUserLogin ? 'Tab' : 'Login'}>
+        {isUserLogin ? (
+          <>
+            {/* Create the tab navigator */}
+            <Stack.Screen name="Tab" children={tabNavigator} options={{headerShown: false}}/>
+            {/* Create the Home screen */}
+            <Stack.Screen name="ChangeLocation" 
+            component={ChangeLocation} 
+            options={{
+              title:"Change Your Location", 
+              headerStyle:{backgroundColor:Color.navigatorBg}, 
+              headerTintColor: Color.white,
+              headerBackTitleVisible: false,
+            }}/>
+            <Stack.Screen 
+              name="Details" 
+              component={Details} 
               options={{
-                title:"Change Your Location", 
-                headerStyle:{backgroundColor:Color.navigatorBg}, 
+                title: "Details", 
+                headerStyle: { backgroundColor: Color.navigatorBg }, 
                 headerTintColor: Color.white,
-                headerBackTitleVisible: false,
-              }}/>
-              <Stack.Screen 
-                name="Details" 
-                component={Details} 
-                options={{
-                  title: "Details", 
-                  headerStyle: { backgroundColor: Color.navigatorBg }, 
-                  headerTintColor: Color.white,
-                }}
-              />
-              <Stack.Screen
-              name="Setting"
-              component={Setting}
+              }}
+            />
+            <Stack.Screen
+            name="Setting"
+            component={Setting}
+            options={{
+              title: "Settings",
+              headerStyle: { backgroundColor: Color.navigatorBg },
+              headerTintColor: Color.white,
+            }}
+            />
+            <Stack.Screen
+              name="CreatePost"
+              component={CreatePost}
               options={{
-                title: "Settings",
+                title: "Edit Post",
                 headerStyle: { backgroundColor: Color.navigatorBg },
                 headerTintColor: Color.white,
               }}
-              />
-              <Stack.Screen
-                name="CreatePost"
-                component={CreatePost}
-                options={{
-                  title: "Edit Post",
-                  headerStyle: { backgroundColor: Color.navigatorBg },
-                  headerTintColor: Color.white,
-                }}
-              />
-            </>
-          ) : AuthStack}
-        </Stack.Navigator>
+            />
+          </>
+        ) : AuthStack}
+      </Stack.Navigator>
     )
   }
 
   return (
-    // <SafeAreaView style={Style.appContainer} 
-    // forceInset={{ top: "always", bottom: "never" }}
-    // > 
     <SafeAreaProvider>
       <NavigationContainer>
         <StackNavigator />

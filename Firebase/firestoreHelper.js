@@ -1,7 +1,7 @@
 import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
 import { auth, database } from "./firebaseSetup";
 
-
+// Write to the database
 export async function writeToDB(data, collectionName, docId=null) {
     try {
         if (docId) {
@@ -18,12 +18,10 @@ export async function writeToDB(data, collectionName, docId=null) {
     }
 }
 
+// Update an array field in a document
 export async function updateArrayField(collectionName, documentId, field, value) {
-    // if (Array.isArray(value)) {
-    //   return;
-    // }
     try {
-        console.log('update array field, ', collectionName, documentId, field, value)
+        //console.log('update array field, ', collectionName, documentId, field, value)
         const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayUnion(value)
@@ -34,9 +32,10 @@ export async function updateArrayField(collectionName, documentId, field, value)
     }
 }
 
+// delete an array field in a document
 export async function deleteArrayField(collectionName, documentId, field, value) {
     try {
-        console.log('update array field, ', collectionName, documentId, field, value)
+        //console.log('update array field, ', collectionName, documentId, field, value)
         const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayRemove(value)
@@ -47,6 +46,7 @@ export async function deleteArrayField(collectionName, documentId, field, value)
     }
 }
 
+// Update user profile
 export async function updateUserProfile(userId, updatedData) {
     try {
         const userDocRef = doc(database, 'users', userId);
@@ -57,6 +57,7 @@ export async function updateUserProfile(userId, updatedData) {
     }
 }
 
+// Update a post in the database
 export async function updatePost(postId, updatedData) {
     try {
         const postDocRef = doc(database, 'posts', postId);
@@ -67,6 +68,7 @@ export async function updatePost(postId, updatedData) {
     }
 }
 
+// Delete a post from the database
 export async function deletePost(postId, userId) {
     try {
         const postDocRef = doc(database, 'posts', postId);
@@ -84,6 +86,7 @@ export async function deletePost(postId, userId) {
     }
 }
 
+// Delete a goal from the database
 export async function deleteFromDB(id, collectionName) {
     try { 
         await deleteAllFromDB('goals/' + id + '/users');
@@ -95,6 +98,7 @@ export async function deleteFromDB(id, collectionName) {
     }
   }
 
+  // Delete all documents from a collection
 export async function deleteAllFromDB(collectionName) {
     try {
         // get all the docs from the collection
@@ -124,7 +128,10 @@ export async function getAllDocuments(collectionName) {
         const data = [];
         if (!quereySnapshot.empty) {
             quereySnapshot.forEach((docSnapshot) => {
-                data.push(docSnapshot.data());
+              data.push({
+                id: docSnapshot.id, // Add the document ID
+                ...docSnapshot.data(), // Add the document data
+              });
             });
         }
         return data;
@@ -133,6 +140,7 @@ export async function getAllDocuments(collectionName) {
     }
 }
 
+//get user data from the database
 export async function getUserData(userId) {
     try {
         const userDocRef = doc(database, 'users', userId);
@@ -151,6 +159,7 @@ export async function getUserData(userId) {
     }
 }
 
+//get post data from the database
 export async function getPostData(postId) {
     try {
         const postDocRef = doc(database, 'posts', postId);
@@ -169,6 +178,7 @@ export async function getPostData(postId) {
     }
 }
 
+//get data from the database by title keyword
 export async function searchByTitleKeyword(keyword) {
     try{
         const activitiesRef = collection(database, 'posts');
@@ -183,6 +193,7 @@ export async function searchByTitleKeyword(keyword) {
     }
 }
 
+// Add a comment to a post
 export async function addCommentToPost(postId, commentData) {
     try {
       // Reference the specific post document
@@ -194,13 +205,13 @@ export async function addCommentToPost(postId, commentData) {
       // Add the comment to the 'comments' sub-collection
       const commentDoc = await addDoc(commentsRef, {
         ...commentData,
-        timestamp: new Date(), // Add timestamp for when comment was added
+        timestamp: new Date(), 
       });
       
       // Add the Firebase-generated document ID to the comment data
       const commentWithId = {
         ...commentData,
-        id: commentDoc.id, // Set the 'id' field to the generated doc ID
+        id: commentDoc.id, 
         timestamp: new Date(),
       };
   
@@ -229,6 +240,7 @@ export async function fetchComments(postId) {
     }
   }
 
+  // Add or update a notification for a post
   export async function addOrUpdateNotification(postId, time) {
     try {
         const userDocRef = doc(database, 'users', auth.currentUser.uid);

@@ -1,39 +1,14 @@
 import React, { useEffect } from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import CusPressable from './CusPressable';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FavoriteButton from './FavoriteButton';
-import { app, auth, database } from '../Firebase/firebaseSetup';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { auth } from '../Firebase/firebaseSetup';
 import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 
 
 export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle, onPress}) {
   if (!data) return null; // Only render if data exists
   const [favorited, setFavorited] = React.useState(false);
-
-  // function checkFavorited() {
-  //   let favs = [];
-  //   getUserData(auth.currentUser.uid)
-  //   .then(user => {
-  //       if (user) {
-  //           favs = user.favorites;  // Assuming "favs" is the name of the array field
-  //           //console.log("User Data:", user);
-  //           //console.log("Favorited:", favs);
-  //       } else {
-  //           console.log("User data not found");
-  //       }
-  //   })
-  //   .catch(error => {
-  //       console.log("Error fetching user data:", error);
-  //   });
-
-  //   if (favs.includes(data.id)) {
-  //     favorited = true;
-  //   }
-  //   favorited = false;
-  // }
-  //console.log(data)
 
   useEffect(() => {
     // Check if the activity is already favorited when the component mounts
@@ -50,6 +25,7 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
     checkFavorited();
   }, [data.id]);
 
+  // Handle the favorite button press
   const handleFavoritePress = async () => {
     try {
       if (favorited) {
@@ -57,7 +33,7 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
       } else {
         await updateArrayField('users', auth.currentUser.uid, 'favorites', data.id);
       }
-      setFavorited(!favorited); // Toggle the state to trigger re-render
+      setFavorited(!favorited);
     } catch (error) {
       console.log("Error updating favorites:", error);
     }
@@ -72,6 +48,7 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
         style={[styles.media]}>
           <Image style={styles.image} source={{uri: data.image}} />
         </View>
+        <Text style={styles.titleText}>{data.title}</Text>
         <View style={[styles.content, contentStyle]}>
           <Text style={styles.text}>{data.date}</Text>
           <Text style={styles.text}>{data.location}</Text>
@@ -119,11 +96,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   content: {
-    height: '15%',
+    flexDirection: 'row',
+    height: '10%',
   },
   text: {
     paddingLeft: 15,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingLeft: 15,
+    paddingTop: 5,
+    paddingBottom: 5,
+    color: 'purple',
   },
 });

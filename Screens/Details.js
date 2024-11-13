@@ -1,9 +1,9 @@
-import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Modal } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost, addNotificationToUser, addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
@@ -12,10 +12,9 @@ import StaticDetail from '../Components/StaticDetail';
 export default function Details({route, navigation}) {
   let data = route.params.activity
   const [joined, setJoined] = useState(false);
-  const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
-  console.log("details", data)
+  //console.log("details", data)
 
   const [modalVisible, setModalVisible] = useState(false); // Modal state
   const [selectedTime, setSelectedTime] = useState(null);
@@ -114,6 +113,7 @@ export default function Details({route, navigation}) {
 
   return (
     <View style={styles.container}>
+      {/* Show all details */}
       <FlatList
         data={comments}
         keyExtractor={(item) => item.id}
@@ -127,6 +127,7 @@ export default function Details({route, navigation}) {
         ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
         extraData={comments}
       />
+      {/* Join/Leave button */}
       {joined ?
       <View style={styles.leaveView}>
         <CusPressable

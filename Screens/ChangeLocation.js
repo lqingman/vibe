@@ -2,7 +2,7 @@ import { View, StyleSheet, Image } from 'react-native'
 import React, { useState } from 'react'
 import { SearchBar } from 'react-native-elements';
 
-
+//change location screen
 export default function ChangeLocation() {
   const [search, setSearch] = useState('');  
 
