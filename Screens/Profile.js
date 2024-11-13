@@ -11,6 +11,9 @@ export default function Profile() {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     const userDocRef = doc(database, 'users', auth.currentUser.uid);
     const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
       if (userDoc.exists()) {
@@ -32,7 +35,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <Image source={{ uri: userData.picture }} style={styles.profileImage} />
+        <Image source={{ uri: userData.picture ? userData.picture : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={styles.profileImage} />
         <Text style={styles.name}>{userData.name}</Text>
         <Text style={styles.bio}>{userData.bio}</Text>
         <Text style={styles.info}>Gender: {userData.gender}</Text>

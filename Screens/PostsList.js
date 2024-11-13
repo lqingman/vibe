@@ -13,6 +13,9 @@ export default function PostsList({ dataSource }) {
   const navigation = useNavigation();
 
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     const fetchData = async () => {
       setLoading(true);
       let postIds = [];

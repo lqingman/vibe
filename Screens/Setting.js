@@ -14,6 +14,9 @@ export default function Setting({ navigation }) {
   const [picture, setPicture] = useState(null);
 
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     const fetchUserProfile = async () => {
       const userDocRef = doc(database, 'users', auth.currentUser.uid);
       const userDoc = await getDoc(userDocRef);
