@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard, Platform } from 'react-native';
+import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -219,10 +219,11 @@ export default function CreatePost({ route, navigation }) {
     }
 };
   return (
-    <View
+    <ScrollView
       style={{
         flex: 1,
         padding: 20,
+        marginVertical: 10
       }}
     >
     {/* image feature to be improved */}
@@ -258,16 +259,23 @@ export default function CreatePost({ route, navigation }) {
       
     </TouchableWithoutFeedback> */}
     {Platform.OS === 'ios'?(
-      <View style={{flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'}}>
+      // <View style={{flexDirection: 'row',
+      //   justifyContent: 'space-between',
+      //   alignItems: 'center'}}>
+      <View>
       <Text>{"Start Time"}</Text>
-      <DateTimePicker
+      <TextInput 
+        style={styles.input}
+        value={inputDate + '  ' + inputTime}
+        editable={false}
+        onPress={() => setShowDatePicker(!showDatePicker)}
+        />
+      {showDatePicker && <DateTimePicker
         value={date}
         mode="datetime"
         display="default" // Use inline display for the date picker
         onChange={onChangeDateTime}
-      />
+      />}
       </View>
     ) : (
       <>
@@ -327,7 +335,7 @@ export default function CreatePost({ route, navigation }) {
       <Button title="Cancel" onPress={handleCancel} />
       <Button title="Submit" onPress={handleSubmit} />
     </View>
-  </View>
+  </ScrollView>
   );
 }
 
