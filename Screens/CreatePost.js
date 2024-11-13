@@ -75,6 +75,7 @@ export default function CreatePost({ route, navigation }) {
       await deletePost(postId, auth.currentUser.uid);
       Alert.alert('Post deleted successfully');
       navigation.goBack();
+      navigation.goBack();
     } catch (error) {
       console.error('Error deleting post:', error);
       Alert.alert('Error deleting post', error.message);
@@ -200,7 +201,7 @@ export default function CreatePost({ route, navigation }) {
       if (isEditing) {
         await updatePost(postId, newPost);
         Alert.alert('Post updated successfully');
-
+        navigation.goBack();
       } else {
         const docRef = await writeToDB(newPost, 'posts');
         const postId = docRef.id;
