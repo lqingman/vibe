@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUserData } from './Firebase/firestoreHelper';
+import { getUserData, updateArrayField } from './Firebase/firestoreHelper';
 import { auth, database } from './Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';

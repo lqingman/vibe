@@ -11,11 +11,16 @@ import { searchByTitleKeyword, writeToDB } from '../Firebase/firestoreHelper';
 export default function Explore({ navigation }) {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
   
 
   const updateSearch = (search) => {
     setSearch(search);
   };
+
+  function handleFilterPress() {
+    setModalVisible(true);
+  }
 
   useEffect(() => {
     async function fetchResults(keyword) {

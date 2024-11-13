@@ -124,12 +124,26 @@ export default function App() {
       <Tab.Screen 
         name="Home" 
         component={HomeTopTabs} 
-        options = {{
-          title: 'Home',
-          headerShown: true,
-          tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
-        }}
-      />
+        // options = {{
+        //   title: 'Home',
+        //   headerShown: true,
+        //   tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} 
+        //   headerRight: () => (
+        //     <Pressable onPress={() => navigation.navigate('Setting')}>
+        //       <FontAwesome5 name="cog" size={24} color={Color.white} style={{ marginRight: 15 }} />
+        //     </Pressable>
+        //   ),
+          options = {({ navigation }) => ({
+            title: 'Home',
+            headerShown: true,
+            headerRight: () => (
+              <Pressable onPress={() => navigation.navigate('ChangeLocation')}>
+                <FontAwesome5 name="map-marked" size={22} color={Color.white} style={{ marginRight: 15 }} />
+              </Pressable>
+            ),
+            tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
+          })}
+          />
       {/* Create the CreatePost screen */}
       <Tab.Screen 
         name="CreatePost" 

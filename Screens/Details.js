@@ -1,21 +1,17 @@
 import { View, Text, Image, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Modal } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
 import { addCommentToPost, addNotificationToUser, addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import JoinOptions from '../Components/JoinOptions';
 import { useJoined } from '../JoinedContext';
 
 
 export default function Details({route, navigation}) {
-  const data = route.params.activity
+  let data = route.params.activity
   // const [joined, setJoined] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
@@ -27,10 +23,43 @@ export default function Details({route, navigation}) {
   const [modalVisible, setModalVisible] = useState(false); // Modal state
   const [selectedTime, setSelectedTime] = useState(null);
 
-  useEffect(() => {
-    setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
-  }, [joinedActivities]);
+  // useEffect(() => {
+  //   setJoined(joinedActivities.includes(data.id)); // Update local state when context changes
+  // }, [joinedActivities]);
 
+  // useEffect(() => {
+  //   async function loadComments() {
+  //     try {
+  //       const commentsData = await fetchComments(data.id);
+  //       setComments(commentsData);
+  //     } catch (error) {
+  //       console.error("Error loading comments: ", error);
+  //   }
+  // }
+
+  //   loadComments();
+  //   //console.log('Comments:', comments);
+  // }, []);
+  
+  // useLayoutEffect(() => {
+  //   if (auth.currentUser.uid === data.owner) {
+  //     navigation.setOptions({
+  //       headerRight: () => (
+  //         <Pressable onPress={() => navigation.navigate('CreatePost', { post: data })}>
+  //           <FontAwesome5 name="edit" size={24} color="white" style={{ marginRight: 15 }} />
+  //         </Pressable>
+  //       ),
+  //     });
+  //   }
+  // }, [navigation, data]);
+  useEffect(() => {
+    // Update local state only if necessary
+    const isJoined = joinedActivities.includes(data.id);
+    if (isJoined !== joined) {
+      setJoined(isJoined);
+    }
+  }, [joinedActivities, joined, data.id]); // Including `joined` and `data.id` to avoid unnecessary updates
+  
   useEffect(() => {
     async function loadComments() {
       try {
@@ -38,12 +67,11 @@ export default function Details({route, navigation}) {
         setComments(commentsData);
       } catch (error) {
         console.error("Error loading comments: ", error);
+      }
     }
-  }
-
+  
     loadComments();
-    //console.log('Comments:', comments);
-  }, [data.id]);
+  }, [data.id]); // Add `data.id` to reload comments if it changes
   
   useLayoutEffect(() => {
     if (auth.currentUser.uid === data.owner) {
@@ -55,21 +83,37 @@ export default function Details({route, navigation}) {
         ),
       });
     }
-  }, [navigation, data]);
+  }, [navigation, data.owner, data, auth.currentUser.uid]); // Adding more specific dependencies
+  
 
-  function handleJoinPress() {
-    const isJoining = !joined; // Toggle join/leave
-    updateJoinedStatus(data.id, isJoining); // Update context state
-    setJoined(isJoining); // Update local state for immediate UI change
+  async function handleJoinPress() {
+    const isJoining = !joined; 
+
     if (isJoining) {
-      setNumAttendees(numAttendees + 1);
-      updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
-    } else {
-      setNumAttendees(numAttendees - 1);
-      deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
-      deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      try{
+        setNumAttendees(numAttendees + 1);
+        console.log('Join pressed', data.id);
+        await updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
+        await updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+      } catch (error) {
+        console.error('Error updating joined status:', error);
+      }
     }
+    else {
+      try {
+        setNumAttendees(numAttendees - 1);
+        console.log('Leave pressed', data.id);
+        await deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
+        await deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
+    }
+    catch (error) {
+      console.error('Error updating joined status:', error);
+    }
+  }
+
+    //updateJoinedStatus(data.id, isJoining);
+    setJoined(isJoining); 
+    
   }
 
   function handleNotificationPress() {

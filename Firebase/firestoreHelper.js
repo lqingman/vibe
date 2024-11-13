@@ -19,19 +19,24 @@ export async function writeToDB(data, collectionName, docId=null) {
 }
 
 export async function updateArrayField(collectionName, documentId, field, value) {
+    // if (Array.isArray(value)) {
+    //   return;
+    // }
     try {
+        console.log('update array field, ', collectionName, documentId, field, value)
         const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayUnion(value)
         });
     } catch (err) {
-        console.error(`Error updating ${field} for document ${documentId}:`, err);
+        console.error(`Error updating collection ${collectionName} field ${field} for document ${documentId} with value ${value}:`, err);
         throw err;
     }
 }
 
 export async function deleteArrayField(collectionName, documentId, field, value) {
     try {
+        console.log('update array field, ', collectionName, documentId, field, value)
         const userDocRef = doc(database, collectionName, documentId);
         await updateDoc(userDocRef, {
             [field]: arrayRemove(value)
