@@ -31,14 +31,13 @@ export default function Setting({ navigation }) {
     };
 
     fetchUserProfile();
-  }, []);
+  }, [auth.currentUser]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
     });
 
     if (!result.cancelled) {
@@ -64,7 +63,13 @@ export default function Setting({ navigation }) {
       Alert.alert('Error updating profile', error.message);
     }
   };
-
+  if (!auth.currentUser) {
+    return (
+      <View style={styles.container}>
+        <Text>Please log in to update your profile.</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Update Profile</Text>
