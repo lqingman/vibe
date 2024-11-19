@@ -26,13 +26,13 @@ export default function Joined({navigation}) {
         }
       },
       (error) => {
-        console.error("Error fetching user data:", error);
+        console.error("Error Joined:", error);
       }
     );
 
     // Cleanup on unmount
     return () => unsubscribe();
-  }, []);
+  }, [auth.currentUser]);
 
   // Fetch post data for each joined activity
   useEffect(() => {
@@ -54,7 +54,13 @@ export default function Joined({navigation}) {
       fetchPostData();
     }
   }, [joinedActivities]);
-
+  if (!auth.currentUser) {
+    return (
+      <View style={styles.container}>
+        <Text>Please log in to view your joined activities.</Text>
+      </View>
+    );
+  }
   return (
     <View>
       {joinedActivities.length === 0 ? (

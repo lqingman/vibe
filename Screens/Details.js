@@ -39,10 +39,13 @@ export default function Details({route, navigation}) {
       }
     }
     checkJoinedStatus();
-  }, [joined, data.id]); 
+  }, [auth.currentUser, joined, data.id]); 
   
   // Load comments when the component mounts
   useEffect(() => {
+    if (!auth.currentUser) {
+      return;
+    }
     async function loadComments() {
       try {
         const commentsData = await fetchComments(data.id);
@@ -53,7 +56,7 @@ export default function Details({route, navigation}) {
     }
   
     loadComments();
-  }, [data.id]); 
+  }, [auth.currentUser, data.id]); 
   
   // Set the header button to edit the post if the user is the owner
   useLayoutEffect(() => {
@@ -69,7 +72,7 @@ export default function Details({route, navigation}) {
         ),
       });
     }
-  }, [navigation, data.owner, data, auth.currentUser.uid]); 
+  }, [auth.currentUser, navigation, data.owner, data, auth.currentUser.uid]); 
   
   // Add a comment to the activity
   async function handleJoinPress() {
@@ -116,7 +119,13 @@ export default function Details({route, navigation}) {
   function updateComments(newComment) {
     setComments([...comments, newComment]);
   }
-
+  if (!auth.currentUser) {
+    return (
+      <View style={styles.container}>
+        <Text>Please log in to view the details.</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       {/* Show all details */}

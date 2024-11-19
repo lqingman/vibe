@@ -18,12 +18,21 @@ export default function Profile() {
     const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
       if (userDoc.exists()) {
         setUserData(userDoc.data());
+        console.log("profile results:", userDoc.data());
       }
-    });
+    },(err
+    ) => console.error("profile results:", err
+    ));
 
     return () => unsubscribe();
-  }, []);
-
+  }, [auth.currentUser]);
+  if (!auth.currentUser) {
+    return (
+      <View style={styles.container}>
+        <Text>Please log in to view your profile.</Text>
+      </View>
+    );
+  }
   if (!userData) {
     return (
       <View style={styles.container}>
@@ -46,10 +55,10 @@ export default function Profile() {
       <View style={styles.tabContainer}>
         <Tab.Navigator>
           <Tab.Screen name="PostedPosts" options={{ title: 'Posted Posts' }}>
-            {() => <PostsList dataSource="posted" />}
+            {() => <PostsList  postIds={userData.posts} />}
           </Tab.Screen>
           <Tab.Screen name="LikedPosts" options={{ title: 'Liked Posts' }}>
-            {() => <PostsList dataSource="liked" />}
+            {() => <PostsList postIds={userData.favorites} />}
           </Tab.Screen>
         </Tab.Navigator>
       </View>
