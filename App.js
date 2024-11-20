@@ -41,7 +41,7 @@ export default function App() {
   // Listen for authentication state changes
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      console.log('User:', user);
+      //console.log('User:', user);
       if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User

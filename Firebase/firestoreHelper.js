@@ -102,6 +102,18 @@ export async function deletePost(postId, userId) {
     }
 }
 
+//get all posts from the database
+export async function getAllPosts() {
+    try {
+        const postsRef = collection(database, 'posts');
+        const postsSnapshot = await getDocs(postsRef);
+        const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return postsData;
+    } catch (error) {
+        console.log("Error getting posts:", error);
+    }
+}
+
 //get user data from the database
 export async function getUserData(userId) {
     try {
