@@ -73,7 +73,7 @@ export default function Explore({ navigation }) {
 
     fetchResults(search.toLowerCase());
 
-  }, [search]);
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>

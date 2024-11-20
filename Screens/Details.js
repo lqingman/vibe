@@ -49,6 +49,7 @@ export default function Details({route, navigation}) {
     async function loadComments() {
       try {
         const commentsData = await fetchComments(data.id);
+        console.log("load comments ",commentsData)
         setComments(commentsData);
       } catch (error) {
         console.error("Error loading comments: ", error);
@@ -117,7 +118,8 @@ export default function Details({route, navigation}) {
 
   // Add a comment to the activity
   function updateComments(newComment) {
-    setComments([...comments, newComment]);
+    console.log("update ",comments)
+    setComments((prevComments)=>[...prevComments, newComment]);
   }
   if (!auth.currentUser) {
     return (
@@ -131,16 +133,17 @@ export default function Details({route, navigation}) {
       {/* Show all details */}
       <FlatList
         data={comments}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.comment}>
+        keyExtractor={(item) => {return(item.id)}}
+        renderItem={({ item }) => {
+          console.log("falt list ",item)
+          return <View style={styles.comment}>
             <Text style={styles.commentText}>User {item.owner}:</Text>
             <Text style={styles.commentText}>{item.text}</Text>
           </View>
-        )}
+        }}
         ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
         ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-        extraData={comments}
+        // extraData={comments}
       />
       {/* Join/Leave button */}
       {joined ?
