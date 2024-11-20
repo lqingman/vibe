@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getUserData, updateDB } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
+import Map from './Map';
 
 
 export default function LocationManager() {
@@ -69,19 +70,17 @@ export default function LocationManager() {
     navigation.navigate('Home');
   }
 
-  //if (location)console.log(`https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:L%7C${location.latitude},${location.longitude}&key=${mapsApiKey}` )
+  if (location)console.log(`https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:L%7C${location.latitude},${location.longitude}&key=${mapsApiKey}` )
   return (
-    <View>
-      <Button title="Locate Me" onPress={locateUserHandler}/>
-      <Button title="Let me choose on the map" onPress={
-        () => navigation.navigate('Map')
-      }/>
+    <View style={{flex:1}}>
+      <Map/>
       {location &&
         <Image 
           source={{ uri: `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:L%7C${location.latitude},${location.longitude}&key=${mapsApiKey}` }} 
           style={{ width: "100%", height: 200 }} />
       }
-      <Button disabled={!location} title="Save Location" onPress={saveLocationHandler} />
+      <Button title="Use Current Location" onPress={locateUserHandler}/>
+      <Button disabled={!location} title="Confirm" onPress={saveLocationHandler} />
     </View>
   )
 }

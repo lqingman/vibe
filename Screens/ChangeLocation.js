@@ -1,6 +1,7 @@
 import { View, StyleSheet, Image } from 'react-native'
 import React, { useState } from 'react'
 import { SearchBar } from 'react-native-elements';
+import LocationManager from '../Components/LocationManager';
 
 //change location screen
 export default function ChangeLocation() {
@@ -34,9 +35,7 @@ export default function ChangeLocation() {
           round={true}
         />
         </View>
-      <View style={styles.mapView}>
-        <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
-      </View>
+      <LocationManager />
     </View>
   )
 }
