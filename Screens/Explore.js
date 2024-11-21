@@ -11,7 +11,7 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { database } from '../Firebase/firebaseSetup';
 import { auth } from '../Firebase/firebaseSetup';
 import { onAuthStateChanged } from 'firebase/auth';
-import DropDown from '../Components/DropDown';
+import FilterMenu from '../Components/FilterMenu';
 
 
 // Explore screen to search for activities
@@ -152,7 +152,7 @@ export default function Explore({ navigation }) {
         >
           <FontAwesome5 name="filter" size={22} color="lightgrey" />
         </CusPressable> */}
-        <DropDown />
+        <FilterMenu />
       </View>
       {/* A list of activity cards as search results */}
       {loading ? (
@@ -209,6 +209,7 @@ export default function Explore({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     //flex: 1,
+    height: 60,
     flexDirection: 'row',
     //justifyContent: 'center',
     alignItems: 'center',
