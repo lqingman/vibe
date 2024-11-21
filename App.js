@@ -148,6 +148,7 @@ export default function App() {
         component={CreatePost} 
         options = {{
           title: 'Create Post',
+          // headerShown: false,
           tabBarIcon: ({color}) => <FontAwesome5 name="plus-circle" size={24} color={color} />
         }}
       />
@@ -214,6 +215,7 @@ export default function App() {
                 title: "Edit Post",
                 headerStyle: { backgroundColor: Color.navigatorBg },
                 headerTintColor: Color.white,
+                // headerShown: false
               }}
             />
           </>

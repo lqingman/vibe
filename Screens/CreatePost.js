@@ -6,6 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import ImageManager from '../Components/ImageManager';
+
 
 export default function CreatePost({ route, navigation }) {
   const insets = useSafeAreaInsets();
@@ -82,18 +84,6 @@ export default function CreatePost({ route, navigation }) {
     }
   };
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
-  };
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -229,15 +219,8 @@ export default function CreatePost({ route, navigation }) {
       }}
     >
     {/* image feature to be improved */}
-    <TouchableOpacity onPress={pickImage} style={{ marginBottom: 20 }}>
-      {image ? (
-        <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
-      ) : (
-        <View style={{ width: 100, height: 100, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center', borderRadius: 5, }}>
-          <Text>Add Photo</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+      <ImageManager receiveImageUri={setImage} />
+
 
     <TextInput
       placeholder="Title"
