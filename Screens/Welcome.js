@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     gap: 15, // Add space between buttons
   },
   button: {
-    backgroundColor: '#1DA1F2',
+    backgroundColor: '#363678',
     paddingVertical: 10,
     // paddingHorizontal: 30,
     borderRadius: 5,
