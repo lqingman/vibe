@@ -7,10 +7,12 @@ import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ImageManager from '../Components/ImageManager';
+import { ref, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../Firebase/firebaseSetup';
 
 
 export default function CreatePost({ route, navigation }) {
-  const insets = useSafeAreaInsets();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
@@ -53,6 +55,29 @@ export default function CreatePost({ route, navigation }) {
     }
   }, [navigation, isEditing]);
 
+  const isFirebaseStorageUri = (uri) => {
+    return uri && (uri.includes('firebasestorage.googleapis.com'));
+  };
+  
+  async function fetchAndUploadImage(uri) {
+    const response = await fetch(uri);
+    try {
+      
+      if (!response.ok) {
+        throw new Error('HTTP Error! Status: ' + response.status);
+      }
+      const blob = await response.blob();
+      // let's upload blob to firebase storage
+      const imageName = uri.substring(uri.lastIndexOf('/') + 1);
+      const imageRef = ref(storage, `images/${imageName}`)
+      const uploadResult = await uploadBytesResumable(imageRef, blob);
+      console.log('upload result' + uploadResult);
+
+      return uploadResult.ref.fullPath;
+    } catch (err) {
+      console.log(err);
+    }
+  }
   const confirmDelete = () => {
     Alert.alert(
       'Confirm Delete',
@@ -133,10 +158,10 @@ export default function CreatePost({ route, navigation }) {
       Alert.alert('Location is required');
       return false;
     }
-    // if (!image) {
-    //   Alert.alert('Image is required');
-    //   return false;
-    // }
+    if (!image) {
+      Alert.alert('Image is required');
+      return false;
+    }
     if (!limit || isNaN(limit) || parseInt(limit) <= 1) {
       Alert.alert('Limit must be a number greater than 1');
       return false;
@@ -173,7 +198,12 @@ export default function CreatePost({ route, navigation }) {
     // confirm before submitting
     
     const keywords = generateKeywords(title);
-
+    
+    let finalImageUri = image;
+    if (!isFirebaseStorageUri(image)) {
+        // Only upload if it's a new local image
+        finalImageUri = await fetchAndUploadImage(image);
+    }
     const newPost = {
         title: title,
         keywords: keywords,
@@ -181,7 +211,7 @@ export default function CreatePost({ route, navigation }) {
         time: inputTime,
         description: description,
         location: location,
-        image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
+        image: finalImageUri,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
 
@@ -219,7 +249,10 @@ export default function CreatePost({ route, navigation }) {
       }}
     >
     {/* image feature to be improved */}
-      <ImageManager receiveImageUri={setImage} />
+      <ImageManager 
+        receiveImageUri={setImage}
+        initialImage={isEditing ? image : null} 
+      />
 
 
     <TextInput

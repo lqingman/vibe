@@ -1,13 +1,19 @@
 import { View, Text, Button, Alert, Image, StyleSheet, TouchableOpacity } from 'react-native'
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome5 } from '@expo/vector-icons';
-import CusPressable from './CusPressable';
 
-const ImageManager = ({receiveImageUri}) => {
+
+const ImageManager = ({receiveImageUri, initialImage}) => {
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState(initialImage || null);
     // console.log(response);
+    useEffect(() => {
+      if (initialImage) {
+          setImage(initialImage);
+          receiveImageUri(initialImage);
+      }
+  }, [initialImage]);
     async function verifyPermissions() {
         try {
             // check if user has given permission
@@ -65,6 +71,7 @@ const ImageManager = ({receiveImageUri}) => {
             if (!result.canceled) {
                 setImage(result.assets[0].uri);
                 receiveImageUri(result.assets[0].uri);
+                console.log(image);
             }
         } catch (err) {
             console.log(err);
@@ -99,6 +106,7 @@ const ImageManager = ({receiveImageUri}) => {
             >
                 {image ? (
                     <Image source={{ uri: image }} style={styles.image} />
+                    
                 ) : (
                     <View style={styles.placeholder}>
                         <FontAwesome5 name="camera" size={24} color="gray" />
