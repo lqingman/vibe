@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
-
+import Welcome from './Screens/Welcome';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -30,8 +30,9 @@ const TopTab = createMaterialTopTabNavigator();
 
 // Create the Auth Stack Navigator
 const AuthStack = <>
-  <Stack.Screen name="Login" component={Login} />
-  <Stack.Screen name="Signup" component={Signup} />
+  <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }}/>
+  <Stack.Screen name="Login" component={Login} options={{ headerShown: false }}/>
+  <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }}/>
 </>;
 
 // Create the Home Screen
@@ -174,7 +175,7 @@ export default function App() {
   // Create the Stack Navigator
   function StackNavigator() {
     return(
-      <Stack.Navigator initialRouteName={isUserLogin ? 'Tab' : 'Login'}>
+      <Stack.Navigator initialRouteName={isUserLogin ? 'Tab' : 'Welcome'}>
         {isUserLogin ? (
           <>
             {/* Create the tab navigator */}
