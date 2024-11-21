@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import the createUserWithEmailAndPassword function
 import { auth } from '../Firebase/firebaseSetup'; // Import the auth object
 import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
-
+import CusPressable from '../Components/CusPressable';
 
 export default function Signup({ navigation }) {
   const [name, setName] = useState('');
@@ -111,7 +111,8 @@ export default function Signup({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Signup</Text>
+      <Text style={styles.header}>Welcome!</Text>
+      <Text style={styles.slogan}>Start a new local adventure!</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
@@ -162,10 +163,22 @@ export default function Signup({ navigation }) {
         secureTextEntry
       />
       {confirmPasswordError ? (
-        <Text style={styles.strengthText}>{confirmPasswordError}</Text>
+        <Text style={styles.confirmText}>{confirmPasswordError}</Text>
       ) : null}
-      <Button title="Signup" onPress={handleSignup} />
-      <Button title="Go to Login" onPress={loginHandler} />
+      <CusPressable
+          componentStyle={styles.button}
+          pressedStyle={styles.buttonPressed}
+          pressedHandler={handleSignup}
+      >
+          <Text style={styles.buttonText}>Sign up</Text>
+      </CusPressable>
+      <Text 
+        style={[styles.underline, { marginTop: 30 }]}
+        onPress={loginHandler}
+      >
+        Already have an account? Login
+      </Text>
+
     </View>
   );
 }
@@ -177,14 +190,21 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    fontSize: 24,
+    fontSize: 30,
     marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  slogan: {
+    fontSize: 16,
+    color: 'black',
+    marginBottom: 100,
     textAlign: 'center',
   },
   input: {
     height: 40,
     borderColor: 'lightgray',
-    borderRadius: 10,
+    borderRadius: 5,
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
@@ -207,6 +227,36 @@ const styles = StyleSheet.create({
   strengthText: {
     fontSize: 12,
     marginTop: 5,
+    // marginBottom: 10,
     color:'red'
-  }
+  },
+  confirmText: {
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 10,
+    color:'red'
+  },
+  button: {
+    backgroundColor: '#363678',
+    paddingVertical: 10,
+    // paddingHorizontal: 30,
+    borderRadius: 5,
+    width: '100%', // Make buttons full width
+    alignItems: 'center', // Center button text
+  },
+  buttonPressed: {
+    backgroundColor: '#1884c7', // Slightly darker when pressed
+    transform: [{ scale: 0.98 }], // Slight scale effect when pressed
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  underline: {
+    color: 'gray',
+    textAlign: 'center',
+    // marginVertical: 15,
+    textDecorationLine: 'underline',
+  },
 });

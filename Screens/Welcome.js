@@ -22,7 +22,7 @@ const Welcome = () => {
                 pressedStyle={styles.buttonPressed}
                 pressedHandler={() => navigation.navigate('Signup')}
             >
-                <Text style={styles.buttonText}>Sign Up</Text>
+                <Text style={styles.buttonText}>Sign up</Text>
             </CusPressable>
             
             <CusPressable
@@ -30,7 +30,7 @@ const Welcome = () => {
                 pressedStyle={styles.buttonPressed}
                 pressedHandler={() => navigation.navigate('Login')}
             >
-                <Text style={styles.buttonText}>Log In</Text>
+                <Text style={styles.buttonText}>Log in</Text>
             </CusPressable>
         </View>
       </View>
