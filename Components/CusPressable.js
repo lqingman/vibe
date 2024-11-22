@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import React from 'react'
 import Style from '../Styles/Style';
 
@@ -10,7 +10,7 @@ export default function CusPressable({ children, pressedHandler, componentStyle,
       style={({ pressed }) => [
         Style.defaultPressable,
         componentStyle,
-        pressed && Style.defaultPressed, 
+        pressed && styles.defaultPressed, 
         pressed && pressedStyle, 
       ]}
       android_ripple={android_ripple}
@@ -24,3 +24,15 @@ export default function CusPressable({ children, pressedHandler, componentStyle,
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+    defaultStyle:{
+      backgroundColor: "beige",
+      borderRadius: 8,
+      padding: 6,
+    },
+    defaultPressed: {
+      backgroundColor: "lavender",
+      opacity: 0.5, // Apply the opacity when pressed
+    },
+  });

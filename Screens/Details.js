@@ -7,6 +7,7 @@ import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, 
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
+import DropDown from '../Components/FilterMenu';
 
 
 export default function Details({route, navigation}) {
@@ -18,6 +19,8 @@ export default function Details({route, navigation}) {
 
   const [modalVisible, setModalVisible] = useState(false); // Modal state
   const [selectedTime, setSelectedTime] = useState(null);
+
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   // Check if the user has joined the activity
   useEffect(() => {
@@ -105,7 +108,8 @@ export default function Details({route, navigation}) {
 
   // Set a notification for the activity
   function handleNotificationPress() {
-    setModalVisible(true);
+    // setModalVisible(true);
+    setDropdownVisible((prev) => !prev)
   }
 
   // Set the notification time and add it to the user's notifications
@@ -180,6 +184,7 @@ export default function Details({route, navigation}) {
             alignItems: 'center',
           }}
           pressedHandler={handleNotificationPress} 
+          //pressedHandler={()=> <DropDown/>}
         >
           <Ionicons name="notifications" size={30} color="purple" />
         </CusPressable>
@@ -204,6 +209,13 @@ export default function Details({route, navigation}) {
         </CusPressable>
       </View>
       }
+      {/* Render Dropdown if visible */}
+      {dropdownVisible && (
+        <DropDown
+          onSelect={handleTimeSelect}
+          onClose={() => setDropdownVisible(false)} // Optional close logic
+        />
+      )}
       {/* Notification Modal */}
       <View style={styles.modalContainer}>
         <Modal

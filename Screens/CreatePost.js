@@ -1,14 +1,16 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import ImageManager from '../Components/ImageManager';
+import { ref, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../Firebase/firebaseSetup';
+import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 
 export default function CreatePost({ route, navigation }) {
-  const insets = useSafeAreaInsets();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
@@ -17,7 +19,7 @@ export default function CreatePost({ route, navigation }) {
   const [inputDate, setInputDate] = useState('');
   const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState('');
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
@@ -51,6 +53,7 @@ export default function CreatePost({ route, navigation }) {
     }
   }, [navigation, isEditing]);
 
+
   const confirmDelete = () => {
     Alert.alert(
       'Confirm Delete',
@@ -82,18 +85,6 @@ export default function CreatePost({ route, navigation }) {
     }
   };
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
-  };
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -143,10 +134,10 @@ export default function CreatePost({ route, navigation }) {
       Alert.alert('Location is required');
       return false;
     }
-    // if (!image) {
-    //   Alert.alert('Image is required');
-    //   return false;
-    // }
+    if (!image) {
+      Alert.alert('Image is required');
+      return false;
+    }
     if (!limit || isNaN(limit) || parseInt(limit) <= 1) {
       Alert.alert('Limit must be a number greater than 1');
       return false;
@@ -170,7 +161,7 @@ export default function CreatePost({ route, navigation }) {
     setInputDate('');
     setInputTime('');
     setLocation('');
-    setImage(null);
+    setImage('');
     setIsEditing(false);
     setPostId('');
     setLimit(0);
@@ -183,7 +174,12 @@ export default function CreatePost({ route, navigation }) {
     // confirm before submitting
     
     const keywords = generateKeywords(title);
-
+    
+    let finalImageUri = image;
+    if (!isFirebaseStorageUri(image)) {
+        // Only upload if it's a new local image
+        finalImageUri = await fetchAndUploadImage(image);
+    }
     const newPost = {
         title: title,
         keywords: keywords,
@@ -191,10 +187,9 @@ export default function CreatePost({ route, navigation }) {
         time: inputTime,
         description: description,
         location: location,
-        image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
+        image: finalImageUri,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
-
     };
     if (!isEditing) {
       newPost.attendee = []; // Only include attendee list when creating a new post
@@ -229,15 +224,11 @@ export default function CreatePost({ route, navigation }) {
       }}
     >
     {/* image feature to be improved */}
-    <TouchableOpacity onPress={pickImage} style={{ marginBottom: 20 }}>
-      {image ? (
-        <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
-      ) : (
-        <View style={{ width: 100, height: 100, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center', borderRadius: 5, }}>
-          <Text>Add Photo</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+      <ImageManager 
+        receiveImageUri={setImage}
+        initialImage={isEditing ? image : null} 
+      />
+
 
     <TextInput
       placeholder="Title"
