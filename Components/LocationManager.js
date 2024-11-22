@@ -49,31 +49,6 @@ export default function LocationManager() {
     }
   }
 
-  const locateUserHandler = async () => {
-    try {
-      const hasPermission = await verifyPermissions();
-      if (!hasPermission) {
-        Alert.alert('You need to grant location permissions to use this app.');
-        return;
-      }
-      const locationResponse = await Location.getCurrentPositionAsync();
-      // console.log(locationResponse);
-      // console.log(hasPermission);
-      setLocation({latitude: locationResponse.coords.latitude, longitude: locationResponse.coords.longitude});
-      // console.log(location);
-      updateDB(auth.currentUser.uid, {location}, 'users');
-      navigation.navigate('Tab');
-    }
-    catch (err) {
-      console.log("Location error", err);
-    }
-  };
-
-  function saveLocationHandler() {
-    updateDB(auth.currentUser.uid, {location: selectedLocation}, 'users');
-    navigation.navigate('Tab');
-  }
-
   //if (location)console.log(`https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:L%7C${location.latitude},${location.longitude}&key=${mapsApiKey}` )
   return (
     <View style={styles.container}>
@@ -98,8 +73,6 @@ export default function LocationManager() {
           <Marker coordinate={selectedLocation} />
         )}
       </MapView>
-      <Button title="Use Current Location" onPress={locateUserHandler}/>
-      <Button disabled={!location} title="Confirm" onPress={saveLocationHandler} />
     </View>
   )
 }
@@ -112,6 +85,6 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '86%',
+    height: '100%',
   },
 })
