@@ -1,20 +1,44 @@
 import { View, Text, Image, StyleSheet, TextInput } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost } from '../Firebase/firestoreHelper';
+import { addCommentToPost, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
+import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 
 
 export default function StaticDetail({data, updateComments, numAttendees}) {
   //console.log("received data:",data)
   if (!data) return null; // Only render if data exists
   const [comment, setComment] = useState('');
+  const [ownerData, setOwnerData] = useState(null);
+  const [ownerImageUrl, setOwnerImageUrl] = useState(null);  // Add this state
+
+  useEffect(() => {
+    const loadOwnerData = async () => {
+      const userData = await getUserData(data.owner);
+      setOwnerData(userData);
+      
+      // Get download URL for the profile picture
+      if (userData?.picture) {
+        const storage = getStorage();
+        const imageRef = ref(storage, userData.picture);
+        try {
+          const url = await getDownloadURL(imageRef);
+          setOwnerImageUrl(url);
+        } catch (error) {
+          console.error("Error getting download URL:", error);
+        }
+      }
+    };
+
+    loadOwnerData();
+  }, []);
 
   // Handle the add comment button press
   function handleAddComment() {
@@ -31,6 +55,15 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
 
   return (
     <View style={styles.container}>
+      {/* show owner's profile picture and name */}
+      <View style={styles.ownerInfo}>
+        <Image 
+          style={styles.ownerImage} 
+          source={ownerImageUrl ? {uri: ownerImageUrl} : null}  // Add a default image
+        />
+        <Text style={styles.ownerName}>{ownerData?.name}</Text>
+      </View>
+
       {/* show image */}
       <View style={styles.media}>
         <Image style={styles.image} source={{uri: data.image}} />
@@ -246,5 +279,29 @@ const styles = StyleSheet.create({
   attendeesText: {
     marginLeft: 10,
     fontSize: 16,
+  },
+  ownerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
+    width: '110%',
+    marginLeft: -10,  
+    paddingLeft: 10,
+  },
+  ownerImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginBottom: 10,
+    marginLeft: 10,
+    resizeMode: 'cover',
+  },
+  ownerName: {
+    marginLeft: 10,
+    fontSize: 20,
+    color: 'black',
+    marginBottom: 10,
   },
 })
