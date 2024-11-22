@@ -1,5 +1,6 @@
 import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
-import { auth, database } from "./firebaseSetup";
+import { auth, database, storage } from "./firebaseSetup";
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 // Write to the database
 export async function writeToDB(data, collectionName, docId=null) {
@@ -253,4 +254,39 @@ export async function fetchComments(postId) {
         console.error("Error adding or updating notification:", error);
     }
   }
+
+  export function isFirebaseStorageUri (uri) {
+    return uri && (uri.startsWith('images/'));
+  };
   
+  export async function fetchAndUploadImage(uri) {
+    const response = await fetch(uri);
+    try {
+      
+      if (!response.ok) {
+        throw new Error('HTTP Error! Status: ' + response.status);
+      }
+      const blob = await response.blob();
+      // let's upload blob to firebase storage
+      const imageName = uri.substring(uri.lastIndexOf('/') + 1);
+      const imageRef = ref(storage, `images/${imageName}`)
+      const uploadResult = await uploadBytesResumable(imageRef, blob);
+      console.log('upload result' + uploadResult);
+
+      return uploadResult.ref.fullPath;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
+  export async function fetchImageUrlFromDB(picturePath) {
+    if (!picturePath) return null;
+    try {
+      const imageRef = ref(storage, picturePath);
+      const url = await getDownloadURL(imageRef);
+      return url;
+    } catch (error) {
+      console.error('Error fetching picture:', error);
+      return null;
+    }
+  };
