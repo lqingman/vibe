@@ -3,15 +3,16 @@ import { View, Text, TextInput, Button, Image, TouchableOpacity, Alert, StyleShe
 import { signOut } from 'firebase/auth';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { updateUserProfile } from '../Firebase/firestoreHelper';
-import * as ImagePicker from 'expo-image-picker';
 import { doc, getDoc } from 'firebase/firestore';
+import ImageManager from '../Components/ImageManager';
+import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 
 export default function Setting({ navigation }) {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  const [picture, setPicture] = useState(null);
+  const [picture, setPicture] = useState('');
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -33,25 +34,18 @@ export default function Setting({ navigation }) {
     fetchUserProfile();
   }, [auth.currentUser]);
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    if (!result.cancelled) {
-      setPicture(result.uri);
-    }
-  };
-
   const handleUpdateProfile = async () => {
+    let finalImageUri = picture;
+    if (!isFirebaseStorageUri(picture)) {
+        // Only upload if it's a new local image
+        finalImageUri = await fetchAndUploadImage(picture);
+    }
     const updatedData = {
-      name,
-      bio,
-      age,
-      gender,
-      picture,
+      name: name,
+      bio: bio,
+      age: age,
+      gender: gender,
+      picture: finalImageUri,
     };
 
     try {
@@ -72,14 +66,10 @@ export default function Setting({ navigation }) {
   }
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Update Profile</Text>
-      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-        {picture ? (
-          <Image source={{ uri: picture }} style={styles.image} />
-        ) : (
-          <Text>Select Picture</Text>
-        )}
-      </TouchableOpacity>
+      {/* <Text style={styles.header}>Update Profile</Text> */}
+      <View style={styles.imagePicker}>
+        <ImageManager receiveImageUri={setPicture} initialImage={picture} imageStyle={{borderRadius: 50,}}/>
+      </View>
       <TextInput
         style={styles.input}
         placeholder="Name"
@@ -133,10 +123,7 @@ const styles = StyleSheet.create({
   imagePicker: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 100,
-    width: 100,
-    backgroundColor: '#ccc',
-    marginBottom: 20,
+
   },
   image: {
     width: 100,
