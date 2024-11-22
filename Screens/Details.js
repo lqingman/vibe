@@ -7,7 +7,7 @@ import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, 
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import DropDown from '../Components/DropDown';
+import DropDown from '../Components/FilterMenu';
 
 
 export default function Details({route, navigation}) {

@@ -6,39 +6,49 @@ import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
-import { fetchAllPosts, getAllDocuments, getAllPosts, searchByTitleKeyword } from '../Firebase/firestoreHelper';
+import { fetchAllPosts, getAllDocuments, getAllPosts, getUserData, searchByTitleKeyword } from '../Firebase/firestoreHelper';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { database } from '../Firebase/firebaseSetup';
 import { auth } from '../Firebase/firebaseSetup';
 import { onAuthStateChanged } from 'firebase/auth';
-import DropDown from '../Components/DropDown';
+import FilterMenu from '../Components/FilterMenu';
 
 
 // Explore screen to search for activities
 export default function Explore({ navigation }) {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(null);
   const [loading, setLoading] = useState(true); 
-
+  const [filter, setFilter] = useState('All');
+  const [userLocation, setUserLocation] = useState(null); 
+  const [filteredResults, setFilteredResults] = useState([]);
 
   // Update the search state when the user types in the search bar
   const updateSearch = (search) => {
     setSearch(search);
   };
 
-  // Handle the filter button press
-  function handleFilterPress() {
-    setModalVisible(true);
-  }
+  useEffect(() => {
+    // Define an async function to fetch user data
+    const fetchUserData = async () => {
+      try {
+        // Fetch user data
+        const userData = await getUserData(auth.currentUser.uid);
+        
+        // Check if userData and location exist
+        if (userData && userData.location) {
+          const { latitude, longitude } = userData.location;
+          setUserLocation({ latitude, longitude }); // Update state with location
+        } else {
+          console.log('User data or location not found.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+      } 
+    };
 
-  // Handle the filter selection
-  function handleFilteSelect(filter) {
-    setSelectedFilter(filter);
-    setModalVisible(false);
-    console.log(`Filter set for ${filter}`);
-  }
+    fetchUserData(); // Call the fetch function on component mount
+  }, []);
 
   useEffect(() => {
     let unsubscribe;
@@ -75,7 +85,6 @@ export default function Explore({ navigation }) {
       if (authListener) authListener();
     };
   }, []);
-
   
   useFocusEffect(
     useCallback(() => {
@@ -104,6 +113,69 @@ export default function Explore({ navigation }) {
     }
   }
 
+  // Function to calculate distance using the Haversine formula
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in kilometers
+  return distance;
+}
+
+// Helper function to convert degrees to radians
+function toRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+// Function to sort search results by distance
+async function sortResultsByDistance(results, userLat, userLon) {
+  return results
+    .map(result => ({
+      ...result,
+      distance: haversine(userLat, userLon, result.latitude, result.longitude),
+    }))
+    .sort((a, b) => a.distance - b.distance); // Sort by distance (ascending)
+}
+
+function sortResultsByDate(results) {
+  return results.sort((a, b) => {
+    // Combine the date and time fields
+    const dateTimeA = new Date(`${a.date} ${a.time}`);
+    const dateTimeB = new Date(`${b.date} ${b.time}`);
+
+    // Compare the datetime objects
+    return dateTimeA - dateTimeB; // Ascending order
+    // For descending order, use: return dateTimeB - dateTimeA;
+  });
+}
+
+// Handle the filter button press
+function handleFilterSelection(filter) {
+  setFilter(filter);
+  let newResult = [];
+  if (filter === 'Nearest') {
+    newResult = sortResultsByDistance(results, userLocation.latitude, userLocation.longitude);
+    setFilteredResults(newResult);
+  }
+  else if (filter === 'Date'){
+    newResult = sortResultsByDate(results);
+    setFilteredResults(newResult);
+  }
+  else {
+    setFilteredResults(results);
+  }
+}
+
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -128,31 +200,7 @@ export default function Explore({ navigation }) {
           round={true}
           onSubmitEditing={() => fetchResults(search.toLowerCase())}
         />
-
-        {/* Filter button */}
-        {/* <CusPressable
-          pressedHandler={handleFilterPress}
-          componentStyle={{
-            height: 60,
-            width: "10%",
-            //borderRadius: 25,
-            backgroundColor: 'white',
-            //position: 'end',
-            //bottom: 20,
-            //right: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          pressedStyle={{
-            backgroundColor: 'lightgrey',
-          }}
-          childrenStyle={{
-            paddingRight: 10,
-          }}
-        >
-          <FontAwesome5 name="filter" size={22} color="lightgrey" />
-        </CusPressable> */}
-        <DropDown />
+        <FilterMenu handleFilterSelection={handleFilterSelection}/>
       </View>
       {/* A list of activity cards as search results */}
       {loading ? (
@@ -172,43 +220,14 @@ export default function Explore({ navigation }) {
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
       />
     )}
-      {/* Notification Modal */}
-      {modalVisible &&
-        <View style={styles.modalContainer}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Choose a filter</Text>
-                <Pressable onPress={() => handleFilteSelect('All')}>
-                  <Text style={styles.modalOption}>All</Text>
-                </Pressable>
-                <Pressable onPress={() => handleFilteSelect('Nearest')}>
-                  <Text style={styles.modalOption}>Nearest</Text>
-                </Pressable>
-                <Pressable onPress={() => handleFilteSelect('Latest')}>
-                  <Text style={styles.modalOption}>Latest</Text>
-                </Pressable>
-                <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
-        </View>
-      }
     </View>
-
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     //flex: 1,
+    height: 60,
     flexDirection: 'row',
     //justifyContent: 'center',
     alignItems: 'center',
