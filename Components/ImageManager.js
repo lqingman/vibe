@@ -2,18 +2,36 @@ import { View, Text, Button, Alert, Image, StyleSheet, TouchableOpacity } from '
 import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '../Firebase/firebaseSetup';
 
 
 const ImageManager = ({receiveImageUri, initialImage}) => {
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
     const [image, setImage] = useState(initialImage || null);
-    // console.log(response);
+    const [displayUrl, setDisplayUrl] = useState(null);
+
+    // Add useEffect to handle initialImage
     useEffect(() => {
-      if (initialImage) {
-          setImage(initialImage);
-          receiveImageUri(initialImage);
-      }
-  }, [initialImage]);
+        async function fetchImageUrl() {
+        if (initialImage && initialImage.startsWith('images/')) {
+            try {
+            const reference = ref(storage, initialImage);
+            const url = await getDownloadURL(reference);
+            setDisplayUrl(url);
+            } catch (error) {
+            console.error('Error fetching image URL:', error);
+            Alert.alert('Error', 'Failed to load image');
+            }
+        }
+        }
+        
+        if (initialImage) {
+        setImage(initialImage);
+        fetchImageUrl();
+        }
+    }, [initialImage]);
+    
     async function verifyPermissions() {
         try {
             // check if user has given permission
@@ -105,7 +123,12 @@ const ImageManager = ({receiveImageUri, initialImage}) => {
                 }}
             >
                 {image ? (
-                    <Image source={{ uri: image }} style={styles.image} />
+                    <Image source={{
+                        uri: image.startsWith('images/') 
+                            ? displayUrl 
+                            : image
+                      }} 
+                      style={styles.image} />
                     
                 ) : (
                     <View style={styles.placeholder}>

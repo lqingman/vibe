@@ -1,7 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
@@ -21,7 +19,7 @@ export default function CreatePost({ route, navigation }) {
   const [inputDate, setInputDate] = useState('');
   const [inputTime, setInputTime] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState('');
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
@@ -56,7 +54,7 @@ export default function CreatePost({ route, navigation }) {
   }, [navigation, isEditing]);
 
   const isFirebaseStorageUri = (uri) => {
-    return uri && (uri.includes('firebasestorage.googleapis.com'));
+    return uri && (uri.startsWith('images/'));
   };
   
   async function fetchAndUploadImage(uri) {
@@ -185,7 +183,7 @@ export default function CreatePost({ route, navigation }) {
     setInputDate('');
     setInputTime('');
     setLocation('');
-    setImage(null);
+    setImage('');
     setIsEditing(false);
     setPostId('');
     setLimit(0);
@@ -214,7 +212,6 @@ export default function CreatePost({ route, navigation }) {
         image: finalImageUri,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
-
     };
     if (!isEditing) {
       newPost.attendee = []; // Only include attendee list when creating a new post
