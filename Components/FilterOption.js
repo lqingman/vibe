@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
 import React from 'react'
 import CusPressable from './CusPressable'
 
-export default function FilterOption({filterHandler, filterText}) {
+export default function FilterOption({filterHandler, filterText, textColor}) {
 
   return (
     <CusPressable
@@ -10,7 +10,7 @@ export default function FilterOption({filterHandler, filterText}) {
       pressedHandler={filterHandler}
       childrenStyle={{alignItems: 'center'}}
     >
-      <Text style={styles.text}>{filterText}</Text>
+      <Text style={[styles.text, {color: textColor}]}>{filterText}</Text>
     </CusPressable>
   )
 }

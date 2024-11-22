@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import CusPressable from './CusPressable';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -8,9 +8,12 @@ import FilterOption from './FilterOption';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function FilterMenu() {
+export default function FilterMenu({handleFilterSelection}) {
   const [show, setShow] = useState(false);
   const progressHeight = useSharedValue(0);
+  const [allTextColor, setAllTextColor] = useState('red');
+  const [latestTextColor, setLatestTextColor] = useState('black');
+  const [nearestTextColor, setNearestTextColor] = useState('black');
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -21,20 +24,34 @@ export default function FilterMenu() {
   const startAnimation = () => {
     if (progressHeight.value === 0) {
       // Show the buttons and expand the view
-      progressHeight.value = withTiming(50, { duration: 200 });
+      progressHeight.value = withTiming(50, { duration: 300 });
       setTimeout(() => {
             setShow(true);
-        }, 100)
+        }, 200)
     } else {
       // Hide the buttons and collapse the view
       setShow(false);
-      progressHeight.value = withTiming(0, { duration: 200 });
+      progressHeight.value = withTiming(0, { duration: 300 });
     }
   }
 
-  function filterHandler() {
+  function filterHandler(selectedFilter) {
     startAnimation();
-    console.log('Filter');
+    handleFilterSelection(selectedFilter);
+    if (selectedFilter === 'All') {
+      setAllTextColor('red');
+      setLatestTextColor('black');
+      setNearestTextColor('black');
+    } else if (selectedFilter === 'Latest') {
+      setLatestTextColor('red');
+      setAllTextColor('black');
+      setNearestTextColor('black');
+    } else if (selectedFilter === 'Nearest') {
+      setNearestTextColor('red');
+      setAllTextColor('black');
+      setLatestTextColor('black');
+    }
+    //console.log(`Filter set for ${selectedFilter}`);
   }
 
   return (
@@ -45,9 +62,9 @@ export default function FilterMenu() {
       <Animated.View style={[styles.container, animatedStyle]}>
         {show && (
           <View style={styles.filterContainer}>
-            <FilterOption filterHandler={filterHandler} filterText="All" />
-            <FilterOption filterHandler={filterHandler} filterText="Latest" />
-            <FilterOption filterHandler={filterHandler} filterText="Nearest" />
+            <FilterOption filterHandler={() => filterHandler('All')} filterText="All" textColor={allTextColor} />
+            <FilterOption filterHandler={() => filterHandler("Latest")} filterText="Latest" textColor={latestTextColor} />
+            <FilterOption filterHandler={() => filterHandler("Nearest")} filterText="Nearest" textColor={nearestTextColor} />
           </View>
         )}
       </Animated.View>
