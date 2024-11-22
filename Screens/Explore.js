@@ -175,35 +175,6 @@ function handleFilterSelection(filter) {
   }
 }
 
-          // Fetch results based on keyword in real-time
-          const activitiesRef = collection(database, 'posts');
-          searchQuery = query(activitiesRef, where('keywords', 'array-contains', keyword))
-        }
-
-        const unsubscribe = onSnapshot(searchQuery, (querySnapshot) => {
-          const searchResults = [];
-          querySnapshot.forEach((docSnapshot) => {
-            searchResults.push({
-              id: docSnapshot.id,
-              ...docSnapshot.data(),
-            });
-          });
-
-          setResults(searchResults);
-        }, (err) => console.error("Explore results:", err
-        ));
-
-        // Clean up the listener when the component unmounts or search changes
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Error retrieving results:", error);
-      }
-    }
-
-    fetchResults(search.toLowerCase());
-
-  }, []);
-
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
