@@ -68,6 +68,15 @@ export async function updatePost(postId, updatedData) {
         throw err;
     }
 }
+
+export async function updateDB(id, data, collectionName) {
+  try {
+    await setDoc(doc(database, collectionName, id), data, { merge: true });
+  } catch (err) {
+    console.log("update DB ", err);
+  }
+}
+
 // Delete all documents from a sub-collection
 async function deleteSubCollection(parentDocRef, subCollectionName) {
     const subCollectionRef = collection(parentDocRef, subCollectionName);

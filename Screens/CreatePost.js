@@ -8,6 +8,7 @@ import ImageManager from '../Components/ImageManager';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../Firebase/firebaseSetup';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function CreatePost({ route, navigation }) {
 
@@ -23,6 +24,36 @@ export default function CreatePost({ route, navigation }) {
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
+
+  // Add function to generate description
+const generateAIDescription = async () => {
+  try {
+    
+    // Get user requirements via Alert prompt
+    Alert.prompt(
+      "Generate Description",
+      "provide basic information about the event",
+      async (userInput) => {
+        if (!userInput) return;
+        
+        const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        
+        const prompt = `Generate an engaging description for an event. the event description 
+                        based on the following information: ${userInput}.
+                       Include what people might expect and why they should join.
+                       Keep it concise but informative.`;
+        
+        const result = await model.generateContent(prompt);
+        const generatedText = result.response.text();
+        setDescription(generatedText);
+      }
+    );
+  } catch (error) {
+    console.error('Error generating description:', error);
+    Alert.alert('Error', 'Failed to generate description');
+  } 
+};
 
   useEffect(() => {
     if (route.params?.post) {
@@ -300,14 +331,33 @@ export default function CreatePost({ route, navigation }) {
         </>
     )}
   
-    <TextInput
+    {/* <TextInput
       placeholder="Description"
       value={description}
       onChangeText={setDescription}
       style={styles.descriptionInput}
       multiline
-    />
+    /> */}
 
+  <View style={styles.descriptionContainer}>
+    <TextInput
+      placeholder="Description"
+      value={description}
+      onChangeText={setDescription}
+      style={[styles.input, styles.descriptionInput]}
+      multiline
+    />
+    <TouchableOpacity 
+      style={styles.aiButton}
+      onPress={generateAIDescription}
+    >
+      <FontAwesome5 
+        name="magic" 
+        size={20} 
+        color={'#363678'} 
+      />
+    </TouchableOpacity>
+  </View>
     <TextInput
       placeholder="Limit"
       value={limit}
@@ -342,9 +392,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
 },
+  descriptionContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
   descriptionInput: {
+    flex: 1,
     height: 150,
-    textAlignVertical: 'top', 
+    textAlignVertical: 'top',
+  },
+  aiButton: {
+    padding: 10,
+    marginLeft: 10,
+    alignSelf: 'flex-start',
   },
   buttonContainer: {
     flexDirection: 'row',
