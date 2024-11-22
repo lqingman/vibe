@@ -4,9 +4,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '../Firebase/firebaseSetup';
+import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 
 
-const ImageManager = ({receiveImageUri, initialImage}) => {
+const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
     const [image, setImage] = useState(initialImage || null);
     const [displayUrl, setDisplayUrl] = useState(null);
@@ -14,22 +15,16 @@ const ImageManager = ({receiveImageUri, initialImage}) => {
     // Add useEffect to handle initialImage
     useEffect(() => {
         async function fetchImageUrl() {
-        if (initialImage && initialImage.startsWith('images/')) {
+            if (!initialImage || !initialImage.startsWith('images/')) return;
             try {
-            const reference = ref(storage, initialImage);
-            const url = await getDownloadURL(reference);
-            setDisplayUrl(url);
+                const url = await fetchImageUrlFromDB(initialImage);
+                setDisplayUrl(url);
+                setImage(initialImage);
             } catch (error) {
-            console.error('Error fetching image URL:', error);
-            Alert.alert('Error', 'Failed to load image');
+                console.error('Error fetching image:', error);
             }
         }
-        }
-        
-        if (initialImage) {
-        setImage(initialImage);
         fetchImageUrl();
-        }
     }, [initialImage]);
     
     async function verifyPermissions() {
@@ -100,7 +95,7 @@ const ImageManager = ({receiveImageUri, initialImage}) => {
   return (
     <View style={styles.container}>
             <TouchableOpacity 
-                style={styles.imageContainer}
+                style={[styles.imageContainer, imageStyle]}
                 onPress={() => {
                     Alert.alert(
                         "Select Image",
