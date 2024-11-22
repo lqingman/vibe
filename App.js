@@ -13,7 +13,6 @@ import Login from './Screens/Login';
 import Signup from './Screens/Signup';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Pressable, View } from 'react-native';
-import Style from './Styles/Style';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -23,6 +22,15 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
