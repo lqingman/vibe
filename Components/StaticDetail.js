@@ -1,20 +1,27 @@
 import { View, Text, Image, StyleSheet, TextInput } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost } from '../Firebase/firestoreHelper';
+import { addCommentToPost, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 
 
 export default function StaticDetail({data, updateComments, numAttendees}) {
-  //console.log("received data:",data)
+  console.log("received data:",data)
   if (!data) return null; // Only render if data exists
   const [comment, setComment] = useState('');
+
+  //fetch owner info
+  const [ownerData, setOwnerData] = useState(null);
+  useEffect(() => {
+    getUserData(data.owner).then(setOwnerData);
+    console.log("owner data:", ownerData);  
+  }, [data.owner]);
 
   // Handle the add comment button press
   function handleAddComment() {
@@ -31,6 +38,12 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
 
   return (
     <View style={styles.container}>
+      {/* show owner's profile picture and name */}
+      <View style={styles.ownerInfo}>
+        <Image style={styles.ownerImage} source={{uri: ownerData?.profilePicture}} />
+        <Text style={styles.ownerName}>{ownerData?.name}</Text>
+      </View>
+
       {/* show image */}
       <View style={styles.media}>
         <Image style={styles.image} source={{uri: data.image}} />
@@ -246,5 +259,19 @@ const styles = StyleSheet.create({
   attendeesText: {
     marginLeft: 10,
     fontSize: 16,
+  },
+  ownerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ownerImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  ownerName: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: 'black',
   },
 })
