@@ -7,7 +7,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ImageManager from '../Components/ImageManager';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../Firebase/firebaseSetup';
-
+import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 
 export default function CreatePost({ route, navigation }) {
 
@@ -53,29 +53,7 @@ export default function CreatePost({ route, navigation }) {
     }
   }, [navigation, isEditing]);
 
-  const isFirebaseStorageUri = (uri) => {
-    return uri && (uri.startsWith('images/'));
-  };
-  
-  async function fetchAndUploadImage(uri) {
-    const response = await fetch(uri);
-    try {
-      
-      if (!response.ok) {
-        throw new Error('HTTP Error! Status: ' + response.status);
-      }
-      const blob = await response.blob();
-      // let's upload blob to firebase storage
-      const imageName = uri.substring(uri.lastIndexOf('/') + 1);
-      const imageRef = ref(storage, `images/${imageName}`)
-      const uploadResult = await uploadBytesResumable(imageRef, blob);
-      console.log('upload result' + uploadResult);
 
-      return uploadResult.ref.fullPath;
-    } catch (err) {
-      console.log(err);
-    }
-  }
   const confirmDelete = () => {
     Alert.alert(
       'Confirm Delete',
