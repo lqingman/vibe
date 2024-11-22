@@ -286,7 +286,7 @@ export async function fetchComments(postId) {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error fetching profile picture:', error);
+      console.error('Error fetching picture:', error);
       return null;
     }
   };

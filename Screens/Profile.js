@@ -3,29 +3,41 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
+import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import PostsList from './PostsList';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
+  const [profilePicUrl, setProfilePicUrl] = useState('');
 
   useEffect(() => {
     if (!auth.currentUser) {
       return;
     }
     const userDocRef = doc(database, 'users', auth.currentUser.uid);
-    const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
+    const unsubscribe = onSnapshot(userDocRef,async (userDoc) => {
       if (userDoc.exists()) {
-        setUserData(userDoc.data());
+        const data = userDoc.data(); // Define data here
+        setUserData(data);
+
+        if (data.picture && data.picture.startsWith('images/')) {
+          try {
+            const url = await fetchImageUrlFromDB(data.picture);
+            setProfilePicUrl(url);
+          } catch (error) {
+            console.error('Error fetching profile picture:', error);
+          }
+        }
+
         console.log("profile results:", userDoc.data());
       }
-    },(err
-    ) => console.error("profile results:", err
-    ));
+    },(err) => console.error("profile results:", err));
 
     return () => unsubscribe();
   }, [auth.currentUser]);
+
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -44,7 +56,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <Image source={{ uri: userData.picture ? userData.picture : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={styles.profileImage} />
+        <Image source={{ uri: profilePicUrl ? profilePicUrl : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={styles.profileImage} />
         <Text style={styles.name}>{userData.name}</Text>
         <Text style={styles.bio}>{userData.bio}</Text>
         <Text style={styles.info}>Gender: {userData.gender}</Text>
