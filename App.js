@@ -12,7 +12,7 @@ import Setting from './Screens/Setting';
 import Login from './Screens/Login';
 import Signup from './Screens/Signup';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, Alert, Platform } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -23,12 +23,14 @@ import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
 import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    priority: Notifications.AndroidNotificationPriority.MAX,
   }),
 });
 
@@ -60,6 +62,47 @@ export default function App() {
         setIsUserLogin(false);
       }
     })
+  }, []);
+
+  // Add this useEffect for notification setup
+  useEffect(() => {
+    async function configurePushNotifications() {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync({
+          ios: {
+            allowAlert: true,
+            allowBadge: true,
+            allowSound: true,
+            allowAnnouncements: true,
+          },
+        });
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Push notifications are required for event reminders.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Create notification channels for Android
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('events', {
+          name: 'Event Reminders',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+    }
+
+    configurePushNotifications();
   }, []);
 
   // Create the Material Top Tab Navigator for the Home Screen

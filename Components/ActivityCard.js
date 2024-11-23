@@ -1,14 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import CusPressable from './CusPressable';
 import FavoriteButton from './FavoriteButton';
 import { auth } from '../Firebase/firebaseSetup';
 import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 
 
 export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle, onPress}) {
   if (!data) return null; // Only render if data exists
-  const [favorited, setFavorited] = React.useState(false);
+  //console.log('data', data);
+  const [favorited, setFavorited] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {
     // Check if the activity is already favorited when the component mounts
@@ -24,6 +27,24 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
     }
     checkFavorited();
   }, [data.id]);
+  
+  //fetch image from firebase storage
+  useEffect(() => {
+    const fetchImage = async () => {
+      // Get download URL for the post image
+      if (data?.image) {
+        const storage = getStorage();
+        const postImageRef = ref(storage, data.image);
+        try {
+          const url = await getDownloadURL(postImageRef);
+          setImageUrl(url);
+        } catch (error) {
+          console.error("Error getting post image URL:", error);
+        }
+      }
+    };
+    fetchImage();
+  }, [data.image]);
 
   // Handle the favorite button press
   const handleFavoritePress = async () => {
@@ -46,12 +67,12 @@ export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle
       childrenStyle={styles.inner}>
         <View
         style={[styles.media]}>
-          <Image style={styles.image} source={{uri: data.image}} />
+          <Image style={styles.image} source={{uri: imageUrl}} />
         </View>
         <Text style={styles.titleText}>{data.title}</Text>
         <View style={[styles.content, contentStyle]}>
           <Text style={styles.text}>{data.date}</Text>
-          <Text style={styles.text}>{data.location}</Text>
+          <Text style={styles.text}>{data.city}</Text>
         </View>
         <FavoriteButton
           componentStyle={{

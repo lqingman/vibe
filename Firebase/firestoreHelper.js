@@ -1,6 +1,8 @@
 import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
 import { auth, database, storage } from "./firebaseSetup";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { scheduleNotificationHandler, cancelNotification, getAllScheduledNotifications } from '../Components/NotificationManager';
+
 
 // Write to the database
 export async function writeToDB(data, collectionName, docId=null) {
@@ -99,8 +101,25 @@ export async function deletePost(postId, userId) {
         }
 
         await deleteDoc(postDocRef);
-        // await deleteArrayField('users', userId, 'posts', postId);
+
+        // Get user data to find the notification
         const userDocRef = doc(database, 'users', userId);
+        const userSnapshot = await getDoc(userDocRef);
+        
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const notifications = userData.notifications || [];
+            
+            // Find notification for this post
+            const notificationToDelete = notifications.find(notif => notif.postId === postId);
+            
+            if (notificationToDelete) {
+                // Remove the notification
+                await updateDoc(userDocRef, {
+                    notifications: arrayRemove(notificationToDelete)
+                });
+            }
+        }
 
         await updateDoc(userDocRef, {
             posts: arrayRemove(postId)
@@ -225,7 +244,7 @@ export async function fetchComments(postId) {
   }
 
   // Add or update a notification for a post
-  export async function addOrUpdateNotification(postId, time) {
+  export async function addOrUpdateNotification(postId, time, postData) {
     try {
         const userDocRef = doc(database, 'users', auth.currentUser.uid);
         const userSnapshot = await getDoc(userDocRef);
@@ -239,21 +258,59 @@ export async function fetchComments(postId) {
 
             if (existingNotification) {
                 // If a notification exists, update the time
+                await cancelNotification(existingNotification.notificationId);
                 await updateDoc(userDocRef, {
                     notifications: arrayRemove(existingNotification)
                 });
 
-                const updatedNotification = { ...existingNotification, time };
-                await updateDoc(userDocRef, {
-                    notifications: arrayUnion(updatedNotification)
-                });
+                // Schedule new notification
+                const notificationId = await scheduleNotificationHandler(
+                    postData.title,
+                    postData.date,
+                    postData.time,
+                    time
+                );
+
+                if (notificationId) {
+                    // Check scheduled notifications
+                    const scheduledNotifications = await getAllScheduledNotifications();
+                    console.log('Currently scheduled notifications:', scheduledNotifications);
+
+                    const notificationData = {
+                        postId,
+                        time,
+                        notificationId
+                    };
+
+                    await updateDoc(userDocRef, {
+                        notifications: arrayUnion(notificationData)
+                    });
+                }  
                 console.log("Notification time updated for post:", postId);
             } else {
                 // If no existing notification, add a new one
-                const newNotification = { postId, time };
-                await updateDoc(userDocRef, {
-                    notifications: arrayUnion(newNotification)
-                });
+                const notificationId = await scheduleNotificationHandler(
+                    postData.title,
+                    postData.date,
+                    postData.time,
+                    time
+                );
+
+                if (notificationId) {
+                    // Check scheduled notifications
+                    const scheduledNotifications = await getAllScheduledNotifications();
+                    console.log('Currently scheduled notifications:', scheduledNotifications);
+
+                    const notificationData = {
+                        postId,
+                        time,
+                        notificationId
+                    };
+
+                    await updateDoc(userDocRef, {
+                        notifications: arrayUnion(notificationData)
+                    });
+                }  
                 console.log("New notification added for post:", postId);
             }
         } else {
