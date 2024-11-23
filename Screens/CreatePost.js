@@ -9,6 +9,11 @@ import { ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../Firebase/firebaseSetup';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import CusPressable from '../Components/CusPressable';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import * as Location from 'expo-location';
+
+
 
 export default function CreatePost({ route, navigation }) {
 
@@ -19,7 +24,11 @@ export default function CreatePost({ route, navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [inputDate, setInputDate] = useState('');
   const [inputTime, setInputTime] = useState('');
-  const [location, setLocation] = useState('');
+
+  const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState(null); 
+  const [city, setCity] = useState('');
+
   const [image, setImage] = useState('');
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -63,7 +72,7 @@ const generateAIDescription = async () => {
       setDate(new Date(post.date));
       setInputDate(post.date);
       setInputTime(post.time);
-      setLocation(post.location);
+      setAddress(post.address);
       setImage(post.image);
       setLimit(post.limit.toString());
       setIsEditing(true);
@@ -161,7 +170,7 @@ const generateAIDescription = async () => {
       Alert.alert('Date is required');
       return false;
     }
-    if (!location) {
+    if (!address) {
       Alert.alert('Location is required');
       return false;
     }
@@ -191,7 +200,9 @@ const generateAIDescription = async () => {
     setDate(new Date());
     setInputDate('');
     setInputTime('');
-    setLocation('');
+    setAddress('');
+    setCoordinates(null);
+    setCity('');
     setImage('');
     setIsEditing(false);
     setPostId('');
@@ -217,7 +228,9 @@ const generateAIDescription = async () => {
         date: inputDate,
         time: inputTime,
         description: description,
-        location: location,
+        address: address,
+        coordinates: coordinates,
+        city: city,
         image: finalImageUri,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
@@ -251,7 +264,7 @@ const generateAIDescription = async () => {
       style={{
         flex: 1,
         padding: 20,
-        marginVertical: 10
+        backgroundColor: 'white',
       }}
     >
     {/* image feature to be improved */}
@@ -359,21 +372,40 @@ const generateAIDescription = async () => {
     </TouchableOpacity>
   </View>
     <TextInput
-      placeholder="Limit"
+      placeholder="Max Capacity"
       value={limit}
       onChangeText={setLimit}
       style={styles.input}
     />
-
-    <TextInput
-      placeholder="Location"
-      value={location}
-      onChangeText={setLocation}
-      style={styles.input}
-    />
-    <View style={styles.mapView}>
-          <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
-        </View>
+    <CusPressable
+      pressedHandler={() => navigation.navigate('ChangeLocation', { 
+        onReturn: (selectedLocation) => {
+          // Store coordinates
+          setCoordinates({
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude
+          });
+          // Convert the coordinates to an address string
+          Location.reverseGeocodeAsync({
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude
+          }).then(addresses => {
+            if (addresses.length > 0) {
+              const address = addresses[0];
+              const locationString = `${address.street || ''} ${address.city || ''} ${address.region || ''}`.trim();
+              setAddress(locationString);
+              //console.log(locationString);
+            }
+          });
+        }
+      })}
+      componentStyle={styles.locationButton}
+    >
+      <View style={styles.locationButtonContent}>
+        <FontAwesome6 name="location-dot" size={24} color="black" />
+        <Text style={styles.locationText}>{address || "Select Location"}</Text>
+      </View>
+    </CusPressable>
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={handleCancel} />
       <Button title="Submit" onPress={handleSubmit} />
@@ -424,5 +456,36 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 10,
     // marginBottom: 100,
+  },
+  locationButton: {
+    backgroundColor: 'lightblue',
+    height: "10%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginBottom: 10,
+    minWidth: '45%', 
+    maxWidth: '90%',
+    alignSelf: 'flex-start'
+  },
+  locationButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    gap: 5,
+  },
+  locationText: {
+    fontSize: 16,
+    flexShrink: 1, 
+    numberOfLines: 1, 
+    ellipsizeMode: 'tail',
+    paddingTop: 3,
   },
 })

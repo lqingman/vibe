@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { SearchBar } from 'react-native-elements';
 import LocationManager from '../Components/LocationManager';
 import * as Location from 'expo-location';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getUserData, updateDB } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import CusPressable from '../Components/CusPressable';
@@ -15,6 +15,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 export default function ChangeLocation() {
   const mapRef = useRef(null);
+  const route = useRoute();
 
   const [search, setSearch] = useState('');  
   const [searchResults, setSearchResults] = useState([]);
@@ -92,9 +93,14 @@ export default function ChangeLocation() {
   };
 
   function saveLocationHandler() {
+    //update user location
     if (!selectedLocation) return;
     updateDB(auth.currentUser.uid, { location: selectedLocation }, 'users');
-    navigation.navigate('Tab');
+    // update post location
+    if (route.params?.onReturn) {
+      route.params.onReturn(selectedLocation);
+    }
+    navigation.goBack();
   }
 
   return (
