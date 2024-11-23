@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { writeToDB, updateArrayField, updatePost, deletePost } from '../Firebase/firestoreHelper';
+import { writeToDB, updateArrayField, updatePost, deletePost, deleteArrayField } from '../Firebase/firestoreHelper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ImageManager from '../Components/ImageManager';
 import { ref, uploadBytesResumable } from 'firebase/storage';
@@ -116,6 +116,7 @@ const generateAIDescription = async () => {
   const handleDelete = async () => {
     try {
       await deletePost(postId, auth.currentUser.uid);
+      await deleteArrayField('users', auth.currentUser.uid, 'joined', postId);
       Alert.alert('Post deleted successfully');
       navigation.goBack();
       navigation.goBack();

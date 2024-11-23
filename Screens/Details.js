@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,6 +8,8 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
 import DropDown from '../Components/FilterMenu';
+import {Picker} from '@react-native-picker/picker';
+
 
 
 export default function Details({route, navigation}) {
@@ -21,6 +23,9 @@ export default function Details({route, navigation}) {
   const [selectedTime, setSelectedTime] = useState(null);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
+
+  const [selectedLanguage, setSelectedLanguage] = useState();
+
 
   // Check if the user has joined the activity
   useEffect(() => {
@@ -109,7 +114,7 @@ export default function Details({route, navigation}) {
   // Set a notification for the activity
   function handleNotificationPress() {
     // setModalVisible(true);
-    setDropdownVisible((prev) => !prev)
+    setModalVisible((prev) => !prev)
   }
 
   // Set the notification time and add it to the user's notifications
@@ -139,7 +144,7 @@ export default function Details({route, navigation}) {
         data={comments}
         keyExtractor={(item) => {return(item.id)}}
         renderItem={({ item }) => {
-          console.log("falt list ",item)
+          //console.log("falt list ",item)
           return <View style={styles.comment}>
             <Text style={styles.commentText}>User {item.owner}:</Text>
             <Text style={styles.commentText}>{item.text}</Text>
@@ -225,25 +230,29 @@ export default function Details({route, navigation}) {
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Set Notification</Text>
-              <Pressable onPress={() => handleTimeSelect('5 minutes')}>
-                <Text style={styles.modalOption}>5 minutes before</Text>
-              </Pressable>
-              <Pressable onPress={() => handleTimeSelect('10 minutes')}>
-                <Text style={styles.modalOption}>10 minutes before</Text>
-              </Pressable>
-              <Pressable onPress={() => handleTimeSelect('30 minutes')}>
-                <Text style={styles.modalOption}>30 minutes before</Text>
-              </Pressable>
-              <Pressable onPress={() => handleTimeSelect('1 hour')}>
-                <Text style={styles.modalOption}>1 hour before</Text>
-              </Pressable>
-              <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </Pressable>
-            </View>
+        <View style={styles.pickerContainer}>
+          <TouchableOpacity
+            style={styles.doneButton} 
+            onPress={() => setModalVisible(false)}
+          >
+            <Text>Done</Text>
+          </TouchableOpacity>
+          <Picker
+            selectedValue={selectedLanguage}
+            onValueChange={(itemValue, itemIndex) =>
+              setSelectedLanguage(itemValue)
+            }>
+            <Picker.Item label="None" value="None" />
+            <Picker.Item label="At time of event" value="At time of event" />
+            <Picker.Item label="30 minutes before" value="30 minutes before" />
+            <Picker.Item label="1 hour before" value="1 hour before" />
+            <Picker.Item label="2 hours before" value="2 hours before" />
+            <Picker.Item label="1 day before" value="1 day before" />
+            <Picker.Item label="2 days before" value="2 days before" />
+            <Picker.Item label="1 week before" value="1 week before" />
+          </Picker>
           </View>
+        </View>
         </Modal>
       </View>
     </View>
@@ -370,12 +379,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
   modalContent: {
     width: '80%',
     padding: 20,
@@ -399,5 +402,24 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'red',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  pickerContainer: {
+    backgroundColor: 'white',
+    width: '100%',
+    paddingBottom: 20, // Add padding for iOS home indicator
+  },
+  picker: {
+    height: 216, // Standard iOS picker height
+    backgroundColor: 'white',
+  },
+  doneButton: {
+    alignSelf: 'flex-end',
+    padding: 12,
+    backgroundColor: 'white',
   },
 })

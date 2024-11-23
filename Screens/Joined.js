@@ -54,6 +54,7 @@ export default function Joined({navigation}) {
       fetchPostData();
     }
   }, [joinedActivities]);
+
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -61,6 +62,7 @@ export default function Joined({navigation}) {
       </View>
     );
   }
+
   return (
     <View>
       {joinedActivities.length === 0 ? (
