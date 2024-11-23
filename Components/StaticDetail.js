@@ -10,6 +10,7 @@ import { addCommentToPost, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import Map from './Map';
 
 
 export default function StaticDetail({data, updateComments, numAttendees}) {
@@ -100,11 +101,6 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
         <Text style={styles.timeText}>{data.time}</Text>
       </View>
 
-      <View style={styles.locationView}>
-        <Entypo name="location-pin" size={24} color="purple" />
-        <Text style={styles.locationText}>{data.location}</Text>
-      </View>
-
       <View style={styles.attendeesView}>
         <Ionicons name="people" size={24} color="purple" />
         <Text style={styles.attendeesText}>{numAttendees}/{data.limit}</Text>
@@ -116,8 +112,13 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       </View>
 
       {/* show map */}
+      <View style={styles.locationView}>
+        <Entypo name="location-pin" size={24} color="purple" />
+        <Text style={styles.locationText}>{data.address}</Text>
+      </View>
+
       <View style={styles.mapView}>
-        <Image style={styles.map} source={{uri: "https://external-preview.redd.it/map-of-downtown-vancouver-made-with-google-maps-v0-fLegPkDqPZKO5HoxStTdgxFlXaYuKRdeF5nef2KW-Vs.png?auto=webp&s=d33e7ede6777994dccc9c940d0a478b866e6cb72"}} />
+        <Map latitude={data.coordinates.latitude} longitude={data.coordinates.longitude} />
       </View>
 
       {/* show comment input and button */}
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
   locationView: {
     marginVertical: 10,
     flexDirection: 'row',
-    alignItems: 'center',
+    //alignItems: 'center',
   },
   locationText: {
     marginLeft: 10,
@@ -221,10 +222,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mapView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    height: 200,
+    width: '90%',
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   map: {
     width: '90%',

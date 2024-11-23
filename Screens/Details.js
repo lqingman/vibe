@@ -146,7 +146,6 @@ export default function Details({route, navigation}) {
         data={comments}
         keyExtractor={(item) => {return(item.id)}}
         renderItem={({ item }) => {
-          //console.log("falt list ",item)
           return <View style={styles.comment}>
             <Text style={styles.commentText}>User {item.owner}:</Text>
             <Text style={styles.commentText}>{item.text}</Text>
@@ -154,7 +153,6 @@ export default function Details({route, navigation}) {
         }}
         ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
         ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-        // extraData={comments}
       />
       {/* Join/Leave button */}
       {joined ?
