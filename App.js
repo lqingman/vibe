@@ -193,7 +193,7 @@ export default function App() {
             <Stack.Screen name="ChangeLocation" 
             component={ChangeLocation} 
             options={{
-              title:"Change Your Location", 
+              title:"Choose a Location", 
               headerStyle:{backgroundColor:Color.navigatorBg}, 
               headerTintColor: Color.white,
               headerBackTitleVisible: false,
