@@ -17,14 +17,17 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
   if (!data) return null; // Only render if data exists
   const [comment, setComment] = useState('');
   const [ownerData, setOwnerData] = useState(null);
-  const [ownerImageUrl, setOwnerImageUrl] = useState(null);  // Add this state
+  const [ownerImageUrl, setOwnerImageUrl] = useState(null);  
+  const [postImageUrl, setPostImageUrl] = useState(null);  // Add this state
+
 
   useEffect(() => {
-    const loadOwnerData = async () => {
+    const loadData = async () => {
+      // Load owner data
       const userData = await getUserData(data.owner);
       setOwnerData(userData);
       
-      // Get download URL for the profile picture
+      // Get download URL for the owner's profile picture
       if (userData?.picture) {
         const storage = getStorage();
         const imageRef = ref(storage, userData.picture);
@@ -32,12 +35,24 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
           const url = await getDownloadURL(imageRef);
           setOwnerImageUrl(url);
         } catch (error) {
-          console.error("Error getting download URL:", error);
+          console.error("Error getting owner image URL:", error);
+        }
+      }
+
+      // Get download URL for the post image
+      if (data?.image) {
+        const storage = getStorage();
+        const postImageRef = ref(storage, data.image);
+        try {
+          const url = await getDownloadURL(postImageRef);
+          setPostImageUrl(url);
+        } catch (error) {
+          console.error("Error getting post image URL:", error);
         }
       }
     };
 
-    loadOwnerData();
+    loadData();
   }, []);
 
   // Handle the add comment button press
@@ -66,7 +81,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
 
       {/* show image */}
       <View style={styles.media}>
-        <Image style={styles.image} source={{uri: data.image}} />
+        <Image style={styles.image} source={postImageUrl ? {uri: postImageUrl} : null} />
       </View>
 
       {/* show title */}
