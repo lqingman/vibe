@@ -45,7 +45,7 @@ export default function Joined({navigation}) {
               return post;
             })
           );
-          setPostData(posts);
+          setPostData(posts.filter(post => post !== null));
         } catch (error) {
           console.error("Error fetching post data:", error);
         }

@@ -123,7 +123,7 @@ export default function Details({route, navigation}) {
     setSelectedTime(time);
     setModalVisible(false);
     console.log(`Notification set for ${time}`);
-    addOrUpdateNotification(data.id, time);
+    addOrUpdateNotification(data.id, time, data);
   }
 
   // Add a comment to the activity
