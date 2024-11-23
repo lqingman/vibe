@@ -231,7 +231,14 @@ export default function App() {
         {isUserLogin ? (
           <>
             {/* Create the tab navigator */}
-            <Stack.Screen name="Tab" children={tabNavigator} options={{headerShown: false}}/>
+            <Stack.Screen 
+              name="Tab" 
+              children={tabNavigator} 
+              options={{ 
+                headerShown: false,
+                headerBackTitle: "Home"  // Add this for iOS
+              }}
+            />            
             {/* Create the Home screen */}
             <Stack.Screen name="ChangeLocation" 
             component={ChangeLocation} 
@@ -239,7 +246,7 @@ export default function App() {
               title:"Choose a Location", 
               headerStyle:{backgroundColor:Color.navigatorBg}, 
               headerTintColor: Color.white,
-              headerBackTitleVisible: false,
+              headerBackTitle: "Back",
             }}/>
             <Stack.Screen 
               name="Details" 
@@ -248,6 +255,7 @@ export default function App() {
                 title: "Details", 
                 headerStyle: { backgroundColor: Color.navigatorBg }, 
                 headerTintColor: Color.white,
+                headerBackTitle: "Home",
               }}
             />
             <Stack.Screen

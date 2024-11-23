@@ -136,6 +136,8 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
               alignSelf: 'center',
               justifyContent: 'center',
               marginLeft: 10,
+              marginBottom: 10,
+              marginRight: 10,
             }}
             childrenStyle={{
               padding: 10,
@@ -267,6 +269,7 @@ const styles = StyleSheet.create({
   commentText: {
     fontSize: 16,
     marginBottom: 10,
+    marginLeft: 10,
   },
   commentInput: {
     width: '70%',
@@ -275,17 +278,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgrey',
     borderRadius: 10,
     marginBottom: 10,
+    marginLeft: 10,
   },
   commentButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    //alignSelf: 'center',
   },
   commentsView: {
     marginVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey',
     width: '110%',
+    marginLeft: -10,
   },
   attendeesView: {
     marginVertical: 10,
