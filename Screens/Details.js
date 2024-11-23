@@ -119,6 +119,7 @@ export default function Details({route, navigation}) {
 
   // Set the notification time and add it to the user's notifications
   function handleTimeSelect(time) {
+    console.log('time', time);
     setSelectedTime(time);
     setModalVisible(false);
     console.log(`Notification set for ${time}`);
@@ -130,6 +131,7 @@ export default function Details({route, navigation}) {
     console.log("update ",comments)
     setComments((prevComments)=>[...prevComments, newComment]);
   }
+
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -233,14 +235,22 @@ export default function Details({route, navigation}) {
         <View style={styles.pickerContainer}>
           <TouchableOpacity
             style={styles.doneButton} 
-            onPress={() => setModalVisible(false)}
+            onPress={() => {
+              if (selectedTime) {
+                handleTimeSelect(selectedTime);
+              }
+              setModalVisible(false);
+            }}
           >
             <Text>Done</Text>
           </TouchableOpacity>
           <Picker
             selectedValue={selectedLanguage}
             onValueChange={(itemValue, itemIndex) =>
-              setSelectedLanguage(itemValue)
+              {
+                setSelectedLanguage(itemValue),
+                setSelectedTime(itemValue)
+              }
             }>
             <Picker.Item label="None" value="None" />
             <Picker.Item label="At time of event" value="At time of event" />

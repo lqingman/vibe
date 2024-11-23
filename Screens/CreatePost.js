@@ -395,6 +395,7 @@ const generateAIDescription = async () => {
               const address = addresses[0];
               const locationString = `${address.street || ''} ${address.city || ''} ${address.region || ''}`.trim();
               setAddress(locationString);
+              setCity(address.city || '');
               //console.log(locationString);
             }
           });
