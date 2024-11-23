@@ -99,8 +99,25 @@ export async function deletePost(postId, userId) {
         }
 
         await deleteDoc(postDocRef);
-        // await deleteArrayField('users', userId, 'posts', postId);
+        
+        // Get user data to find the notification
         const userDocRef = doc(database, 'users', userId);
+        const userSnapshot = await getDoc(userDocRef);
+        
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const notifications = userData.notifications || [];
+            
+            // Find notification for this post
+            const notificationToDelete = notifications.find(notif => notif.postId === postId);
+            
+            if (notificationToDelete) {
+                // Remove the notification
+                await updateDoc(userDocRef, {
+                    notifications: arrayRemove(notificationToDelete)
+                });
+            }
+        }
 
         await updateDoc(userDocRef, {
             posts: arrayRemove(postId)
