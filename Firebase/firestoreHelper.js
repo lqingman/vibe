@@ -1,7 +1,7 @@
 import { collection, addDoc, doc, deleteDoc, getDocs, updateDoc, arrayUnion, setDoc, getDoc, query, where, arrayRemove } from "firebase/firestore";
 import { auth, database, storage } from "./firebaseSetup";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { scheduleNotificationHandler, cancelNotification } from '../Components/NotificationManager';
+import { scheduleNotificationHandler, cancelNotification, getAllScheduledNotifications } from '../Components/NotificationManager';
 
 
 // Write to the database
@@ -267,10 +267,15 @@ export async function fetchComments(postId) {
                 const notificationId = await scheduleNotificationHandler(
                     postData.title,
                     postData.date,
+                    postData.time,
                     time
                 );
 
                 if (notificationId) {
+                    // Check scheduled notifications
+                    const scheduledNotifications = await getAllScheduledNotifications();
+                    console.log('Currently scheduled notifications:', scheduledNotifications);
+
                     const notificationData = {
                         postId,
                         time,
@@ -287,10 +292,15 @@ export async function fetchComments(postId) {
                 const notificationId = await scheduleNotificationHandler(
                     postData.title,
                     postData.date,
+                    postData.time,
                     time
                 );
 
                 if (notificationId) {
+                    // Check scheduled notifications
+                    const scheduledNotifications = await getAllScheduledNotifications();
+                    console.log('Currently scheduled notifications:', scheduledNotifications);
+
                     const notificationData = {
                         postId,
                         time,

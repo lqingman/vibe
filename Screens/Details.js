@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useLayoutEffect } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -240,6 +240,7 @@ export default function Details({route, navigation}) {
                 handleTimeSelect(selectedTime);
               }
               setModalVisible(false);
+              Alert.alert('Notification set for', selectedTime);
             }}
           >
             <Text>Done</Text>

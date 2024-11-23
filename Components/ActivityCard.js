@@ -9,7 +9,7 @@ import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 
 export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle, onPress}) {
   if (!data) return null; // Only render if data exists
-  console.log('data', data);
+  //console.log('data', data);
   const [favorited, setFavorited] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
 
