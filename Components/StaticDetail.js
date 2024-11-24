@@ -75,7 +75,23 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       {/* show owner's profile picture and name */}
       <TouchableOpacity 
         style={styles.ownerInfo}
-        onPress={() => navigation.navigate('UserProfile', { userId: data.owner })}
+        onPress={() => {
+          if (data.owner === auth.currentUser?.uid) {
+            // If it's the current user's profile, navigate to the Profile tab
+            // navigation.navigate('Tab', { screen: 'Profile' });
+            // Reset navigation stack and set Tab as the only screen
+            navigation.reset({
+              index: 0,
+              routes: [{ 
+                name: 'Tab',
+                params: { screen: 'Profile' }
+              }],
+            });
+          } else {
+            // If it's another user's profile, navigate to UserProfile
+            navigation.navigate('UserProfile', { userId: data.owner });
+          }
+        }}
       >
         <Image 
           style={styles.ownerImage} 
