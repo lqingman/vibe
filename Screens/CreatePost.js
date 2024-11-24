@@ -125,13 +125,19 @@ const generateAIDescription = async () => {
       Alert.alert('Error deleting post', error.message);
     }
   };
-
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShowDatePicker(false); // Hide the date picker on both platforms
+    setShowDatePicker(false);
+
     setDate(currentDate);
-    setInputDate(currentDate.toLocaleDateString());
+    setInputDate(formatDate(currentDate));
   };
 
   const onChangeTime = (event, selectedTime) => {
@@ -143,9 +149,9 @@ const generateAIDescription = async () => {
 
   const onChangeDateTime = (event, selectedDateTime) => {
     const currentDateTime = selectedDateTime;
-    // setShowDatePicker(false); // Hide the date picker on both platforms
+    // setShowDatePicker(false);
     setDate(currentDateTime);
-    setInputDate(currentDateTime.toLocaleDateString());
+    setInputDate(formatDate(currentDateTime));
     setInputTime(currentDateTime.toLocaleTimeString());
   }
 
