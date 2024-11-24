@@ -22,17 +22,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
-import * as Notifications from 'expo-notifications';
-
-// Set up notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    priority: Notifications.AndroidNotificationPriority.MAX,
-  }),
-});
 
 // Create the Stack Navigator
 const Stack = createNativeStackNavigator();

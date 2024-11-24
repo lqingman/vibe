@@ -21,13 +21,13 @@ async function setupNotifications() {
         ios: {
           allowAlert: true,
           allowBadge: true,
-          allowSound: true,
-          allowAnnouncements: true,
+          allowSound: false,
+          allowAnnouncements: false,
         },
         android: {
           allowAlert: true,
           allowBadge: true,
-          allowSound: true,
+          allowSound: false,
         },
       });
       finalStatus = status;
@@ -154,11 +154,10 @@ export async function scheduleNotificationHandler(eventTitle, eventDate, eventTi
       content: {
         title: "Event Reminder",
         body: `Your event "${eventTitle}" is coming up!`,
-        sound: true,
-        priority: 'max',
+        //priority: 'max',
       },
       trigger: {
-        type: 'timeInterval',
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: secondsUntilTrigger,
         repeats: false
       },

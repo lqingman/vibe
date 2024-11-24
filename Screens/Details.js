@@ -301,7 +301,7 @@ export default function Details({route, navigation}) {
                 handleTimeSelect(selectedTime);
               }
               setModalVisible(false);
-              Alert.alert('Notification set for', selectedTime);
+              Alert.alert('Notification set successfully!');
             }}
           >
             <Text>Done</Text>
