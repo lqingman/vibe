@@ -1,5 +1,4 @@
 import * as Notifications from 'expo-notifications';
-import { Alert } from 'react-native';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -10,7 +9,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Add this function to set up notifications
+// set up notifications
 async function setupNotifications() {
   try {
     // Request permissions
@@ -42,14 +41,14 @@ async function setupNotifications() {
   }
 }
 
-// Add notification listeners
-Notifications.addNotificationReceivedListener(notification => {
-  console.log('Notification received:', notification);
-});
+// // Add notification listeners
+// Notifications.addNotificationReceivedListener(notification => {
+//   console.log('Notification received:', notification);
+// });
 
-Notifications.addNotificationResponseReceivedListener(response => {
-  console.log('Notification response received:', response);
-});
+// Notifications.addNotificationResponseReceivedListener(response => {
+//   console.log('Notification response received:', response);
+// });
 
 // Helper function to calculate when to trigger the notification
 function calculateTriggerTime(eventDate, eventTime, timeOption) {
@@ -164,20 +163,6 @@ export async function scheduleNotificationHandler(eventTitle, eventDate, eventTi
         repeats: false
       },
     });
-
-    // // Verify the scheduled time
-    // const nextTriggerDate = await Notifications.getNextTriggerDateAsync({
-    //   type: 'timeInterval',
-    //   seconds: secondsUntilTrigger,
-    // });
-
-    // console.log('Scheduled notification verification:', {
-    //   notificationId,
-    //   scheduledFor: triggerDate.toLocaleString(),
-    //   nextTriggerDate: nextTriggerDate ? new Date(nextTriggerDate).toLocaleString() : 'Not scheduled',
-    //   secondsUntilTrigger
-    // });
-
     return notificationId;
   } catch (err) {
     console.error("Schedule notification error:", err);

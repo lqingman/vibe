@@ -2,6 +2,7 @@ import { View, StyleSheet } from 'react-native'
 import React, { forwardRef } from 'react'
 import MapView, { Marker } from "react-native-maps";
 
+// Custom location manager component
 const LocationManager = forwardRef(({ selectedLocation, onLocationSelect }, ref) => {
   return (
     <View style={styles.container}>

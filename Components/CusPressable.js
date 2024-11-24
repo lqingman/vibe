@@ -33,6 +33,6 @@ const styles = StyleSheet.create({
     },
     defaultPressed: {
       backgroundColor: "lavender",
-      opacity: 0.5, // Apply the opacity when pressed
+      opacity: 0.5,
     },
   });
