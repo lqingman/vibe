@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost, deleteArrayField } from '../Firebase/firestoreHelper';
@@ -35,36 +35,42 @@ export default function CreatePost({ route, navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
 
-  // Function to generate description
-const generateAIDescription = async () => {
-  try {
-    
-    // Get user requirements via Alert prompt
-    Alert.prompt(
-      "Generate Description",
-      "provide basic information about the event",
-      async (userInput) => {
-        if (!userInput) return;
-        
-        const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        
-        const prompt = `Generate an engaging description for an event. the event description 
-                        based on the following information: ${userInput}.
-                       Include what people might expect and why they should join.
-                       Keep it concise but informative.`;
-        
-        const result = await model.generateContent(prompt);
-        const generatedText = result.response.text();
-        setDescription(generatedText);
-      }
-    );
-  } catch (error) {
-    console.error('Error generating description:', error);
-    Alert.alert('Error', 'Failed to generate description');
-  } 
-};
+  const [modalInput, setModalInput] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
+  // Function to generate description
+  const handleGenerateDescription = async (input) => {
+    try {
+          if (!input) return;
+          
+          const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          
+          const prompt = `Generate an engaging description for an event. the event description 
+                          based on the following information: ${input}.
+                        Include what people might expect and why they should join.
+                        Keep it concise but informative.`;
+          
+          const result = await model.generateContent(prompt);
+          const generatedText = result.response.text();
+          setDescription(generatedText);
+    } catch (error) {
+      console.error('Error generating description:', error);
+      Alert.alert('Error', 'Failed to generate description');
+    } 
+  };
+
+  const openInputPrompt = () => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        "Generate Description",
+        "Provide basic information about the event",
+        async (input) => await handleGenerateDescription(input)
+      );
+    } else {
+      setModalVisible(true); // Show modal for Android
+    }
+  };
   // Effect to set the post data if editing
   useEffect(() => {
     if (route.params?.post) {
@@ -324,19 +330,6 @@ const generateAIDescription = async () => {
       // onSubmitEditing={Keyboard.dismiss}
     />
 
-    
-    
-    {/* <TouchableWithoutFeedback onPress={toggleDatePicker}>
-      
-      <TextInput
-          // style={styles.input}
-          placeholder="Date"
-          value={inputDate}
-          onPressIn={toggleDatePicker}
-          editable={false} 
-      />
-      
-    </TouchableWithoutFeedback> */}
     {Platform.OS === 'ios'?(
       // <View style={{flexDirection: 'row',
       //   justifyContent: 'space-between',
@@ -385,14 +378,6 @@ const generateAIDescription = async () => {
           )}
         </>
     )}
-  
-    {/* <TextInput
-      placeholder="Description"
-      value={description}
-      onChangeText={setDescription}
-      style={styles.descriptionInput}
-      multiline
-    /> */}
 
   <View style={styles.descriptionContainer}>
     <TextInput
@@ -404,7 +389,7 @@ const generateAIDescription = async () => {
     />
     <TouchableOpacity 
       style={styles.aiButton}
-      onPress={generateAIDescription}
+      onPress={openInputPrompt}
     >
       <FontAwesome5 
         name="magic" 
@@ -455,6 +440,48 @@ const generateAIDescription = async () => {
       <Button title="Cancel" onPress={handleCancel} />
       <Button title="Submit" onPress={handleSubmit} />
     </View>
+    <Modal
+      visible={modalVisible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Generate Description</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Provide basic information about the event"
+            value={modalInput}
+            onChangeText={setModalInput}
+            multiline
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={styles.modalButton} 
+              onPress={() => {
+                setModalVisible(false);
+                setModalInput('');
+              }}
+            >
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.submitButton]} 
+              onPress={async () => {
+                setModalVisible(false);
+                await handleGenerateDescription(modalInput);
+                setModalInput('');
+              }}
+            >
+              <Text style={styles.submitText}>Generate</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
+
   </ScrollView>
   );
 }
@@ -532,5 +559,49 @@ const styles = StyleSheet.create({
     numberOfLines: 1, 
     ellipsizeMode: 'tail',
     paddingTop: 3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    borderRadius: 5,
+    padding: 10,
+    minHeight: 100,
+    marginBottom: 15,
+    textAlignVertical: 'top',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 70,
+    alignItems: 'center',
+  },
+  submitButton: {
+    backgroundColor: '#007AFF',
+  },
+  submitText: {
+    color: 'white',
   },
 })
