@@ -106,77 +106,57 @@ export default function ChangeLocation() {
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
-        {/* <SearchBar
-          placeholder="Search location"
-          onChangeText={updateSearch}
-          value={search}
-          onSubmitEditing={() => updateSearch(search)}
-          containerStyle={{
-            height: 60,
-            width: '100%',
-            backgroundColor: 'white',
-            borderBottomColor: 'transparent',
-            borderTopColor: 'transparent',
-          }}
-          inputContainerStyle={{
-            backgroundColor: 'lightgrey',
-            borderRadius: 20,
-            height: 40,
-          }}
-          platform='default'
-          round={true}
-        /> */}
         <GooglePlacesAutocomplete
-    placeholder='Search location'
-    fetchDetails={true}  // Add this line
-    onPress={(data, details = null) => {
-      if (details) {  // Add this check
-        const location = {
-          latitude: details.geometry.location.lat,
-          longitude: details.geometry.location.lng,
-        };
-        setSelectedLocation(location);
-        mapRef.current?.animateToRegion({
-          ...location,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
-      }
-    }}
-    query={{
-      key: process.env.EXPO_PUBLIC_mapsApiKey,
-      language: 'en',
-    }}
-    styles={{
-      container: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1,
-      },
-      textInput: {
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: 'lightgrey',
-        marginHorizontal: 10,
-        marginTop: 10,
-      },
-      listView: {
-        position: 'absolute',
-        top: 45,
-        left: 10,
-        right: 10,
-        backgroundColor: 'white',
-        borderRadius: 5,
-        zIndex: 1000,
-      },
-      row: {
-        backgroundColor: 'white',
-      }
-    }}
-    enablePoweredByContainer={false} 
-/>
+          placeholder='Search location'
+          fetchDetails={true}  // Add this line
+          onPress={(data, details = null) => {
+            if (details) {  // Add this check
+              const location = {
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+              };
+              setSelectedLocation(location);
+              mapRef.current?.animateToRegion({
+                ...location,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              });
+            }
+          }}
+          query={{
+            key: process.env.EXPO_PUBLIC_mapsApiKey,
+            language: 'en',
+          }}
+          styles={{
+            container: {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1,
+            },
+            textInput: {
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: 'lightgrey',
+              marginHorizontal: 10,
+              marginTop: 10,
+            },
+            listView: {
+              position: 'absolute',
+              top: 45,
+              left: 10,
+              right: 10,
+              backgroundColor: 'white',
+              borderRadius: 5,
+              zIndex: 1000,
+            },
+            row: {
+              backgroundColor: 'white',
+            }
+          }}
+          enablePoweredByContainer={false} 
+      />
       </View>
       <View style={styles.mapView}>
         <LocationManager 
@@ -194,31 +174,24 @@ export default function ChangeLocation() {
         <FontAwesome6 name="location-crosshairs" size={32} color="black" />
       </CusPressable>
       
-      {/* <View style={styles.confirmButton}>
-        <Button 
-          disabled={!selectedLocation} 
-          title="Confirm" 
-          onPress={saveLocationHandler} 
-        />
-      </View> */}
       <View style={styles.confirmButton}>
-  <CusPressable
-    componentStyle={{
-      width: '100%',
-      alignSelf: 'center',
-    }}
-    childrenStyle={{
-      padding: 10,
-      backgroundColor: selectedLocation ? 'purple' : 'grey',
-      borderRadius: 10,
-      alignItems: 'center',
-    }}
-    pressedHandler={saveLocationHandler}
-    disabled={!selectedLocation}
-  >
-    <Text style={styles.confirmButtonText}>Confirm</Text>
-  </CusPressable>
-</View>
+        <CusPressable
+          componentStyle={{
+            width: '100%',
+            alignSelf: 'center',
+          }}
+          childrenStyle={{
+            padding: 10,
+            backgroundColor: selectedLocation ? 'purple' : 'grey',
+            borderRadius: 10,
+            alignItems: 'center',
+          }}
+          pressedHandler={saveLocationHandler}
+          disabled={!selectedLocation}
+        >
+          <Text style={styles.confirmButtonText}>Confirm</Text>
+        </CusPressable>
+      </View>
     </View>
   )
 }

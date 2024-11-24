@@ -1,7 +1,9 @@
 import { Linking, Platform, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
+// Custom map component
 export default function Map({ latitude, longitude }) {
+  // Function to open maps
   const openMaps = () => {
     if (Platform.OS === 'ios') {
       Alert.alert(

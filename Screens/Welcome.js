@@ -3,12 +3,14 @@ import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import CusPressable from '../Components/CusPressable';
 
+// Welcome screen
 const Welcome = () => {
+  // Navigation
   const navigation = useNavigation();
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1531686264889-56fdcabd163f?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} // Replace with your background image URL
+      source={{ uri: 'https://images.unsplash.com/photo-1531686264889-56fdcabd163f?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
       style={styles.background}
     >
       <View style={styles.overlay}>
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay for better text visibility
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
     width: '100%',
     padding: 20,
   },
@@ -72,22 +74,22 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   buttonContainer: {
-    flexDirection: 'column', // Changed from row to column
+    flexDirection: 'column', 
     alignItems: 'center',
     width: '80%',
-    gap: 15, // Add space between buttons
+    gap: 15, 
   },
   button: {
     backgroundColor: '#363678',
     paddingVertical: 10,
     // paddingHorizontal: 30,
     borderRadius: 5,
-    width: '100%', // Make buttons full width
-    alignItems: 'center', // Center button text
+    width: '100%', 
+    alignItems: 'center', 
   },
   buttonPressed: {
-    backgroundColor: '#1884c7', // Slightly darker when pressed
-    transform: [{ scale: 0.98 }], // Slight scale effect when pressed
+    backgroundColor: '#1884c7', 
+    transform: [{ scale: 0.98 }], 
   },
   buttonText: {
     color: 'white',

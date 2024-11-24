@@ -7,10 +7,13 @@ import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/fir
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 
 
-export default function ActivityCard ({data, cardStyle, imageStyle, contentStyle, onPress}) {
-  if (!data) return null; // Only render if data exists
-  console.log('data', data);
+export default function ActivityCard ({data, cardStyle, contentStyle, onPress}) {
+  // Only render if data exists
+  if (!data) return null; 
+  //console.log('data', data);
+  // State for favorited  
   const [favorited, setFavorited] = useState(false);
+  // State for image url
   const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import ActivityCard from '../Components/ActivityCard';
 import { useNavigation } from '@react-navigation/native';
 import { deleteArrayField } from '../Firebase/firestoreHelper';
 
-
+// My posts screen
 export default function PostsList({ postIds }) {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();

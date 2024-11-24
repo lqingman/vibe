@@ -118,7 +118,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       </View>
 
       <View style={styles.mapView}>
-        <Map latitude={data.coordinates.latitude} longitude={data.coordinates.longitude} />
+        <Map latitude={data?.coordinates?.latitude} longitude={data?.coordinates?.longitude} />
       </View>
 
       {/* show comment input and button */}
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   commentText: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 5,
     marginLeft: 10,
   },
   commentInput: {
@@ -287,11 +287,12 @@ const styles = StyleSheet.create({
     //alignSelf: 'center',
   },
   commentsView: {
-    marginVertical: 10,
+    marginTop: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey',
     width: '110%',
     marginLeft: -10,
+    paddingBottom: 5,
   },
   attendeesView: {
     marginVertical: 10,

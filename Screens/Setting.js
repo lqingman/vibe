@@ -7,13 +7,16 @@ import { doc, getDoc } from 'firebase/firestore';
 import ImageManager from '../Components/ImageManager';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 
+// Setting screen
 export default function Setting({ navigation }) {
+  // States for name, bio, age, gender, and picture
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [picture, setPicture] = useState('');
 
+  // Effect to fetch the user profile
   useEffect(() => {
     if (!auth.currentUser) {
       return;
@@ -34,6 +37,7 @@ export default function Setting({ navigation }) {
     fetchUserProfile();
   }, [auth.currentUser]);
 
+  // Function to handle updating the profile
   const handleUpdateProfile = async () => {
     let finalImageUri = picture;
     if (!isFirebaseStorageUri(picture)) {
@@ -57,6 +61,8 @@ export default function Setting({ navigation }) {
       Alert.alert('Error updating profile', error.message);
     }
   };
+  
+  // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>

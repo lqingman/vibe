@@ -23,8 +23,8 @@ import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
 import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
 
+// Set up notification handler
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -34,7 +34,9 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Create the Stack Navigator
 const Stack = createNativeStackNavigator();
+// Create the Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
 const TopTab = createMaterialTopTabNavigator();
 

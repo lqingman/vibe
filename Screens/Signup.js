@@ -5,7 +5,9 @@ import { auth } from '../Firebase/firebaseSetup'; // Import the auth object
 import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
 import CusPressable from '../Components/CusPressable';
 
+// Signup screen
 export default function Signup({ navigation }) {
+  // States for name, email, password, confirm password, password strength, and confirm password error
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +15,7 @@ export default function Signup({ navigation }) {
   const [passwordStrength, setPasswordStrength] = useState({ strength: 0, label: '' });
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
+  // Function to get password strength
   const getPasswordStrength = (password) => {
     if (!password) return { strength: 0, label: '' };
     
@@ -28,6 +31,8 @@ export default function Signup({ navigation }) {
     if (score <= 4) return { strength: 2, label: 'Medium', color: '#ffbb33' };
     return { strength: 3, label: 'Strong', color: '#00C851' };
   };
+
+  // Function to handle password change
   function onChangePassword(password) {
     setPassword(password);
     if (!password || password.trim() === '') {
@@ -45,11 +50,13 @@ export default function Signup({ navigation }) {
     }
   };
 
+  // Function to handle login
   const loginHandler = () => {
     //take user to login
     navigation.replace("Login");
   };
 
+  // Function to handle signup  
   const handleSignup = async () => {
     // Handle signup logic here
     // console.log('Signup:', name, email, password);
@@ -241,12 +248,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     // paddingHorizontal: 30,
     borderRadius: 5,
-    width: '100%', // Make buttons full width
-    alignItems: 'center', // Center button text
+    width: '100%', 
+    alignItems: 'center', 
   },
   buttonPressed: {
-    backgroundColor: '#1884c7', // Slightly darker when pressed
-    transform: [{ scale: 0.98 }], // Slight scale effect when pressed
+    backgroundColor: '#1884c7', 
+    transform: [{ scale: 0.98 }], 
   },
   buttonText: {
     color: 'white',

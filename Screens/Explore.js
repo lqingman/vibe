@@ -34,22 +34,26 @@ export default function Explore({ navigation }) {
       try {
         // Fetch user data
         const userData = await getUserData(auth.currentUser.uid);
+        console.log("User data:", userData);
         
-        // Check if userData and location exist
-        if (userData && userData.location) {
+        if (userData?.location?.latitude && userData?.location?.longitude) {
           const { latitude, longitude } = userData.location;
-          setUserLocation({ latitude, longitude }); // Update state with location
+          setUserLocation({ latitude, longitude });
+          console.log("User location:", userData.location);
         } else {
           console.log('User data or location not found.');
+          setUserLocation(null);  // Optional: reset location state if not found
         }
       } catch (err) {
         console.error('Failed to fetch user data:', err);
+        setUserLocation(null);  // Optional: reset location state on error
       } 
     };
 
     fetchUserData(); // Call the fetch function on component mount
   }, []);
 
+  // Effect to set up the snapshot listener
   useEffect(() => {
     let unsubscribe;
   
@@ -68,6 +72,7 @@ export default function Explore({ navigation }) {
             });
             setResults(allPosts);
             setLoading(false);
+            //console.log("Explore results:", allPosts);
           },
           (err) => console.error("Explore results:", err)
         );
@@ -85,7 +90,8 @@ export default function Explore({ navigation }) {
       if (authListener) authListener();
     };
   }, []);
-  
+
+  // Effect to fetch results when the search changes
   useFocusEffect(
     useCallback(() => {
       if (search.trim() !== '') {
@@ -96,6 +102,7 @@ export default function Explore({ navigation }) {
     }, [search]) // Dependency array ensures it re-fetches if `search` changes
   );
 
+  // Function to fetch results
   async function fetchResults(keyword) {
     try {
       setLoading(true); // Start loading
@@ -106,6 +113,7 @@ export default function Explore({ navigation }) {
         searchResults = await searchByTitleKeyword(keyword);
       }
       setResults(searchResults);
+      setFilteredResults(searchResults);
     } catch (error) {
       console.error("Error retrieving results:", error);
     } finally {
@@ -114,8 +122,8 @@ export default function Explore({ navigation }) {
   }
 
   // Function to calculate distance using the Haversine formula
-function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius in kilometers
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in kilometers
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
 
@@ -137,37 +145,54 @@ function toRadians(degrees) {
 }
 
 // Function to sort search results by distance
-async function sortResultsByDistance(results, userLat, userLon) {
+function sortResultsByDistance(results, userLat, userLon) {
   return results
     .map(result => ({
       ...result,
-      distance: haversine(userLat, userLon, result.latitude, result.longitude),
+      distance: haversine(userLat, userLon, result.coordinates.latitude, result.coordinates.longitude),
     }))
     .sort((a, b) => a.distance - b.distance); // Sort by distance (ascending)
 }
 
+// Function to sort results by date
 function sortResultsByDate(results) {
-  return results.sort((a, b) => {
-    // Combine the date and time fields
-    const dateTimeA = new Date(`${a.date} ${a.time}`);
-    const dateTimeB = new Date(`${b.date} ${b.time}`);
+  return [...results].sort((a, b) => {
+    // Convert time from "2:37:00 PM" format to 24-hour format
+    const convertTo24Hour = (timeStr) => {
+      const [time, meridiem] = timeStr.split(' ');
+      let [hours, minutes] = time.split(':');
+      hours = parseInt(hours);
+      
+      if (meridiem === 'PM' && hours !== 12) {
+        hours += 12;
+      } else if (meridiem === 'AM' && hours === 12) {
+        hours = 0;
+      }
+      
+      return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    };
 
-    // Compare the datetime objects
-    return dateTimeA - dateTimeB; // Ascending order
-    // For descending order, use: return dateTimeB - dateTimeA;
+    // Create date objects with both date and time
+    const dateA = new Date(`${a.date}T${convertTo24Hour(a.time)}`);
+    const dateB = new Date(`${b.date}T${convertTo24Hour(b.time)}`);
+    
+    // Sort in descending order (latest first)
+    return dateB - dateA;
   });
 }
 
-// Handle the filter button press
+// Function to handle the filter button press
 function handleFilterSelection(filter) {
   setFilter(filter);
   let newResult = [];
   if (filter === 'Nearest') {
     newResult = sortResultsByDistance(results, userLocation.latitude, userLocation.longitude);
+    console.log("Nearest results:", newResult);
     setFilteredResults(newResult);
   }
-  else if (filter === 'Date'){
+  else if (filter === 'Latest'){
     newResult = sortResultsByDate(results);
+    console.log("Latest results:", newResult);
     setFilteredResults(newResult);
   }
   else {
@@ -208,7 +233,7 @@ function handleFilterSelection(filter) {
       <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found.</Text>
     ) : (
       <FlatList
-        data={results}
+        data={filteredResults}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ActivityCard
