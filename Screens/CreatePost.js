@@ -71,7 +71,26 @@ const generateAIDescription = async () => {
       const post = route.params.post;
       setTitle(post.title);
       setDescription(post.description);
-      setDate(new Date(post.date));
+      // setDate(new Date(post.date));
+      // Parse the date and time strings and combine them
+      const [year, month, day] = post.date.split('-');
+      const timeMatch = post.time.match(/(\d+):(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeMatch) {
+        const [_, hours, minutes, seconds, period] = timeMatch;
+        
+        // Create new date object
+        const dateObj = new Date(year, month - 1, day);
+        
+        // Convert to 24-hour format
+        let hour = parseInt(hours);
+        if (period.toUpperCase() === 'PM' && hour !== 12) hour += 12;
+        if (period.toUpperCase() === 'AM' && hour === 12) hour = 0;
+        
+        dateObj.setHours(hour, parseInt(minutes), parseInt(seconds));
+        setDate(dateObj);
+      }
+
+
       setInputDate(post.date);
       setInputTime(post.time);
       setAddress(post.address);
