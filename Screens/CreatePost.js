@@ -186,7 +186,12 @@ export default function CreatePost({ route, navigation }) {
     const currentTime = selectedTime;
     setShowTimePicker(false); 
     setDate(currentTime);
-    setInputTime(currentTime.toLocaleTimeString());
+    setInputTime(currentTime.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }));
   };
 
   // Function to handle date and time change
@@ -195,7 +200,12 @@ export default function CreatePost({ route, navigation }) {
     // setShowDatePicker(false);
     setDate(currentDateTime);
     setInputDate(formatDate(currentDateTime));
-    setInputTime(currentDateTime.toLocaleTimeString());
+    setInputTime(currentDateTime.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }));
   }
 
   // Function to toggle date picker
@@ -265,6 +275,7 @@ export default function CreatePost({ route, navigation }) {
     setLimit(0);
     setShowDatePicker(false);
     setShowTimePicker(false);
+    setImage('');
     navigation.goBack();
   }
 
