@@ -46,10 +46,21 @@ export default function CreatePost({ route, navigation }) {
           const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
           const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
           
-          const prompt = `Generate an engaging description for an event. the event description 
-                          based on the following information: ${input}.
-                        Include what people might expect and why they should join.
-                        Keep it concise but informative.`;
+          const prompt = `Generate an engaging description for an event with the following details:
+                          - Event Title: ${title}
+                          - Date: ${inputDate}
+                          - Time: ${inputTime}
+                          - Location: ${address}
+                          - Maximum Capacity: ${limit} people
+                          - Additional Info: ${input}
+
+                          Create a compelling description that:
+                          1. Introduces the event and its purpose
+                          2. Describes what attendees can expect
+                          3. Highlights why people should join
+                          4. Includes practical details like time and location
+                          
+                          Keep it concise but informative and engaging.`;
           
           const result = await model.generateContent(prompt);
           const generatedText = result.response.text();
@@ -64,7 +75,7 @@ export default function CreatePost({ route, navigation }) {
     if (Platform.OS === 'ios') {
       Alert.prompt(
         "Generate Description",
-        "Provide basic information about the event",
+        "Provide more details for the event!",
         async (input) => await handleGenerateDescription(input)
       );
     } else {
@@ -379,25 +390,7 @@ export default function CreatePost({ route, navigation }) {
         </>
     )}
 
-  <View style={styles.descriptionContainer}>
-    <TextInput
-      placeholder="Description"
-      value={description}
-      onChangeText={setDescription}
-      style={[styles.input, styles.descriptionInput]}
-      multiline
-    />
-    <TouchableOpacity 
-      style={styles.aiButton}
-      onPress={openInputPrompt}
-    >
-      <FontAwesome5 
-        name="magic" 
-        size={20} 
-        color={'#363678'} 
-      />
-    </TouchableOpacity>
-  </View>
+  
     <TextInput
       placeholder="Max Capacity"
       value={limit}
@@ -436,6 +429,25 @@ export default function CreatePost({ route, navigation }) {
         <Text style={styles.locationText}>{address || "Select Location"}</Text>
       </View>
     </CusPressable>
+    <View style={styles.descriptionContainer}>
+    <TextInput
+      placeholder="Description"
+      value={description}
+      onChangeText={setDescription}
+      style={[styles.input, styles.descriptionInput]}
+      multiline
+    />
+    <TouchableOpacity 
+      style={styles.aiButton}
+      onPress={openInputPrompt}
+    >
+      <FontAwesome5 
+        name="magic" 
+        size={20} 
+        color={'#363678'} 
+      />
+    </TouchableOpacity>
+  </View>
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={handleCancel} />
       <Button title="Submit" onPress={handleSubmit} />
@@ -451,7 +463,7 @@ export default function CreatePost({ route, navigation }) {
           <Text style={styles.modalTitle}>Generate Description</Text>
           <TextInput
             style={styles.modalInput}
-            placeholder="Provide basic information about the event"
+            placeholder="Provide more details for the event!"
             value={modalInput}
             onChangeText={setModalInput}
             multiline
