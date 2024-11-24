@@ -1,17 +1,18 @@
-import { View, StyleSheet, FlatList, Pressable, Modal, Text } from 'react-native'
+import { View, StyleSheet, FlatList, Pressable, Modal, Text, Alert, Linking } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { SearchBar } from 'react-native-elements';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CusPressable from '../Components/CusPressable';
 import ActivityCard from '../Components/ActivityCard';
-import { fetchAllPosts, getAllDocuments, getAllPosts, getUserData, searchByTitleKeyword } from '../Firebase/firestoreHelper';
+import { fetchAllPosts, getAllDocuments, getAllPosts, getUserData, searchByTitleKeyword, updateDB } from '../Firebase/firestoreHelper';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { database } from '../Firebase/firebaseSetup';
 import { auth } from '../Firebase/firebaseSetup';
 import { onAuthStateChanged } from 'firebase/auth';
 import FilterMenu from '../Components/FilterMenu';
+import * as Location from 'expo-location';
 
 
 // Explore screen to search for activities
@@ -22,36 +23,72 @@ export default function Explore({ navigation }) {
   const [filter, setFilter] = useState('All');
   const [userLocation, setUserLocation] = useState(null); 
   const [filteredResults, setFilteredResults] = useState([]);
+  const isFocused = useIsFocused();
 
   // Update the search state when the user types in the search bar
   const updateSearch = (search) => {
     setSearch(search);
   };
 
-  useEffect(() => {
-    // Define an async function to fetch user data
-    const fetchUserData = async () => {
-      try {
-        // Fetch user data
-        const userData = await getUserData(auth.currentUser.uid);
-        console.log("User data:", userData);
-        
-        if (userData?.location?.latitude && userData?.location?.longitude) {
-          const { latitude, longitude } = userData.location;
-          setUserLocation({ latitude, longitude });
-          console.log("User location:", userData.location);
-        } else {
-          console.log('User data or location not found.');
-          setUserLocation(null);  // Optional: reset location state if not found
-        }
-      } catch (err) {
-        console.error('Failed to fetch user data:', err);
-        setUserLocation(null);  // Optional: reset location state on error
-      } 
-    };
+  // Add this function to verify permissions
+  async function verifyPermissions() {
+    const { status: existingStatus } = await Location.getForegroundPermissionsAsync();
+    let finalStatus = existingStatus;
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      finalStatus = status;
+    }
 
-    fetchUserData(); // Call the fetch function on component mount
-  }, []);
+    if (finalStatus !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Location permission is needed to show nearby activities.',
+        [
+          {
+            text: 'Open Settings',
+            onPress: () => Linking.openSettings(),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          }
+        ]
+      );
+      return false;
+    }
+    return true;
+  }
+
+  // Add this useEffect for location permission and initial location
+  useEffect(() => {
+    if (isFocused) {
+      (async () => {
+        try {
+          const hasPermission = await verifyPermissions();
+          if (hasPermission) {
+            const locationResponse = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            });
+            
+            const newLocation = {
+              latitude: locationResponse.coords.latitude,
+              longitude: locationResponse.coords.longitude
+            };
+            
+            setUserLocation(newLocation);
+            
+            // Update user's location in Firestore
+            if (auth.currentUser) {
+              await updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
+            }
+          }
+        } catch (err) {
+          console.log("Location error", err);
+        }
+      })();
+    }
+  }, [isFocused]);
 
   // Effect to set up the snapshot listener
   useEffect(() => {
