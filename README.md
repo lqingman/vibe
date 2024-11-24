@@ -4,11 +4,13 @@ Vibe
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Contributing](#contributing)
+- [Installation](#Installation)
+- [Install dependencies](#install-dependencies)
 - [Current State](#current-state)
 - [FirebaseCollection](#firebase-collections)
 - [CRUDoperations](#crud-operations)
+- [Firebase Rules](#firebase-rules)
+- [env example](#env-example)
 - [Contributions](#contributions)
 
 ## Installation
@@ -154,11 +156,34 @@ The database looks like the following sreenshots:
     Function: fetchComments(postId)
     Retrieves all comment documents from the comments sub-collection of the specified post.
 
+## Firebase Rules
+```bash
+match /{document=**} {
+    	allow read, write: if request.auth != null;
+    }
+```
+## env example
+```bash
+EXPO_PUBLIC_apiKey=
+EXPO_PUBLIC_authDomain=
+EXPO_PUBLIC_projectId=
+EXPO_PUBLIC_storageBucket=
+EXPO_PUBLIC_messagingSenderId=
+EXPO_PUBLIC_appId=
+EXPO_PUBLIC_mapsApiKey=
+EXPO_PUBLIC_GEMINI_API_KEY=
+```
+## Functionalities impelmentation for iteration 2
+    Authentication
+    Camera use
+    Location use
+    Notification
+    External Gemini API use
 
 
 ## Contributions
 ### Joy:
-### Iteration 1:
+#### Iteration 1:
 - Firebase:
     `Implemented getUserData, getPostData, searchByTitleKeyword, addCommentToPost, fetchComments, addOrUpdateNotification functions in file firestoreHelper.js`
 
@@ -174,7 +199,7 @@ The database looks like the following sreenshots:
 - App.js:
     `Implemented all navigation structure, including  HomeTopTabs, tabNavigator, StackNavigator.`
 
-### Iteration 2:
+#### Iteration 2:
 - Features:
     `Implemented location, notification, search and filter features`
 - Firebase:
@@ -191,6 +216,7 @@ The database looks like the following sreenshots:
 
 
 ### Alina:
+#### Iteration 1:
 - Firebase:
     `Implemented writeToDB, updateArrayField, deleteArrayField, updateUserProfile, updatePost, deletePost functions in file firestoreHelper.js`
 
@@ -200,6 +226,18 @@ The database looks like the following sreenshots:
 - App.js:
     `Implemented for AuthStack and authentication state listen.`
 
+#### Iteration 2:
+- Features:
+    `Implemented Authentication, Camera and Gemini API for description auto-generation features`
+
+- Firebase:
+    `Implemented fetchAndUploadImage function and fetchImageUrlFromDB function in file firestoreHelper.js`
+
+- Components:
+    `Implemented ImageManager component`
+
+- Screens:
+    `Updated Login, Signup, Profile, PostsList, Setting, CreatePost, Details, Explore screens and added Welcome screen`
 
 
 

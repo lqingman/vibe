@@ -186,7 +186,12 @@ export default function CreatePost({ route, navigation }) {
     const currentTime = selectedTime;
     setShowTimePicker(false); 
     setDate(currentTime);
-    setInputTime(currentTime.toLocaleTimeString());
+    setInputTime(currentTime.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }));
   };
 
   // Function to handle date and time change
@@ -195,7 +200,12 @@ export default function CreatePost({ route, navigation }) {
     // setShowDatePicker(false);
     setDate(currentDateTime);
     setInputDate(formatDate(currentDateTime));
-    setInputTime(currentDateTime.toLocaleTimeString());
+    setInputTime(currentDateTime.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }));
   }
 
   // Function to toggle date picker
@@ -265,7 +275,12 @@ export default function CreatePost({ route, navigation }) {
     setLimit(0);
     setShowDatePicker(false);
     setShowTimePicker(false);
-    navigation.goBack();
+    // navigation.goBack();
+    // Reset navigation stack and go to Home/Explore
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Tab', params: { screen: 'Home', params: { screen: 'Explore' } } }],
+  });
   }
 
   // Function to handle submit
@@ -300,7 +315,7 @@ export default function CreatePost({ route, navigation }) {
       if (isEditing) {
         await updatePost(postId, newPost);
         Alert.alert('Post updated successfully');
-        navigation.goBack();
+        // navigation.goBack();
       } else {
         const docRef = await writeToDB(newPost, 'posts');
         const postId = docRef.id;
