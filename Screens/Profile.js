@@ -10,16 +10,17 @@ import PostsList from './PostsList';
 const Tab = createMaterialTopTabNavigator();
 
 // Profile screen
-export default function Profile() {
+export default function Profile({ route }) {
   const [userData, setUserData] = useState(null);
   const [profilePicUrl, setProfilePicUrl] = useState('');
-
+// Get userId from route params, fallback to current user's ID if not provided
+const userId = route.params?.userId || auth.currentUser?.uid;
   // Effect to set up the snapshot listener
   useEffect(() => {
-    if (!auth.currentUser) {
+    if (!userId) {
       return;
     }
-    const userDocRef = doc(database, 'users', auth.currentUser.uid);
+    const userDocRef = doc(database, 'users', userId);
     const unsubscribe = onSnapshot(userDocRef,async (userDoc) => {
       if (userDoc.exists()) {
         const data = userDoc.data(); // Define data here
@@ -39,10 +40,10 @@ export default function Profile() {
     },(err) => console.error("profile results:", err));
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  }, [userId]);
 
   // If the user is not logged in, show a message
-  if (!auth.currentUser) {
+  if (!userId) {
     return (
       <View style={styles.container}>
         <Text>Please log in to view your profile.</Text>
