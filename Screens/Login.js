@@ -4,9 +4,13 @@ import { auth } from '../Firebase/firebaseSetup'; // Import the Auth service ins
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; // Import the signInWithEmailAndPassword function
 import CusPressable from '../Components/CusPressable';
 
+// Login screen
 export default function Login({ navigation }) {
+  // States for email and password        
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Function to handle forgot password
   const handleForgotPassword = async () => {
     if (!email) {
       Alert.alert('Please enter your email address first');
@@ -24,10 +28,14 @@ export default function Login({ navigation }) {
       Alert.alert('Error', error.message);
     }
   };
+
+  // Function to handle signup
   const signupHandler = () => {
     //take user to sign up
     navigation.replace("Signup");
   };
+
+  // Function to handle login
   const handleLogin = async () => {
     // Handle login logic here
     // console.log('Login:', email, password);
@@ -138,12 +146,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     // paddingHorizontal: 30,
     borderRadius: 5,
-    width: '100%', // Make buttons full width
-    alignItems: 'center', // Center button text
+    width: '100%', 
+    alignItems: 'center', 
   },
   buttonPressed: {
-    backgroundColor: '#1884c7', // Slightly darker when pressed
-    transform: [{ scale: 0.98 }], // Slight scale effect when pressed
+    backgroundColor: '#1884c7', 
+    transform: [{ scale: 0.98 }], 
   },
   buttonText: {
     color: 'white',

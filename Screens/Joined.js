@@ -55,6 +55,7 @@ export default function Joined({navigation}) {
     }
   }, [joinedActivities]);
 
+  // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -77,7 +78,7 @@ export default function Joined({navigation}) {
             <ActivityCard
               data={item}
               onPress={() => {
-                console.log('item', item);
+                //console.log('item', item);
                 navigation.navigate('Details', { activity: item });
               }}
             />

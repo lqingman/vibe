@@ -2,6 +2,7 @@ import { Text, StyleSheet } from 'react-native'
 import React from 'react'
 import CusPressable from './CusPressable'
 
+// Custom filter option buttons
 export default function FilterOption({filterHandler, filterText, textColor}) {
 
   return (

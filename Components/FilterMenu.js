@@ -6,21 +6,28 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import {Dimensions} from 'react-native';
 import FilterOption from './FilterOption';
 
+// Get window width
 const windowWidth = Dimensions.get('window').width;
 
+// Custom filter menu component
 export default function FilterMenu({handleFilterSelection}) {
+  // State for showing filter menu
   const [show, setShow] = useState(false);
+  // Shared value for animation
   const progressHeight = useSharedValue(0);
+  // State for text colors
   const [allTextColor, setAllTextColor] = useState('red');
   const [latestTextColor, setLatestTextColor] = useState('black');
   const [nearestTextColor, setNearestTextColor] = useState('black');
 
+  // Animated style for the filter menu
   const animatedStyle = useAnimatedStyle(() => {
     return {
       height: progressHeight.value,
     }
   });
 
+  // Function to start the animation
   const startAnimation = () => {
     if (progressHeight.value === 0) {
       // Show the buttons and expand the view
@@ -35,6 +42,7 @@ export default function FilterMenu({handleFilterSelection}) {
     }
   }
 
+  // Function to handle filter selection
   function filterHandler(selectedFilter) {
     startAnimation();
     handleFilterSelection(selectedFilter);
@@ -75,11 +83,6 @@ export default function FilterMenu({handleFilterSelection}) {
 const styles = StyleSheet.create({
   iconContainer: {
     backgroundColor: 'white',
-    //borderRadius: 25,
-    //position: 'absolute',
-    //bottom: 20,
-    //right: 20,
-    //padding: 10,
     paddingVertical: 20,
     paddingRight: 10,
     justifyContent: 'center',
@@ -92,9 +95,8 @@ const styles = StyleSheet.create({
     right: 5,
     marginTop: 45,
     borderRadius: 10,
-    //elevation: 15,
     top: 10,
-    //overflow: 'hidden',
+    overflow: 'hidden',
     zIndex: 1,
     paddingHorizontal: 20,
   },
@@ -107,7 +109,6 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 16,
-    //fontWeight: 'bold',
   },
   filterButton: {
     width: '25%',

@@ -6,12 +6,15 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import PostsList from './PostsList';
 
+// Create tab navigator
 const Tab = createMaterialTopTabNavigator();
 
+// Profile screen
 export default function Profile() {
   const [userData, setUserData] = useState(null);
   const [profilePicUrl, setProfilePicUrl] = useState('');
 
+  // Effect to set up the snapshot listener
   useEffect(() => {
     if (!auth.currentUser) {
       return;
@@ -38,6 +41,7 @@ export default function Profile() {
     return () => unsubscribe();
   }, [auth.currentUser]);
 
+  // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -45,6 +49,7 @@ export default function Profile() {
       </View>
     );
   }
+  // If the user data is not loaded, show a loading message
   if (!userData) {
     return (
       <View style={styles.container}>

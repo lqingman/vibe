@@ -14,9 +14,10 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Location from 'expo-location';
 
 
-
+// Create post screen
 export default function CreatePost({ route, navigation }) {
 
+  // States for the post
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
@@ -34,7 +35,7 @@ export default function CreatePost({ route, navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
 
-  // Add function to generate description
+  // Function to generate description
 const generateAIDescription = async () => {
   try {
     
@@ -64,6 +65,7 @@ const generateAIDescription = async () => {
   } 
 };
 
+  // Effect to set the post data if editing
   useEffect(() => {
     if (route.params?.post) {
       const post = route.params.post;
@@ -81,6 +83,7 @@ const generateAIDescription = async () => {
     }
   }, [route.params?.post]);
 
+  // Effect to set the header right button if editing
   useLayoutEffect(() => {
     if (isEditing) {
       navigation.setOptions({
@@ -93,7 +96,7 @@ const generateAIDescription = async () => {
     }
   }, [navigation, isEditing]);
 
-
+  // Function to confirm delete
   const confirmDelete = () => {
     Alert.alert(
       'Confirm Delete',
@@ -113,6 +116,7 @@ const generateAIDescription = async () => {
     );
   };
 
+  // Function to handle delete
   const handleDelete = async () => {
     try {
       await deletePost(postId, auth.currentUser.uid);
@@ -132,6 +136,7 @@ const generateAIDescription = async () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Function to handle date change
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
     setShowDatePicker(false);
@@ -140,6 +145,7 @@ const generateAIDescription = async () => {
     setInputDate(formatDate(currentDate));
   };
 
+  // Function to handle time change
   const onChangeTime = (event, selectedTime) => {
     const currentTime = selectedTime;
     setShowTimePicker(false); 
@@ -147,6 +153,7 @@ const generateAIDescription = async () => {
     setInputTime(currentTime.toLocaleTimeString());
   };
 
+  // Function to handle date and time change
   const onChangeDateTime = (event, selectedDateTime) => {
     const currentDateTime = selectedDateTime;
     // setShowDatePicker(false);
@@ -155,15 +162,18 @@ const generateAIDescription = async () => {
     setInputTime(currentDateTime.toLocaleTimeString());
   }
 
+  // Function to toggle date picker
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
 
   };
 
+  // Function to toggle time picker
   const toggleTimePicker = () => {
     setShowTimePicker(!showTimePicker);
   };
 
+  // Function to validate inputs
   const validateInputs = () => {
     if (!title) {
       Alert.alert('Title is required');
@@ -192,6 +202,7 @@ const generateAIDescription = async () => {
     return true;
   };
 
+  // Function to generate keywords
   function generateKeywords(title) {
     // Convert title to lowercase
     const lowerTitle = title.toLowerCase();
@@ -201,6 +212,8 @@ const generateAIDescription = async () => {
 
     return keywords || [];
   }
+
+  // Function to handle cancel
   const handleCancel = () => {
     setTitle('');
     setDescription('');
@@ -218,6 +231,8 @@ const generateAIDescription = async () => {
     setShowTimePicker(false);
     navigation.goBack();
   }
+
+  // Function to handle submit
   const handleSubmit = async () => {
     if (!validateInputs()) return;
     // confirm before submitting
@@ -265,7 +280,8 @@ const generateAIDescription = async () => {
       console.error('Error saving post:', error);
       Alert.alert('Error saving post', error.message);
     }
-};
+  };
+
   return (
     <ScrollView
       style={{
@@ -399,9 +415,11 @@ const generateAIDescription = async () => {
           }).then(addresses => {
             if (addresses.length > 0) {
               const address = addresses[0];
+              console.log('address', address);
               const locationString = `${address.street || ''} ${address.city || ''} ${address.region || ''}`.trim();
               setAddress(locationString);
               setCity(address.city || '');
+              console.log('city', address.city);
               //console.log(locationString);
             }
           });

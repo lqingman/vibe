@@ -154,7 +154,7 @@ export async function getUserData(userId) {
             //console.log("User Data:", userData);
             return userData;
         } else {
-            console.log("No such document!");
+            console.log("get user data, No such document!");
             return null;
         }
     } catch (error) {
@@ -173,7 +173,7 @@ export async function getPostData(postId) {
             postData.id = postSnapshot.id;
             return postData;
         } else {
-            console.log("No such document!");
+            console.log("get post data, No such document!");
             return null;
         }
     } catch (error) {
@@ -228,7 +228,7 @@ export async function addCommentToPost(postId, commentData) {
 // Fetch comments from the "comments" sub-collection for a specific post
 export async function fetchComments(postId) {
     try {
-      console.log('Fetching comments for post ID:', postId);
+      //console.log('Fetching comments for post ID:', postId);
       const commentsRef = collection(doc(database, 'posts', postId), 'comments');
       const snapshot = await getDocs(commentsRef);
   
@@ -356,3 +356,16 @@ export async function fetchComments(postId) {
       return null;
     }
   };
+
+  // get username by userId
+  export async function getUsernameById(userId) {
+    try {
+      const userData = await getUserData(userId);
+      console.log("user data", userData)
+      console.log("user name", userData?.name)
+      return userData?.name
+    } catch (error) {
+      console.error("Error getting username:", error);
+      return `User ${userId.slice(0, 4)}`;
+    }
+  }

@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert } from 'react-native'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField, getUsernameById } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
@@ -11,21 +11,29 @@ import DropDown from '../Components/FilterMenu';
 import {Picker} from '@react-native-picker/picker';
 
 
-
+// Details screen
 export default function Details({route, navigation}) {
+  // Get the activity data from the route params
   let data = route.params.activity
+  // State for joined
   const [joined, setJoined] = useState(false);
+  // State for comments
   const [comments, setComments] = useState([]);
+  // State for number of attendees
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
   //console.log("details", data)
-
-  const [modalVisible, setModalVisible] = useState(false); // Modal state
+  // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
+  // State for selected time
   const [selectedTime, setSelectedTime] = useState(null);
-
+  // State for dropdown visibility
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
+  // State for selected language
   const [selectedLanguage, setSelectedLanguage] = useState();
-
+  // Ref for FlatList
+  const flatListRef = useRef(null); 
+  // State for usernames
+  const [usernames, setUsernames] = useState({});
 
   // Check if the user has joined the activity
   useEffect(() => {
@@ -57,7 +65,7 @@ export default function Details({route, navigation}) {
     async function loadComments() {
       try {
         const commentsData = await fetchComments(data.id);
-        console.log("load comments ",commentsData)
+        //console.log("load comments ",commentsData)
         setComments(commentsData);
       } catch (error) {
         console.error("Error loading comments: ", error);
@@ -90,7 +98,7 @@ export default function Details({route, navigation}) {
     if (isJoining) {
       try{
         setNumAttendees(numAttendees + 1);
-        console.log('Join pressed', data.id);
+        //console.log('Join pressed', data.id);
         await updateArrayField('users', auth.currentUser.uid, 'joined', data.id);
         await updateArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
       } catch (error) {
@@ -100,7 +108,7 @@ export default function Details({route, navigation}) {
     else {
       try {
         setNumAttendees(numAttendees - 1);
-        console.log('Leave pressed', data.id);
+        //console.log('Leave pressed', data.id);
         await deleteArrayField('users', auth.currentUser.uid, 'joined', data.id);
         await deleteArrayField('posts', data.id, 'attendee', auth.currentUser.uid);
     }
@@ -119,19 +127,61 @@ export default function Details({route, navigation}) {
 
   // Set the notification time and add it to the user's notifications
   function handleTimeSelect(time) {
-    console.log('time', time);
+    //console.log('time', time);
     setSelectedTime(time);
     setModalVisible(false);
-    console.log(`Notification set for ${time}`);
+    //console.log(`Notification set for ${time}`);
     addOrUpdateNotification(data.id, time, data);
   }
 
   // Add a comment to the activity
   function updateComments(newComment) {
-    console.log("update ",comments)
-    setComments((prevComments)=>[...prevComments, newComment]);
+    setComments(prevComments => {
+      const newComments = [...prevComments, newComment];
+      
+      // Wait for state to update before scrolling
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: newComments.length - 1,  // Scroll to last comment
+          animated: true,
+          viewPosition: 0.5  // Center the comment in view
+        });
+      }, 100);
+
+      return newComments;
+    });
   }
 
+  // Add this to handle scroll fail
+  const handleScrollToIndexFailed = (info) => {
+    const wait = new Promise(resolve => setTimeout(resolve, 500));
+    wait.then(() => {
+      flatListRef.current?.scrollToIndex({
+        index: info.index,
+        animated: true,
+        viewPosition: 0.5
+      });
+    });
+  };
+
+  // Add this useEffect to load usernames when comments change
+  useEffect(() => {
+    const loadUsernames = async () => {
+      const usernamesMap = {};
+      for (const comment of comments) {
+        //console.log("loading username", comment.owner)
+        if (!usernames[comment.owner]) {
+          const username = await getUsernameById(comment.owner);
+          usernamesMap[comment.owner] = username;
+        }
+      }
+      setUsernames(prev => ({ ...prev, ...usernamesMap }));
+    };
+
+    loadUsernames();
+  }, [comments]);
+
+  // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
       <View style={styles.container}>
@@ -143,18 +193,35 @@ export default function Details({route, navigation}) {
     <View style={styles.container}>
       {/* Show all details */}
       <FlatList
+        ref={flatListRef}
         data={comments}
+        contentContainerStyle={{
+          paddingBottom: 70  // Height of join/leave button view
+        }}
         keyExtractor={(item) => {return(item.id)}}
         renderItem={({ item }) => {
-          //console.log("falt list ",item)
-          return <View style={styles.comment}>
-            <Text style={styles.commentText}>User {item.owner}:</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
-          </View>
+          const isCurrentUser = item.owner === auth.currentUser.uid;
+          const username = usernames[item.owner] || 'Loading...';
+          
+          return (
+            <View style={[
+              styles.comment,
+              isCurrentUser && styles.userComment
+            ]}>
+              <Text style={styles.commentUsername}>
+                {username}:
+              </Text>
+              <Text style={styles.commentText}>{item.text}</Text>
+            </View>
+          );
         }}
         ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
-        ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-        // extraData={comments}
+        ItemSeparatorComponent={() => <View style={{ height: 20, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }} />}
+        onScrollToIndexFailed={handleScrollToIndexFailed}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 1
+        }}
       />
       {/* Join/Leave button */}
       {joined ?
@@ -216,13 +283,7 @@ export default function Details({route, navigation}) {
         </CusPressable>
       </View>
       }
-      {/* Render Dropdown if visible */}
-      {dropdownVisible && (
-        <DropDown
-          onSelect={handleTimeSelect}
-          onClose={() => setDropdownVisible(false)} // Optional close logic
-        />
-      )}
+      
       {/* Notification Modal */}
       <View style={styles.modalContainer}>
         <Modal
@@ -274,7 +335,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingBottom: 100,
+    //paddingBottom: 100,
   },
   image: {
     width: '100%',
@@ -376,6 +437,7 @@ const styles = StyleSheet.create({
   commentText: {
     marginLeft: 10,
     fontSize: 16,
+    marginTop: 2,   
   },
   commentInput: {
     width: '70%',
@@ -432,5 +494,19 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     padding: 12,
     backgroundColor: 'white',
+  },
+  userComment: {
+    borderLeftWidth: 3,
+    borderLeftColor: 'lightgrey',
+  },
+  commentUsername: {
+    marginLeft: 10,
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'purple',
+  },
+  comment: {
+    marginTop: 5,
   },
 })

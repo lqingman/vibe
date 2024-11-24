@@ -1,15 +1,16 @@
-import { View, Text, Button, Alert, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Alert, Image, StyleSheet, TouchableOpacity } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from '../Firebase/firebaseSetup';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 
-
+// Custom image manager component
 const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
+    // State for image picker permissions
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
+    // State for image
     const [image, setImage] = useState(initialImage || null);
+    // State for display url
     const [displayUrl, setDisplayUrl] = useState(null);
 
     // Add useEffect to handle initialImage
@@ -27,6 +28,7 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
         fetchImageUrl();
     }, [initialImage]);
     
+    // Function to verify permissions
     async function verifyPermissions() {
         try {
             // check if user has given permission
@@ -44,6 +46,8 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
         }
     
     }
+
+    // Function to take image
     const takeImageHandler = async () => {
         try {
             // only launch the camera if the user has granted permission
@@ -53,6 +57,7 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
                 Alert.alert('You need to grant camera permission to use this feature');
                 return;
             }
+            // Launch the camera
             const result = await ImagePicker.launchCameraAsync(
             {
               
@@ -60,6 +65,7 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
             }
           );
             console.log(result);
+            // If the user did not cancel, set the image and send the uri back to the parent component
             if (!result.canceled) {
                 setImage(result.assets[0].uri);
                 receiveImageUri(result.assets[0].uri);
@@ -73,6 +79,8 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
             console.log(err);
         }
       };
+
+      // Function to pick image from gallery
       const pickImageHandler = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
@@ -143,27 +151,27 @@ const styles = StyleSheet.create({
   container: {
     // alignItems: 'center',
     marginBottom: 20,
-},
-imageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 5,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-},
-image: {
-    width: '100%',
-    height: '100%',
-},
-placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#e1e1e1',
-},
-placeholderText: {
-    marginTop: 10,
-    color: 'gray',
-    fontSize: 16,
-}
+    },
+    imageContainer: {
+        width: 100,
+        height: 100,
+        borderRadius: 5,
+        overflow: 'hidden',
+        backgroundColor: '#f0f0f0',
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
+    placeholder: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#e1e1e1',
+    },
+    placeholderText: {
+        marginTop: 10,
+        color: 'gray',
+        fontSize: 16,
+    }
   })
