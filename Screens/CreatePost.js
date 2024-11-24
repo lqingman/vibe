@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Keyboard,ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost, deleteArrayField } from '../Firebase/firestoreHelper';
@@ -35,43 +35,79 @@ export default function CreatePost({ route, navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
 
-  // Function to generate description
-const generateAIDescription = async () => {
-  try {
-    
-    // Get user requirements via Alert prompt
-    Alert.prompt(
-      "Generate Description",
-      "provide basic information about the event",
-      async (userInput) => {
-        if (!userInput) return;
-        
-        const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        
-        const prompt = `Generate an engaging description for an event. the event description 
-                        based on the following information: ${userInput}.
-                       Include what people might expect and why they should join.
-                       Keep it concise but informative.`;
-        
-        const result = await model.generateContent(prompt);
-        const generatedText = result.response.text();
-        setDescription(generatedText);
-      }
-    );
-  } catch (error) {
-    console.error('Error generating description:', error);
-    Alert.alert('Error', 'Failed to generate description');
-  } 
-};
+  const [modalInput, setModalInput] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
+  // Function to generate description
+  const handleGenerateDescription = async (input) => {
+    try {
+          if (!input) return;
+          
+          const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY);
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          
+          const prompt = `Generate an engaging description for an event with the following details:
+                          - Event Title: ${title}
+                          - Date: ${inputDate}
+                          - Time: ${inputTime}
+                          - Location: ${address}
+                          - Maximum Capacity: ${limit} people
+                          - Additional Info: ${input}
+
+                          Create a compelling description that:
+                          1. Introduces the event and its purpose
+                          2. Describes what attendees can expect
+                          3. Highlights why people should join
+                          4. Includes practical details like time and location
+                          
+                          Keep it concise but informative and engaging.`;
+          
+          const result = await model.generateContent(prompt);
+          const generatedText = result.response.text();
+          setDescription(generatedText);
+    } catch (error) {
+      console.error('Error generating description:', error);
+      Alert.alert('Error', 'Failed to generate description');
+    } 
+  };
+
+  const openInputPrompt = () => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        "Generate Description",
+        "Provide more details for the event!",
+        async (input) => await handleGenerateDescription(input)
+      );
+    } else {
+      setModalVisible(true); // Show modal for Android
+    }
+  };
   // Effect to set the post data if editing
   useEffect(() => {
     if (route.params?.post) {
       const post = route.params.post;
       setTitle(post.title);
       setDescription(post.description);
-      setDate(new Date(post.date));
+      // setDate(new Date(post.date));
+      // Parse the date and time strings and combine them
+      const [year, month, day] = post.date.split('-');
+      const timeMatch = post.time.match(/(\d+):(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeMatch) {
+        const [_, hours, minutes, seconds, period] = timeMatch;
+        
+        // Create new date object
+        const dateObj = new Date(year, month - 1, day);
+        
+        // Convert to 24-hour format
+        let hour = parseInt(hours);
+        if (period.toUpperCase() === 'PM' && hour !== 12) hour += 12;
+        if (period.toUpperCase() === 'AM' && hour === 12) hour = 0;
+        
+        dateObj.setHours(hour, parseInt(minutes), parseInt(seconds));
+        setDate(dateObj);
+      }
+
+
       setInputDate(post.date);
       setInputTime(post.time);
       setAddress(post.address);
@@ -129,14 +165,20 @@ const generateAIDescription = async () => {
       Alert.alert('Error deleting post', error.message);
     }
   };
-
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   // Function to handle date change
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShowDatePicker(false); // Hide the date picker on both platforms
+    setShowDatePicker(false);
+
     setDate(currentDate);
-    setInputDate(currentDate.toLocaleDateString());
+    setInputDate(formatDate(currentDate));
   };
 
   // Function to handle time change
@@ -150,9 +192,9 @@ const generateAIDescription = async () => {
   // Function to handle date and time change
   const onChangeDateTime = (event, selectedDateTime) => {
     const currentDateTime = selectedDateTime;
-    // setShowDatePicker(false); // Hide the date picker on both platforms
+    // setShowDatePicker(false);
     setDate(currentDateTime);
-    setInputDate(currentDateTime.toLocaleDateString());
+    setInputDate(formatDate(currentDateTime));
     setInputTime(currentDateTime.toLocaleTimeString());
   }
 
@@ -299,19 +341,6 @@ const generateAIDescription = async () => {
       // onSubmitEditing={Keyboard.dismiss}
     />
 
-    
-    
-    {/* <TouchableWithoutFeedback onPress={toggleDatePicker}>
-      
-      <TextInput
-          // style={styles.input}
-          placeholder="Date"
-          value={inputDate}
-          onPressIn={toggleDatePicker}
-          editable={false} 
-      />
-      
-    </TouchableWithoutFeedback> */}
     {Platform.OS === 'ios'?(
       // <View style={{flexDirection: 'row',
       //   justifyContent: 'space-between',
@@ -360,34 +389,8 @@ const generateAIDescription = async () => {
           )}
         </>
     )}
-  
-    {/* <TextInput
-      placeholder="Description"
-      value={description}
-      onChangeText={setDescription}
-      style={styles.descriptionInput}
-      multiline
-    /> */}
 
-  <View style={styles.descriptionContainer}>
-    <TextInput
-      placeholder="Description"
-      value={description}
-      onChangeText={setDescription}
-      style={[styles.input, styles.descriptionInput]}
-      multiline
-    />
-    <TouchableOpacity 
-      style={styles.aiButton}
-      onPress={generateAIDescription}
-    >
-      <FontAwesome5 
-        name="magic" 
-        size={20} 
-        color={'#363678'} 
-      />
-    </TouchableOpacity>
-  </View>
+  
     <TextInput
       placeholder="Max Capacity"
       value={limit}
@@ -426,10 +429,71 @@ const generateAIDescription = async () => {
         <Text style={styles.locationText}>{address || "Select Location"}</Text>
       </View>
     </CusPressable>
+    <View style={styles.descriptionContainer}>
+    <TextInput
+      placeholder="Description"
+      value={description}
+      onChangeText={setDescription}
+      style={[styles.input, styles.descriptionInput]}
+      multiline
+    />
+    <TouchableOpacity 
+      style={styles.aiButton}
+      onPress={openInputPrompt}
+    >
+      <FontAwesome5 
+        name="magic" 
+        size={20} 
+        color={'#363678'} 
+      />
+    </TouchableOpacity>
+  </View>
     <View style={styles.buttonContainer}>
       <Button title="Cancel" onPress={handleCancel} />
       <Button title="Submit" onPress={handleSubmit} />
     </View>
+    <Modal
+      visible={modalVisible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Generate Description</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Provide more details for the event!"
+            value={modalInput}
+            onChangeText={setModalInput}
+            multiline
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={styles.modalButton} 
+              onPress={() => {
+                setModalVisible(false);
+                setModalInput('');
+              }}
+            >
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.submitButton]} 
+              onPress={async () => {
+                setModalVisible(false);
+                await handleGenerateDescription(modalInput);
+                setModalInput('');
+              }}
+            >
+              <Text style={styles.submitText}>Generate</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
+
   </ScrollView>
   );
 }
@@ -507,5 +571,49 @@ const styles = StyleSheet.create({
     numberOfLines: 1, 
     ellipsizeMode: 'tail',
     paddingTop: 3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: 'lightgray',
+    borderRadius: 5,
+    padding: 10,
+    minHeight: 100,
+    marginBottom: 15,
+    textAlignVertical: 'top',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 70,
+    alignItems: 'center',
+  },
+  submitButton: {
+    backgroundColor: '#007AFF',
+  },
+  submitText: {
+    color: 'white',
   },
 })
