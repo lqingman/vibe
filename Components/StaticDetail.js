@@ -75,10 +75,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       {/* show owner's profile picture and name */}
       <TouchableOpacity 
         style={styles.ownerInfo}
-        onPress={() => navigation.navigate('Tab', {
-          screen: 'Profile',
-          params: { userId: data.owner }
-        })}
+        onPress={() => navigation.navigate('UserProfile', { userId: data.owner })}
       >
         <Image 
           style={styles.ownerImage} 

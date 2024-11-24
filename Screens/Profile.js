@@ -40,7 +40,7 @@ const userId = route.params?.userId || auth.currentUser?.uid;
     },(err) => console.error("profile results:", err));
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  }, [userId]);
 
   // If the user is not logged in, show a message
   if (!userId) {

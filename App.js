@@ -279,6 +279,16 @@ export default function App() {
                 // headerShown: false
               }}
             />
+            <Stack.Screen 
+            name="UserProfile" 
+            component={Profile} 
+            options={{
+              title: "Profile",
+              headerStyle: { backgroundColor: Color.navigatorBg },
+              headerTintColor: Color.white,
+              headerBackTitle: "Back"
+            }}
+            />
           </>
         ) : AuthStack}
       </Stack.Navigator>
