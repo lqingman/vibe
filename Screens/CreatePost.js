@@ -275,8 +275,12 @@ export default function CreatePost({ route, navigation }) {
     setLimit(0);
     setShowDatePicker(false);
     setShowTimePicker(false);
-    setImage('');
-    navigation.goBack();
+    // navigation.goBack();
+    // Reset navigation stack and go to Home/Explore
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Tab', params: { screen: 'Home', params: { screen: 'Explore' } } }],
+  });
   }
 
   // Function to handle submit
@@ -311,7 +315,7 @@ export default function CreatePost({ route, navigation }) {
       if (isEditing) {
         await updatePost(postId, newPost);
         Alert.alert('Post updated successfully');
-        navigation.goBack();
+        // navigation.goBack();
       } else {
         const docRef = await writeToDB(newPost, 'posts');
         const postId = docRef.id;
