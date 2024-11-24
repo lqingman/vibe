@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TextInput } from 'react-native'
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -11,6 +11,7 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import Map from './Map';
+import { useNavigation } from '@react-navigation/native';
 
 
 export default function StaticDetail({data, updateComments, numAttendees}) {
@@ -20,7 +21,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
   const [ownerData, setOwnerData] = useState(null);
   const [ownerImageUrl, setOwnerImageUrl] = useState(null);  
   const [postImageUrl, setPostImageUrl] = useState(null);  // Add this state
-
+  const navigation = useNavigation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,13 +73,19 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
   return (
     <View style={styles.container}>
       {/* show owner's profile picture and name */}
-      <View style={styles.ownerInfo}>
+      <TouchableOpacity 
+        style={styles.ownerInfo}
+        onPress={() => navigation.navigate('Tab', {
+          screen: 'Profile',
+          params: { userId: data.owner }
+        })}
+      >
         <Image 
           style={styles.ownerImage} 
           source={ownerImageUrl ? {uri: ownerImageUrl} : null}  // Add a default image
         />
         <Text style={styles.ownerName}>{ownerData?.name}</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* show image */}
       <View style={styles.media}>

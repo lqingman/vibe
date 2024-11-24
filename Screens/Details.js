@@ -215,7 +215,13 @@ export default function Details({route, navigation}) {
             </View>
           );
         }}
-        ListHeaderComponent={<StaticDetail data={data} updateComments={updateComments} numAttendees={numAttendees}/>}
+        ListHeaderComponent={
+        <StaticDetail 
+          data={data} 
+          updateComments={updateComments} 
+          numAttendees={numAttendees}
+          // navigation={navigation}  
+          />}
         ItemSeparatorComponent={() => <View style={{ height: 20, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }} />}
         onScrollToIndexFailed={handleScrollToIndexFailed}
         maintainVisibleContentPosition={{
