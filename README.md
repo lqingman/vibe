@@ -40,7 +40,7 @@ ChangeLocation screen:
 
 <img src="assets/ChangeLocation.png" alt="ChangeLocation screen" width="300"/>
 
-Filter modal: 
+Filter menu: 
 
 <img src="assets/Filter.png" alt="Filter modal" width="300"/>
 
@@ -56,7 +56,7 @@ Comments section:
 
 <img src="assets/Comments.png" alt="Comments section" width="300"/>
 
-Notification Modal: 
+Notification Picker: 
 
 <img src="assets/Notification.png" alt="Notification Modal" width="300"/>
 
@@ -158,6 +158,7 @@ The database looks like the following sreenshots:
 
 ## Contributions
 ### Joy:
+### Iteration 1:
 - Firebase:
     `Implemented getUserData, getPostData, searchByTitleKeyword, addCommentToPost, fetchComments, addOrUpdateNotification functions in file firestoreHelper.js`
 
@@ -172,6 +173,22 @@ The database looks like the following sreenshots:
 
 - App.js:
     `Implemented all navigation structure, including  HomeTopTabs, tabNavigator, StackNavigator.`
+
+### Iteration 2:
+- Features:
+    `Implemented location, notification, search and filter features`
+- Firebase:
+    `Implemented getUsernameById function and updated addOrUpdateNotification function in file firestoreHelper.js`
+
+- Components:
+    `Implemented FilterMenu, FilterOption, LocationManager, Map, NotificationManager components and updated ActivityCard component`
+
+- Screens:
+    `Updated ChangeLocation, CreatePost, Details, Explore screens`
+
+- App.js:
+    `Added a useEffect hook for notification setup`
+
 
 ### Alina:
 - Firebase:
