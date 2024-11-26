@@ -73,6 +73,7 @@ export default function ChangeLocation() {
         Alert.alert('You need to grant location permissions to use this app.');
         return;
       }
+      //get current location
       const locationResponse = await Location.getCurrentPositionAsync();
       const newLocation = {
         latitude: locationResponse.coords.latitude,
@@ -80,7 +81,7 @@ export default function ChangeLocation() {
       };
       setLocation(newLocation);
       setSelectedLocation(newLocation);
-      updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
+      //updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
       
       // Clear the search input when using current location
       if (autocompleteRef.current) {
@@ -95,6 +96,7 @@ export default function ChangeLocation() {
   //function to save location
   function saveLocationHandler() {
     if (!selectedLocation) return;
+    //console.log("Selected Location:", selectedLocation);
     updateDB(auth.currentUser.uid, { location: selectedLocation }, 'users');
     if (route.params?.onReturn) {
       route.params.onReturn(selectedLocation);

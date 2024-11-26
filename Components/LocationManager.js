@@ -1,19 +1,65 @@
 import { View, StyleSheet } from 'react-native'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect, useState, useImperativeHandle } from 'react'
 import MapView, { Marker } from "react-native-maps";
+import { getUserData } from '../Firebase/firestoreHelper';
+import { auth } from '../Firebase/firebaseSetup';
 
-// Custom location manager component
 const LocationManager = forwardRef(({ selectedLocation, onLocationSelect }, ref) => {
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapRef, setMapRef] = useState(null);
+
+  // Default region (can be anywhere, will be updated once we have user location)
+  const defaultRegion = {
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  };
+
+  // Expose the animateToRegion method to parent
+  useImperativeHandle(ref, () => ({
+    animateToRegion: (region, duration) => {
+      mapRef?.animateToRegion(region, duration);
+    }
+  }));
+
+  useEffect(() => {
+    const getUserLocation = async () => {
+      try {
+        const userData = await getUserData(auth.currentUser.uid);
+        if (userData?.location) {
+          setUserLocation(userData.location);
+          // Animate to user location when it's available
+          mapRef?.animateToRegion({
+            latitude: userData.location.latitude,
+            longitude: userData.location.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("Error fetching user location:", error);
+      }
+    };
+    getUserLocation();
+  }, [mapRef]); // Add mapRef as dependency
+
+  // Update map when selectedLocation changes
+  useEffect(() => {
+    if (selectedLocation && mapRef) {
+      mapRef.animateToRegion({
+        ...selectedLocation,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }, 1000);
+    }
+  }, [selectedLocation, mapRef]);
+
   return (
     <View style={styles.container}>
       <MapView
-        ref={ref}
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        ref={setMapRef}
+        initialRegion={defaultRegion}
         style={styles.map}
         onPress={(e) => {
           onLocationSelect({
@@ -41,4 +87,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-})
+});

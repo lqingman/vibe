@@ -78,10 +78,15 @@ export default function Explore({ navigation }) {
             };
             
             setUserLocation(newLocation);
+
+            //get user location from database
+            const userData = await getUserData(auth.currentUser.uid);
+            const userLocation = userData.location;
+            setUserLocation(userLocation);
             
             // Update user's location in Firestore
             if (auth.currentUser) {
-              await updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
+              await updateDB(auth.currentUser.uid, { location: userLocation }, 'users');
             }
           }
         } catch (err) {

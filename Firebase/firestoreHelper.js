@@ -74,6 +74,7 @@ export async function updatePost(postId, updatedData) {
 export async function updateDB(id, data, collectionName) {
   try {
     await setDoc(doc(database, collectionName, id), data, { merge: true });
+    //console.log("update DB ", data);
   } catch (err) {
     console.log("update DB ", err);
   }
