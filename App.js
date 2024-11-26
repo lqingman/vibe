@@ -22,6 +22,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
+import 'react-native-reanimated';
+
 
 // Create the Stack Navigator
 const Stack = createNativeStackNavigator();
@@ -104,7 +106,7 @@ export default function App() {
       style={{
         flex: 1,
         paddingTop: 0,
-        paddingBottom: insets.bottom,
+        paddingBottom: 0,
         paddingLeft: insets.left,
         paddingRight: insets.right,
       }}
