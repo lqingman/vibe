@@ -13,6 +13,7 @@ import { auth } from '../Firebase/firebaseSetup';
 import { onAuthStateChanged } from 'firebase/auth';
 import FilterMenu from '../Components/FilterMenu';
 import * as Location from 'expo-location';
+import ExploreList from '../Components/ExploreList';
 
 
 // Explore screen to search for activities
@@ -269,17 +270,7 @@ function handleFilterSelection(filter) {
     ) : results.length === 0 ? (
       <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found.</Text>
     ) : (
-      <FlatList
-        data={filteredResults}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ActivityCard
-            data={item}
-            onPress={() => navigation.navigate('Details', { activity: item })}
-          />
-        )}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-      />
+      <ExploreList list={filteredResults} />
     )}
     </View>
   )
