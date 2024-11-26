@@ -80,8 +80,8 @@ export default function ExploreCard ({data, cardStyle, contentStyle, onPress}) {
         <FavoriteButton
           componentStyle={{
             position: 'absolute',
-            top: cardStyle?.height ? cardStyle.height - 70 : 250,
-            right: 0,
+            top: cardStyle?.height ? cardStyle.height - 50 : 250,
+            right: 5,
           }}
           childrenStyle={{
             paddingRight: 10,
