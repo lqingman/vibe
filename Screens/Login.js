@@ -54,8 +54,29 @@ export default function Login({ navigation }) {
         // Navigate to the Home screen or another screen after successful login
         // navigation.navigate('Home');
       } catch (error) {
-        console.error('Error logging in:', error);
-        Alert.alert('Login failed', error.message);
+        // console.error('Error logging in:', error);
+        switch (error.code) {
+          case 'auth/invalid-credential':
+            Alert.alert('Invalid Credential', 'Please check your email and password.');
+            break;
+          case 'auth/invalid-email':
+            Alert.alert('Invalid Email', 'Please enter a valid email address.');
+            break;
+          case 'auth/user-not-found':
+            Alert.alert('Account Not Found', 'No account exists with this email.');
+            break;
+          case 'auth/wrong-password':
+            Alert.alert('Wrong Password', 'The password you entered is incorrect.');
+            break;
+          case 'auth/too-many-requests':
+            Alert.alert('Too Many Attempts', 'Please try again later or reset your password.');
+            break;
+          case 'auth/network-request-failed':
+            Alert.alert('Network Error', 'Please check your internet connection.');
+            break;
+          default:
+            Alert.alert('Login Error', 'An error occurred. Please try again.');
+        }
       }
 
   };
