@@ -30,7 +30,7 @@ export default function CreatePost({ route, navigation }) {
   const [coordinates, setCoordinates] = useState(null); 
   const [city, setCity] = useState('');
 
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
@@ -111,7 +111,7 @@ export default function CreatePost({ route, navigation }) {
       setInputDate(post.date);
       setInputTime(post.time);
       setAddress(post.address);
-      setImage(post.image);
+      setImages(post.image);
       setLimit(post.limit.toString());
       setIsEditing(true);
       setPostId(post.id);
@@ -237,7 +237,7 @@ export default function CreatePost({ route, navigation }) {
       Alert.alert('Location is required');
       return false;
     }
-    if (!image) {
+    if (!images || images.length === 0) {
       Alert.alert('Image is required');
       return false;
     }
@@ -269,7 +269,7 @@ export default function CreatePost({ route, navigation }) {
     setAddress('');
     setCoordinates(null);
     setCity('');
-    setImage('');
+    setImages([]);
     setIsEditing(false);
     setPostId('');
     setLimit(0);
@@ -290,11 +290,13 @@ export default function CreatePost({ route, navigation }) {
     
     const keywords = generateKeywords(title);
     
-    let finalImageUri = image;
-    if (!isFirebaseStorageUri(image)) {
+    const finalImageUris = await Promise.all(images.map(async (image) => {
+      if (!isFirebaseStorageUri(image)) {
         // Only upload if it's a new local image
-        finalImageUri = await fetchAndUploadImage(image);
-    }
+        return await fetchAndUploadImage(image);
+      }
+      return image;
+    }));
     const newPost = {
         title: title,
         keywords: keywords,
@@ -304,7 +306,7 @@ export default function CreatePost({ route, navigation }) {
         address: address,
         coordinates: coordinates,
         city: city,
-        image: finalImageUri,
+        image: finalImageUris,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
     };
@@ -343,8 +345,8 @@ export default function CreatePost({ route, navigation }) {
     >
     {/* image feature to be improved */}
       <ImageManager 
-        receiveImageUri={setImage}
-        initialImage={isEditing ? image : null} 
+        receiveImageUris={setImages}
+        initialImages={isEditing ? images : []} 
       />
 
 
