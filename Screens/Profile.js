@@ -26,9 +26,9 @@ const userId = route.params?.userId || auth.currentUser?.uid;
         const data = userDoc.data(); // Define data here
         setUserData(data);
 
-        if (data.picture && data.picture.startsWith('images/')) {
+        if (data.picture && data.picture.length > 0 && data.picture[0].startsWith('images/')) {
           try {
-            const url = await fetchImageUrlFromDB(data.picture);
+            const url = await fetchImageUrlFromDB(data.picture[0]);
             setProfilePicUrl(url);
           } catch (error) {
             console.error('Error fetching profile picture:', error);
