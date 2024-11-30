@@ -6,7 +6,7 @@ import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import Feather from '@expo/vector-icons/Feather';
 
 // Custom image manager component
-const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
+const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleImageMode = false}) => {
     // State for image picker permissions
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
     // State for image
@@ -112,28 +112,82 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
         receiveImageUris(updatedImages);
     };
   return (
-    <View style={styles.container}>
-            
-                <ScrollView horizontal>
-                    {images.map((image, index) => (
-                        <View key={index} style={styles.imageWrapper}>
-                        <Image
-                            source={{
-                                uri: image.startsWith('https://') ? image : 
-                                image.startsWith('images/') ? displayUrls[index] : 
-                                image 
-                            }}
-                            style={styles.image}
-                        />
+<View style={styles.container}>
+            {singleImageMode ? (
+                <View>
+                    {images.map((image, index) => {
+                        const uri = image.startsWith('https://') ? image :
+                            image.startsWith('images/') ? displayUrls[index] :
+                                image;
+                        if (!uri) return null; // Skip rendering if uri is empty
+                        return (
+                            <View key={index} style={styles.imageWrapper}>
+                                <Image
+                                    source={{ uri }}
+                                    style={[styles.image, imageStyle]}
+                                />
+                                <TouchableOpacity
+                                    style={styles.deleteButton}
+                                    onPress={() => deleteImageHandler(index)}
+                                >
+                                    <Feather name="x" size={18} color="gray" />
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    })}
+                    {images.length === 0 && (
                         <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => deleteImageHandler(index)}
+                            style={imageStyle}
+                            onPress={() => {
+                                Alert.alert(
+                                    "Select Image",
+                                    "Choose an option",
+                                    [
+                                        {
+                                            text: "Camera",
+                                            onPress: takeImageHandler
+                                        },
+                                        {
+                                            text: "Gallery",
+                                            onPress: pickImageHandler
+                                        },
+                                        {
+                                            text: "Cancel",
+                                            style: "cancel"
+                                        }
+                                    ]
+                                );
+                            }}
                         >
-                            <Feather name="x" size={18} color="gray" />
+                            <View style={[styles.placeholder, imageStyle]}>
+                                <FontAwesome5 name="camera" size={24} color="gray" />
+                            </View>
                         </TouchableOpacity>
-                    </View>
-                    ))}
-                    <TouchableOpacity 
+                    )}
+                </View>
+            ) : (
+                <ScrollView horizontal>
+                    {images.map((image, index) => {
+                        const uri = image.startsWith('https://') ? image :
+                            image.startsWith('images/') ? displayUrls[index] :
+                                image;
+                        if (!uri) return null; // Skip rendering if uri is empty
+                        return (
+                            <View key={index} style={styles.imageWrapper}>
+                                <Image
+                                    source={{ uri }}
+                                    style={[styles.image, imageStyle]}
+                                />
+                                <TouchableOpacity
+                                    style={styles.deleteButton}
+                                    onPress={() => deleteImageHandler(index)}
+                                >
+                                    <Feather name="x" size={18} color="gray" />
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    })}
+                    <TouchableOpacity
                         style={imageStyle}
                         onPress={() => {
                             Alert.alert(
@@ -156,12 +210,12 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
                             );
                         }}
                     >
-                    <View style={styles.placeholder}>
-                        <FontAwesome5 name="camera" size={24} color="gray" />
-                    </View>
+                        <View style={styles.placeholder}>
+                            <FontAwesome5 name="camera" size={24} color="gray" />
+                        </View>
                     </TouchableOpacity>
                 </ScrollView>
-
+            )}
         </View>
   )
 }

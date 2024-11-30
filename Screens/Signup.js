@@ -98,7 +98,7 @@ export default function Signup({ navigation }) {
           name: name,
           email: email,
           uid: user.uid,
-          picture: '',
+          picture: [],
           bio: '',
           age: '',
           gender: '',

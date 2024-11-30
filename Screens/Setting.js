@@ -14,7 +14,7 @@ export default function Setting({ navigation }) {
   const [bio, setBio] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  const [picture, setPicture] = useState('');
+  const [picture, setPicture] = useState([]);
 
   // Effect to fetch the user profile
   useEffect(() => {
@@ -39,17 +39,19 @@ export default function Setting({ navigation }) {
 
   // Function to handle updating the profile
   const handleUpdateProfile = async () => {
-    let finalImageUri = picture;
-    if (!isFirebaseStorageUri(picture)) {
+    const finalImageUris = await Promise.all(picture.map(async (image) => {
+      if (!isFirebaseStorageUri(image)) {
         // Only upload if it's a new local image
-        finalImageUri = await fetchAndUploadImage(picture);
-    }
+        return await fetchAndUploadImage(image);
+      }
+      return image;
+    }));
     const updatedData = {
       name: name,
       bio: bio,
       age: age,
       gender: gender,
-      picture: finalImageUri,
+      picture: finalImageUris,
     };
 
     try {
@@ -74,7 +76,11 @@ export default function Setting({ navigation }) {
     <View style={styles.container}>
       {/* <Text style={styles.header}>Update Profile</Text> */}
       <View style={styles.imagePicker}>
-        <ImageManager receiveImageUri={setPicture} initialImage={picture} imageStyle={{borderRadius: 50,}}/>
+        <ImageManager 
+        receiveImageUris={setPicture} 
+        initialImages={picture} 
+        imageStyle={{borderRadius: 50}} 
+        singleImageMode={true}/>
       </View>
       <TextInput
         style={styles.input}
