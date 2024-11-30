@@ -1,8 +1,9 @@
-import { View, Alert, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Alert, Image, StyleSheet, TouchableOpacity, ScrollView, Text } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, FontAwesome} from '@expo/vector-icons';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
+import Feather from '@expo/vector-icons/Feather';
 
 // Custom image manager component
 const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
@@ -100,17 +101,29 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
             Alert.alert('Error', 'Failed to pick image');
         }
     };
-
+    // Function to delete image
+    const deleteImageHandler = (index) => {
+        const updatedImages = images.filter((_, i) => i !== index);
+        setImages(updatedImages);
+        receiveImageUris(updatedImages);
+    };
   return (
     <View style={styles.container}>
             
                 <ScrollView horizontal>
                     {images.map((image, index) => (
+                        <View key={index} style={styles.imageWrapper}>
                         <Image
-                            key={index}
                             source={{ uri: image.startsWith('images/') ? displayUrls[index] : image }}
                             style={styles.image}
                         />
+                        <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={() => deleteImageHandler(index)}
+                        >
+                            <Feather name="x" size={18} color="gray" />
+                        </TouchableOpacity>
+                    </View>
                     ))}
                     <TouchableOpacity 
                         style={imageStyle}
@@ -164,6 +177,15 @@ const styles = StyleSheet.create({
         height: 100,
         marginRight: 10,
         borderRadius: 5,
+    },
+    deleteButton: {
+        position: 'absolute',
+        // top: 5,
+        right: 10,
+        backgroundColor: 'white',
+        borderRadius: 15,
+        padding: 3,
+        opacity: 0.9,
     },
     placeholder: {
         width: 100,

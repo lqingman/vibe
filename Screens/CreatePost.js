@@ -111,7 +111,7 @@ export default function CreatePost({ route, navigation }) {
       setInputDate(post.date);
       setInputTime(post.time);
       setAddress(post.address);
-      setImage(post.image);
+      setImages(post.image);
       setLimit(post.limit.toString());
       setIsEditing(true);
       setPostId(post.id);
@@ -237,7 +237,7 @@ export default function CreatePost({ route, navigation }) {
       Alert.alert('Location is required');
       return false;
     }
-    if (!image) {
+    if (!images || images.length === 0) {
       Alert.alert('Image is required');
       return false;
     }
@@ -269,7 +269,7 @@ export default function CreatePost({ route, navigation }) {
     setAddress('');
     setCoordinates(null);
     setCity('');
-    setImage('');
+    setImages([]);
     setIsEditing(false);
     setPostId('');
     setLimit(0);
@@ -290,8 +290,8 @@ export default function CreatePost({ route, navigation }) {
     
     const keywords = generateKeywords(title);
     
-    let finalImageUri = image;
-    if (!isFirebaseStorageUri(image)) {
+    let finalImageUri = images;
+    if (!isFirebaseStorageUri(images)) {
         // Only upload if it's a new local image
         finalImageUri = await fetchAndUploadImage(image);
     }
@@ -343,8 +343,8 @@ export default function CreatePost({ route, navigation }) {
     >
     {/* image feature to be improved */}
       <ImageManager 
-        receiveImageUri={setImages}
-        initialImage={isEditing ? images : []} 
+        receiveImageUris={setImages}
+        initialImages={isEditing ? images : []} 
       />
 
 
