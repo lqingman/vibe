@@ -28,11 +28,11 @@ const Welcome = () => {
             </CusPressable>
             
             <CusPressable
-                componentStyle={styles.button}
-                pressedStyle={styles.buttonPressed}
+                componentStyle={[styles.button, {backgroundColor: 'lightgray'}]}
+                pressedStyle={[styles.buttonPressed, {backgroundColor: 'gray'}]}
                 pressedHandler={() => navigation.navigate('Login')}
             >
-                <Text style={styles.buttonText}>Log in</Text>
+                <Text style={[styles.buttonText, {color:'black'}]}>Log in</Text>
             </CusPressable>
         </View>
       </View>
@@ -58,26 +58,28 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 10,
+    marginBottom: 30,
 
   },
   slogan: {
     fontSize: 20,
     color: 'white',
-    marginBottom: 20,
-    textAlign: 'left',
+    marginBottom: 30,
+    // textAlign: 'left',
+    fontWeight: 'bold',
+
   },
   description: {
     fontSize: 16,
     color: 'white',
-    marginBottom: 40,
+    marginBottom: 200,
     textAlign: 'left',
   },
   buttonContainer: {
     flexDirection: 'column', 
     alignItems: 'center',
     width: '80%',
-    gap: 15, 
+    gap: 20, 
   },
   button: {
     backgroundColor: '#363678',

@@ -110,8 +110,25 @@ export default function Signup({ navigation }) {
         // Navigate to the Login screen or Home screen after successful signup
         // navigation.navigate('Home');
       } catch (error) {
-        console.error('Error creating user:', error);
-        Alert.alert('Signup failed', error.message);
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            Alert.alert('Email Already Exists', 'This email is already registered. Please use a different email or login.');
+            break;
+          case 'auth/invalid-email':
+            Alert.alert('Invalid Email', 'Please enter a valid email address.');
+            break;
+          case 'auth/weak-password':
+            Alert.alert('Weak Password', 'Password should be at least 6 characters long.');
+            break;
+          case 'auth/network-request-failed':
+            Alert.alert('Network Error', 'Please check your internet connection.');
+            break;
+          case 'auth/operation-not-allowed':
+            Alert.alert('Signup Error', 'Email/password accounts are not enabled. Please contact support.');
+            break;
+          default:
+            Alert.alert('Signup Error', 'An error occurred while creating your account.');
+        }
       }
 
   };
