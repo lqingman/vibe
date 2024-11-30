@@ -290,11 +290,13 @@ export default function CreatePost({ route, navigation }) {
     
     const keywords = generateKeywords(title);
     
-    let finalImageUri = images;
-    if (!isFirebaseStorageUri(images)) {
+    const finalImageUris = await Promise.all(images.map(async (image) => {
+      if (!isFirebaseStorageUri(image)) {
         // Only upload if it's a new local image
-        finalImageUri = await fetchAndUploadImage(image);
-    }
+        return await fetchAndUploadImage(image);
+      }
+      return image;
+    }));
     const newPost = {
         title: title,
         keywords: keywords,
@@ -304,7 +306,7 @@ export default function CreatePost({ route, navigation }) {
         address: address,
         coordinates: coordinates,
         city: city,
-        image: finalImageUri,
+        image: finalImageUris,
         limit: parseInt(limit),
         owner: auth.currentUser.uid,
     };
