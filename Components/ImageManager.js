@@ -1,32 +1,32 @@
-import { View, Alert, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Alert, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome5 } from '@expo/vector-icons';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 
 // Custom image manager component
-const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
+const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
     // State for image picker permissions
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
     // State for image
-    const [image, setImage] = useState(initialImage || null);
-    // State for display url
-    const [displayUrl, setDisplayUrl] = useState(null);
+    const [images, setImages] = useState(initialImages);
+    const [displayUrls, setDisplayUrls] = useState([]);
 
     // Add useEffect to handle initialImage
     useEffect(() => {
-        async function fetchImageUrl() {
-            if (!initialImage || !initialImage.startsWith('images/')) return;
-            try {
-                const url = await fetchImageUrlFromDB(initialImage);
-                setDisplayUrl(url);
-                setImage(initialImage);
-            } catch (error) {
-                console.error('Error fetching image:', error);
-            }
+        async function fetchImageUrls() {
+            const urls = await Promise.all(
+                initialImages.map(async (image) => {
+                    if (image.startsWith('images/')) {
+                        return await fetchImageUrlFromDB(image);
+                    }
+                    return image;
+                })
+            );
+            setDisplayUrls(urls);
         }
-        fetchImageUrl();
-    }, [initialImage]);
+        fetchImageUrls();
+    }, [initialImages]);
     
     // Function to verify permissions
     async function verifyPermissions() {
@@ -67,10 +67,11 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
             console.log(result);
             // If the user did not cancel, set the image and send the uri back to the parent component
             if (!result.canceled) {
-                setImage(result.assets[0].uri);
-                receiveImageUri(result.assets[0].uri);
+                const newImage = result.assets[0].uri;
+                setImages((prevImages) => [...prevImages, newImage]);
+                receiveImageUris([...images, newImage]);
             }
-            console.log(image);
+
             // send uri back to the parent component
             
 
@@ -90,9 +91,9 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
                 // quality: 1,
             });
             if (!result.canceled) {
-                setImage(result.assets[0].uri);
-                receiveImageUri(result.assets[0].uri);
-                console.log(image);
+                const newImage = result.assets[0].uri;
+                setImages((prevImages) => [...prevImages, newImage]);
+                receiveImageUris([...images, newImage]);
             }
         } catch (err) {
             console.log(err);
@@ -102,44 +103,44 @@ const ImageManager = ({receiveImageUri, initialImage, imageStyle}) => {
 
   return (
     <View style={styles.container}>
-            <TouchableOpacity 
-                style={[styles.imageContainer, imageStyle]}
-                onPress={() => {
-                    Alert.alert(
-                        "Select Image",
-                        "Choose an option",
-                        [
-                            {
-                                text: "Camera",
-                                onPress: takeImageHandler
-                            },
-                            {
-                                text: "Gallery",
-                                onPress: pickImageHandler
-                            },
-                            {
-                                text: "Cancel",
-                                style: "cancel"
-                            }
-                        ]
-                    );
-                }}
-            >
-                {image ? (
-                    <Image source={{
-                        uri: image.startsWith('images/') 
-                            ? displayUrl 
-                            : image
-                      }} 
-                      style={styles.image} />
-                    
-                ) : (
+            
+                <ScrollView horizontal>
+                    {images.map((image, index) => (
+                        <Image
+                            key={index}
+                            source={{ uri: image.startsWith('images/') ? displayUrls[index] : image }}
+                            style={styles.image}
+                        />
+                    ))}
+                    <TouchableOpacity 
+                        style={imageStyle}
+                        onPress={() => {
+                            Alert.alert(
+                                "Select Image",
+                                "Choose an option",
+                                [
+                                    {
+                                        text: "Camera",
+                                        onPress: takeImageHandler
+                                    },
+                                    {
+                                        text: "Gallery",
+                                        onPress: pickImageHandler
+                                    },
+                                    {
+                                        text: "Cancel",
+                                        style: "cancel"
+                                    }
+                                ]
+                            );
+                        }}
+                    >
                     <View style={styles.placeholder}>
                         <FontAwesome5 name="camera" size={24} color="gray" />
-                        {/* <Text style={styles.placeholderText}>Add Photo</Text> */}
                     </View>
-                )}
-            </TouchableOpacity>
+                    </TouchableOpacity>
+                </ScrollView>
+
         </View>
   )
 }
@@ -148,30 +149,28 @@ export default ImageManager
 
 const styles = StyleSheet.create({
 
-  container: {
-    // alignItems: 'center',
-    marginBottom: 20,
+    container: {
+        marginBottom: 20,
     },
     imageContainer: {
-        width: 100,
+        width: '100%',
         height: 100,
         borderRadius: 5,
         overflow: 'hidden',
         backgroundColor: '#f0f0f0',
     },
     image: {
-        width: '100%',
-        height: '100%',
+        width: 100,
+        height: 100,
+        marginRight: 10,
+        borderRadius: 5,
     },
     placeholder: {
-        flex: 1,
+        width: 100,
+        height: 100,
+        borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#e1e1e1',
     },
-    placeholderText: {
-        marginTop: 10,
-        color: 'gray',
-        fontSize: 16,
-    }
   })

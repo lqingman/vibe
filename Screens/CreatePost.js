@@ -30,7 +30,7 @@ export default function CreatePost({ route, navigation }) {
   const [coordinates, setCoordinates] = useState(null); 
   const [city, setCity] = useState('');
 
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [limit, setLimit] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [postId, setPostId] = useState('');
@@ -343,8 +343,8 @@ export default function CreatePost({ route, navigation }) {
     >
     {/* image feature to be improved */}
       <ImageManager 
-        receiveImageUri={setImage}
-        initialImage={isEditing ? image : null} 
+        receiveImageUri={setImages}
+        initialImage={isEditing ? images : []} 
       />
 
 
