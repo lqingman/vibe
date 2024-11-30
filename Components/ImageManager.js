@@ -10,21 +10,25 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
     // State for image picker permissions
     const [response, requestPermission] = ImagePicker.useCameraPermissions();
     // State for image
-    const [images, setImages] = useState(initialImages);
+    const [images, setImages] = useState([]);
     const [displayUrls, setDisplayUrls] = useState([]);
 
     // Add useEffect to handle initialImage
     useEffect(() => {
         async function fetchImageUrls() {
-            const urls = await Promise.all(
-                initialImages.map(async (image) => {
-                    if (image.startsWith('images/')) {
-                        return await fetchImageUrlFromDB(image);
-                    }
-                    return image;
-                })
-            );
-            setDisplayUrls(urls);
+            if (initialImages && initialImages.length > 0) {
+                setImages(initialImages); // Set the images state with initial images
+                
+                const urls = await Promise.all(
+                    initialImages.map(async (image) => {
+                        if (image.startsWith('images/')) {
+                            return await fetchImageUrlFromDB(image);
+                        }
+                        return image;
+                    })
+                );
+                setDisplayUrls(urls);
+            }
         }
         fetchImageUrls();
     }, [initialImages]);
@@ -114,7 +118,11 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle}) => {
                     {images.map((image, index) => (
                         <View key={index} style={styles.imageWrapper}>
                         <Image
-                            source={{ uri: image.startsWith('images/') ? displayUrls[index] : image }}
+                            source={{
+                                uri: image.startsWith('https://') ? image : 
+                                image.startsWith('images/') ? displayUrls[index] : 
+                                image 
+                            }}
                             style={styles.image}
                         />
                         <TouchableOpacity
