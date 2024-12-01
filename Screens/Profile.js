@@ -63,19 +63,28 @@ const userId = route.params?.userId || auth.currentUser?.uid;
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <Image source={{ uri: profilePicUrl ? profilePicUrl : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={styles.profileImage} />
+        <View style={{ flex: 1 }}>
         <Text style={styles.name}>{userData.name}</Text>
-        <Text style={styles.bio}>{userData.bio}</Text>
-        <Text style={styles.info}>Gender: {userData.gender}</Text>
-        <Text style={styles.info}>Joined: {userData.joined.length}</Text>
-        <Text style={styles.info}>Posted: {userData.posts.length}</Text>
-        {/* <Text style={styles.info}>Liked: {userData.favorites.length}</Text> */}
+        {userData.gender && <Text style={styles.info}>{userData.gender}</Text>}
+        <Text style={styles.info}>{userData.bio?userData.bio:'Bio coming soon...'}</Text>
+        
+        <Text style={styles.info}>Joined: {userData.joined.length}   Posted: {userData.posts.length}</Text>
+
+        </View>
       </View>
+      
       <View style={styles.tabContainer}>
-        <Tab.Navigator>
-          <Tab.Screen name="PostedPosts" options={{ title: 'Posted Posts' }}>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarStyle: styles.tabBar,
+            tabBarIndicatorStyle: styles.tabBarIndicator,
+            tabBarLabelStyle: styles.tabBarLabel,
+          }}
+        >
+          <Tab.Screen name="PostedPosts" options={{ title: 'Posted' }}>
             {() => <PostsList  postIds={userData.posts} />}
           </Tab.Screen>
-          <Tab.Screen name="LikedPosts" options={{ title: 'Liked Posts' }}>
+          <Tab.Screen name="LikedPosts" options={{ title: 'Liked' }}>
             {() => <PostsList postIds={userData.favorites} />}
           </Tab.Screen>
         </Tab.Navigator>
@@ -91,7 +100,10 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    flexDirection: 'row',
+    marginBottom: 10,
+    gap: 20,
+    padding: 10,
   },
   profileImage: {
     width: 100,
@@ -100,7 +112,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   name: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 5,
   },
@@ -111,8 +123,23 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 14,
     marginBottom: 5,
+    color: 'gray',
   },
   tabContainer: {
     flex: 1,
+  },
+  tabBar: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+  },
+  tabBarIndicator: {
+    backgroundColor: '#363678',
+    height: 5,
+    borderRadius: 3,
+  },
+  tabBarLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#363678',
   },
 });
