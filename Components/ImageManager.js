@@ -91,14 +91,15 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleI
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
-                allowsEditing: true,
+                // allowsEditing: true,
                 aspect: [4, 3],
+                allowsMultipleSelection: !singleImageMode, 
                 // quality: 1,
             });
             if (!result.canceled) {
-                const newImage = result.assets[0].uri;
-                setImages((prevImages) => [...prevImages, newImage]);
-                receiveImageUris([...images, newImage]);
+                const newImages = result.assets.map(asset => asset.uri);
+                setImages((prevImages) => [...prevImages, ...newImages]);
+                receiveImageUris([...images, ...newImages]);
             }
         } catch (err) {
             console.log(err);
