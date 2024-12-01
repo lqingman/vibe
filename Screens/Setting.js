@@ -6,6 +6,7 @@ import { updateUserProfile } from '../Firebase/firestoreHelper';
 import { doc, getDoc } from 'firebase/firestore';
 import ImageManager from '../Components/ImageManager';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
+import CusPressable from '../Components/CusPressable';
 
 // Setting screen
 export default function Setting({ navigation }) {
@@ -15,6 +16,7 @@ export default function Setting({ navigation }) {
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [picture, setPicture] = useState([]);
+  const [email, setEmail] = useState('');
 
   // Effect to fetch the user profile
   useEffect(() => {
@@ -31,6 +33,7 @@ export default function Setting({ navigation }) {
         setAge(userData.age);
         setGender(userData.gender);
         setPicture(userData.picture);
+        setEmail(userData.email);
       }
     };
 
@@ -82,34 +85,52 @@ export default function Setting({ navigation }) {
         imageStyle={{borderRadius: 50}} 
         singleImageMode={true}/>
       </View>
+      <Text style={styles.label}>Name</Text>
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        // placeholder="Name"
         value={name}
         onChangeText={setName}
       />
+      <Text style={styles.label}>Email</Text>
+      <TextInput
+        style={[styles.input, {color: 'gray'}]}
+        // placeholder="Email"
+        value={email}
+        editable={false}
+      />
+      <Text style={styles.label}>Bio</Text>
       <TextInput
         style={styles.input}
-        placeholder="Bio"
+        // placeholder="Bio"
         value={bio}
         onChangeText={setBio}
       />
+      <Text style={styles.label}>Age</Text>
       <TextInput
         style={styles.input}
-        placeholder="Age"
+        // placeholder="Age"
         value={age}
         onChangeText={setAge}
         keyboardType="numeric"
       />
+      <Text style={styles.label}>Pronoun</Text>
       <TextInput
         style={styles.input}
-        placeholder="Gender"
+        // placeholder="Pronoun"
         value={gender}
         onChangeText={setGender}
       />
       
-      <Button title="Update Profile" onPress={handleUpdateProfile} />
-      <Button title="Sign out" onPress={() => signOut(auth)} />
+      {/* <Button title="Update Profile" onPress={handleUpdateProfile} /> */}
+      <CusPressable
+          componentStyle={styles.button}
+          pressedStyle={styles.buttonPressed}
+          pressedHandler={handleUpdateProfile}
+      >
+          <Text style={styles.buttonText}>Update Profile</Text>
+      </CusPressable>
+      {/* <Button title="Sign out" onPress={() => signOut(auth)} /> */}
     </View>
   );
 }
@@ -120,16 +141,18 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     padding: 20,
   },
-  header: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
+  label: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: 'gray',
+    marginStart: 5,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: 'lightgray',
+    borderRadius: 5,
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 15,
     paddingHorizontal: 10,
   },
   imagePicker: {
@@ -140,5 +163,23 @@ const styles = StyleSheet.create({
   image: {
     width: 100,
     height: 100,
+  },
+  button: {
+    backgroundColor: '#363678',
+    paddingVertical: 10,
+    // paddingHorizontal: 30,
+    marginTop: 20,
+    borderRadius: 5,
+    width: '100%', 
+    alignItems: 'center', 
+  },
+  buttonPressed: {
+    backgroundColor: '#1884c7', 
+    transform: [{ scale: 0.98 }], 
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
