@@ -1,30 +1,30 @@
 import 'react-native-get-random-values';  
-import { View, StyleSheet, Alert, Button, Text } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import { SearchBar } from 'react-native-elements';
+import { View, StyleSheet, Alert, Text } from 'react-native'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import LocationManager from '../Components/LocationManager';
+import CusPressable from '../Components/CusPressable';
 import * as Location from 'expo-location';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getUserData, updateDB } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
-import CusPressable from '../Components/CusPressable';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-
-
+// Change location screen
 export default function ChangeLocation() {
+  // Refs
   const mapRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  //route and navigation
   const route = useRoute();
-
-  const [search, setSearch] = useState('');  
-  const [searchResults, setSearchResults] = useState([]);
-
+  const navigation = useNavigation();
+  
+  //location states
   const [location, setLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const navigation = useNavigation();
   const [response, requestPermission] = Location.useForegroundPermissions();
 
+  //useEffect to get user location
   useEffect(() => {
     async function getLocation() {
       const userData = await getUserData(auth.currentUser.uid, 'users');
@@ -36,33 +36,27 @@ export default function ChangeLocation() {
     getLocation();
   }, []);
 
-  const updateSearch = async (search) => {
-    setSearch(search);
-    
-    if (search.length > 2) { // Only search if input is longer than 2 characters
-      try {
-        const results = await Location.geocodeAsync(search);
-        if (results.length > 0) {
-          const newLocation = {
-            latitude: results[0].latitude,
-            longitude: results[0].longitude,
-          };
-          setSelectedLocation(newLocation);
-          // Optionally update map region to show the searched location
-          if (mapRef.current) {
-            mapRef.current.animateToRegion({
-              ...newLocation,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error searching location:', error);
+  // Memoize the location selection handler
+  const handleLocationSelect = useCallback((data, details) => {
+    if (details) {
+      const newLocation = {
+        latitude: details.geometry.location.lat,
+        longitude: details.geometry.location.lng,
+      };
+      setSelectedLocation(newLocation);
+      
+      // Only animate map if we have a valid ref
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          ...newLocation,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }, 1000); 
       }
     }
-  };
+  }, []);
 
+  //function to verify permissions
   async function verifyPermissions() {
     if (response?.granted) {
       return true;
@@ -71,6 +65,7 @@ export default function ChangeLocation() {
     return permissionResponse.granted;
   }
 
+  //function to locate user
   const locateUserHandler = async () => {
     try {
       const hasPermission = await verifyPermissions();
@@ -78,6 +73,7 @@ export default function ChangeLocation() {
         Alert.alert('You need to grant location permissions to use this app.');
         return;
       }
+      //get current location
       const locationResponse = await Location.getCurrentPositionAsync();
       const newLocation = {
         latitude: locationResponse.coords.latitude,
@@ -85,18 +81,23 @@ export default function ChangeLocation() {
       };
       setLocation(newLocation);
       setSelectedLocation(newLocation);
-      updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
+      //updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
+      
+      // Clear the search input when using current location
+      if (autocompleteRef.current) {
+        autocompleteRef.current.clear();
+      }
     } catch (err) {
       console.log("Location error", err);
       Alert.alert('Error', 'Could not fetch location.');
     }
   };
 
+  //function to save location
   function saveLocationHandler() {
-    //update user location
     if (!selectedLocation) return;
+    //console.log("Selected Location:", selectedLocation);
     updateDB(auth.currentUser.uid, { location: selectedLocation }, 'users');
-    // update post location
     if (route.params?.onReturn) {
       route.params.onReturn(selectedLocation);
     }
@@ -107,22 +108,10 @@ export default function ChangeLocation() {
     <View style={styles.container}>
       <View style={styles.searchBar}>
         <GooglePlacesAutocomplete
+          ref={autocompleteRef}
           placeholder='Search location'
-          fetchDetails={true}  // Add this line
-          onPress={(data, details = null) => {
-            if (details) {  // Add this check
-              const location = {
-                latitude: details.geometry.location.lat,
-                longitude: details.geometry.location.lng,
-              };
-              setSelectedLocation(location);
-              mapRef.current?.animateToRegion({
-                ...location,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              });
-            }
-          }}
+          fetchDetails={true}
+          onPress={handleLocationSelect}
           query={{
             key: process.env.EXPO_PUBLIC_mapsApiKey,
             language: 'en',
@@ -155,9 +144,12 @@ export default function ChangeLocation() {
               backgroundColor: 'white',
             }
           }}
-          enablePoweredByContainer={false} 
-      />
+          enablePoweredByContainer={false}
+          debounce={300} // Add debounce to reduce API calls
+          minLength={2} // Only start searching after 2 characters
+        />
       </View>
+      
       <View style={styles.mapView}>
         <LocationManager 
           ref={mapRef}
@@ -193,7 +185,7 @@ export default function ChangeLocation() {
         </CusPressable>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
