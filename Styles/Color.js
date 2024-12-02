@@ -10,4 +10,5 @@ export default {
     blue: 'blue',
     gray: 'gray',
     lightgray: '#f0f0f0',
+    cornflowerblue: 'cornflowerblue',
 }

@@ -1,14 +1,17 @@
 import 'react-native-get-random-values';  
-import { View, StyleSheet, Alert, Text } from 'react-native'
+import { View, StyleSheet, Alert, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import LocationManager from '../Components/LocationManager';
 import CusPressable from '../Components/CusPressable';
 import * as Location from 'expo-location';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getUserData, updateDB } from '../Firebase/firestoreHelper';
+import { getAllPosts, getUserData, updateDB } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Callout, Marker } from 'react-native-maps';
+import Color from '../Styles/Color';
+import ActivityCard from '../Components/ActivityCard';
 
 // Change location screen
 export default function ChangeLocation() {
@@ -24,6 +27,9 @@ export default function ChangeLocation() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [response, requestPermission] = Location.useForegroundPermissions();
 
+  //activities state
+  const [activities, setActivities] = useState([]);
+
   //useEffect to get user location
   useEffect(() => {
     async function getLocation() {
@@ -34,6 +40,20 @@ export default function ChangeLocation() {
       }
     }
     getLocation();
+  }, []);
+
+  //useEffect to fetch activities
+  useEffect(() => {
+    async function loadActivities() {
+      try {
+        const posts = await getAllPosts();
+        console.log("Activities:", posts);
+        setActivities(posts);
+      } catch (error) {
+        console.error("Error loading activities:", error);
+      }
+    }
+    loadActivities();
   }, []);
 
   // Memoize the location selection handler
@@ -153,11 +173,43 @@ export default function ChangeLocation() {
       </View>
       
       <View style={styles.mapView}>
-        <LocationManager 
+      <LocationManager 
           ref={mapRef}
           selectedLocation={selectedLocation}
           onLocationSelect={setSelectedLocation}
-        />
+        >
+          {/* Add markers for each activity */}
+          {activities.map((activity) => (
+            activity?.coordinates && (
+              <Marker
+                key={activity.id}
+                coordinate={{
+                  latitude: activity.coordinates.latitude,
+                  longitude: activity.coordinates.longitude
+                }}
+                pinColor={Color.cornflowerblue}
+              >
+                <Callout
+                  tooltip
+                  onPress={() => navigation.navigate('Details', { activity: activity })}
+                >
+                  <TouchableOpacity 
+                    onPress={() => navigation.navigate('Details', { activity: activity })}
+                    activeOpacity={0.9}
+                  >
+                    <View style={styles.calloutContainer}>
+                      <ActivityCard 
+                        data={activity}
+                        cardStyle={styles.calloutCard}
+                        favButtonStyle={styles.favButton}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </Callout>
+              </Marker>
+            )
+          ))}
+        </LocationManager>
       </View>
 
       <CusPressable
@@ -244,5 +296,29 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  calloutContainer: {
+    width: 220, 
+    height: 200,
+    backgroundColor: 'transparent',
+    borderRadius: 16,
+  },
+  calloutCard: {
+    flex: 1,
+    margin: 0,
+    marginLeft: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  favButton: {
+    position: 'absolute',
+    top: 150,
+    right: 10,
   },
 })

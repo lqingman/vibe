@@ -4,7 +4,7 @@ import MapView, { Marker } from "react-native-maps";
 import { getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 
-const LocationManager = forwardRef(({ selectedLocation, onLocationSelect }, ref) => {
+const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, children }, ref) => {
   const [userLocation, setUserLocation] = useState(null);
   const [mapRef, setMapRef] = useState(null);
 
@@ -47,11 +47,14 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect }, ref)
   // Update map when selectedLocation changes
   useEffect(() => {
     if (selectedLocation && mapRef) {
-      mapRef.animateToRegion({
-        ...selectedLocation,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }, 1000);
+      // Check if selectedLocation has valid coordinates
+      if (selectedLocation.latitude !== undefined && selectedLocation.longitude !== undefined) {
+        mapRef.animateToRegion({
+          ...selectedLocation,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }, 1000);
+      }
     }
   }, [selectedLocation, mapRef]);
 
@@ -62,15 +65,20 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect }, ref)
         initialRegion={defaultRegion}
         style={styles.map}
         onPress={(e) => {
-          onLocationSelect({
-            latitude: e.nativeEvent.coordinate.latitude,
-            longitude: e.nativeEvent.coordinate.longitude,
-          });
+          // Only set selected location if the user clicks on the map itself
+          // and not on a marker or callout
+          if (e.nativeEvent.action !== 'marker-press' && e.nativeEvent.action !== 'callout-press') {
+            onLocationSelect({
+              latitude: e.nativeEvent.coordinate.latitude,
+              longitude: e.nativeEvent.coordinate.longitude,
+            });
+          }
         }}
       >
-        {selectedLocation && (
+        {selectedLocation && selectedLocation.latitude && selectedLocation.longitude && (
           <Marker coordinate={selectedLocation} />
         )}
+        {children}
       </MapView>
     </View>
   )
