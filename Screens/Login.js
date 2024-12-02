@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { auth } from '../Firebase/firebaseSetup'; // Import the Auth service instance
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; // Import the signInWithEmailAndPassword function
 import CusPressable from '../Components/CusPressable';
+import Style from '../Styles/Style';
 
 // Login screen
 export default function Login({ navigation }) {
@@ -82,17 +83,17 @@ export default function Login({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Welcome Back!</Text>
-      <Text style={styles.slogan}>Continue your adventure!</Text>
+    <View style={[Style.container, {justifyContent: 'center', padding: 20,}]}>
+      <Text style={Style.header}>Welcome Back!</Text>
+      <Text style={Style.slogan}>Continue your adventure!</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={Style.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
@@ -100,20 +101,20 @@ export default function Login({ navigation }) {
       />
       {/* <Button title="Login" onPress={handleLogin} /> */}
       <CusPressable
-          componentStyle={styles.button}
-          pressedStyle={styles.buttonPressed}
+          componentStyle={Style.button}
+          pressedStyle={Style.buttonPressed}
           pressedHandler={handleLogin}
       >
-          <Text style={styles.buttonText}>Log in</Text>
+          <Text style={[Style.buttonText, {fontSize: 18}]}>Log in</Text>
       </CusPressable>
       <Text 
-        style={styles.forgotPassword}
+        style={Style.forgotPassword}
         onPress={handleForgotPassword}
       >
         Forgot Password?
       </Text>
       <Text 
-        style={styles.underline}
+        style={Style.underline}
         onPress={signupHandler}
       >
         Don't have an account? Signup
@@ -122,61 +123,3 @@ export default function Login({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    fontSize: 30,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  slogan: {
-    fontSize: 16,
-    color: 'black',
-    marginBottom: 100,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: 'lightgray',
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  forgotPassword: {
-    color: '#1DA1F2',
-    textAlign: 'center',
-    marginVertical: 15,
-    fontSize: 16,
-    marginTop: 30,
-    // textDecorationLine: 'underline',
-  },
-  underline: {
-    color: 'gray',
-    textAlign: 'center',
-    // marginVertical: 15,
-    textDecorationLine: 'underline',
-  },
-  button: {
-    backgroundColor: '#363678',
-    paddingVertical: 10,
-    // paddingHorizontal: 30,
-    borderRadius: 5,
-    width: '100%', 
-    alignItems: 'center', 
-  },
-  buttonPressed: {
-    backgroundColor: '#1884c7', 
-    transform: [{ scale: 0.98 }], 
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});

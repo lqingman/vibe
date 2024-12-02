@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import the cr
 import { auth } from '../Firebase/firebaseSetup'; // Import the auth object
 import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
 import CusPressable from '../Components/CusPressable';
+import Style from '../Styles/Style';
 
 // Signup screen
 export default function Signup({ navigation }) {
@@ -134,70 +135,70 @@ export default function Signup({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Welcome!</Text>
-      <Text style={styles.slogan}>Start a new local adventure!</Text>
+    <View style={[Style.container, {justifyContent: 'center', padding: 20,}]}>
+      <Text style={Style.header}>Welcome!</Text>
+      <Text style={Style.slogan}>Start a new local adventure!</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         placeholder="Name"
         value={name}
         onChangeText={setName}
       />
       <TextInput
-        style={styles.input}
+        style={Style.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={[styles.input, {marginBottom: 10}]}
+        style={[Style.input, {marginBottom: 10}]}
         placeholder="Password"
         value={password}
         onChangeText={onChangePassword}
         secureTextEntry
       />
-      <View style={styles.strengthIndicator}>
+      <View style={Style.strengthIndicator}>
         {passwordStrength.label && (
           <>
-            <View style={styles.strengthBars}>
+            <View style={Style.strengthBars}>
               <View style={[
-                styles.strengthBar,
+                Style.strengthBar,
                 { backgroundColor: passwordStrength.strength >= 1 ? passwordStrength.color : '#e0e0e0' }
               ]} />
               <View style={[
-                styles.strengthBar,
+                Style.strengthBar,
                 { backgroundColor: passwordStrength.strength >= 2 ? passwordStrength.color : '#e0e0e0' }
               ]} />
               <View style={[
-                styles.strengthBar,
+                Style.strengthBar,
                 { backgroundColor: passwordStrength.strength >= 3 ? passwordStrength.color : '#e0e0e0' }
               ]} />
             </View>
-            <Text style={[styles.strengthText, { color: passwordStrength.color }]}>
+            <Text style={[Style.strengthText, { color: passwordStrength.color }]}>
               {passwordStrength.label}
             </Text>
           </>
         )}
       </View>
       <TextInput
-        style={[styles.input, { marginBottom: confirmPasswordError ? 5 : 20 }]}
+        style={[Style.input, { marginBottom: confirmPasswordError ? 5 : 20 }]}
         placeholder="Confirm Password"
         value={confirmPassword}
         onChangeText={onChangeConfirmPassword}
         secureTextEntry
       />
       {confirmPasswordError ? (
-        <Text style={styles.confirmText}>{confirmPasswordError}</Text>
+        <Text style={Style.confirmText}>{confirmPasswordError}</Text>
       ) : null}
       <CusPressable
-          componentStyle={styles.button}
-          pressedStyle={styles.buttonPressed}
+          componentStyle={Style.button}
+          pressedStyle={Style.buttonPressed}
           pressedHandler={handleSignup}
       >
-          <Text style={styles.buttonText}>Sign up</Text>
+          <Text style={[Style.buttonText, {fontSize: 18}]}>Sign up</Text>
       </CusPressable>
       <Text 
-        style={[styles.underline, { marginTop: 30 }]}
+        style={[Style.underline, { marginTop: 30 }]}
         onPress={loginHandler}
       >
         Already have an account? Login
@@ -207,80 +208,3 @@ export default function Signup({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    fontSize: 30,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  slogan: {
-    fontSize: 16,
-    color: 'black',
-    marginBottom: 100,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: 'lightgray',
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  strengthIndicator: {
-    marginBottom: 10,
-  },
-  strengthBars: {
-    flexDirection: 'row',
-    gap: 10,
-    // width: '90%',
-    // marginTop: 5,
-  },
-  strengthBar: {
-    flex: 1,
-    height: 5,
-    borderRadius: 2,
-    backgroundColor: '#e0e0e0',
-  },
-  strengthText: {
-    fontSize: 12,
-    marginTop: 5,
-    // marginBottom: 10,
-    color:'red'
-  },
-  confirmText: {
-    fontSize: 12,
-    marginTop: 5,
-    marginBottom: 10,
-    color:'red'
-  },
-  button: {
-    backgroundColor: '#363678',
-    paddingVertical: 10,
-    // paddingHorizontal: 30,
-    borderRadius: 5,
-    width: '100%', 
-    alignItems: 'center', 
-  },
-  buttonPressed: {
-    backgroundColor: '#1884c7', 
-    transform: [{ scale: 0.98 }], 
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  underline: {
-    color: 'gray',
-    textAlign: 'center',
-    // marginVertical: 15,
-    textDecorationLine: 'underline',
-  },
-});
