@@ -349,9 +349,9 @@ export default function CreatePost({ route, navigation }) {
         initialImages={isEditing ? images : []} 
       />
 
-
+    <Text style={styles.label}>Title</Text>
     <TextInput
-      placeholder="Title"
+      // placeholder="Title"
       value={title}
       onChangeText={setTitle}
       style={styles.input}
@@ -363,24 +363,36 @@ export default function CreatePost({ route, navigation }) {
       //   justifyContent: 'space-between',
       //   alignItems: 'center'}}>
       <View>
-      <Text>{"Start Time"}</Text>
+      <Text style={styles.label}>Start Time</Text>
       <TextInput 
+        // placeholder="Start Time"
         style={styles.input}
-        value={inputDate + '  ' + inputTime}
+        value={inputDate?inputDate + '  ' + inputTime:''}
         editable={false}
         onPress={() => setShowDatePicker(!showDatePicker)}
         />
-      {showDatePicker && <DateTimePicker
+      {showDatePicker && (
+        <View style={{ alignItems: 'flex-start', marginBottom:15, paddingLeft:0}}>
+      <DateTimePicker
         value={date}
         mode="datetime"
         display="default" // Use inline display for the date picker
         onChange={onChangeDateTime}
-      />}
+      />
+      </View>
+    )}
       </View>
     ) : (
       <>
-        <TouchableOpacity onPress={toggleDatePicker} style={styles.input}>
-            <Text>{inputDate || "Select Date"}</Text>
+      <Text style={styles.label}>Start Date</Text>
+      <TouchableOpacity onPress={toggleDatePicker}>
+      <TextInput 
+        // placeholder="Start Time"
+        style={styles.input}
+        value={inputDate}
+        editable={false}
+        // onPress={toggleDatePicker}
+        />
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
@@ -392,9 +404,16 @@ export default function CreatePost({ route, navigation }) {
             
           />
         )}
-        <TouchableOpacity onPress={toggleTimePicker} style={styles.input}>
-            <Text>{inputTime || "Select Time"}</Text>
-          </TouchableOpacity>
+        <Text style={styles.label}>Start Time</Text>
+        <TouchableOpacity onPress={toggleTimePicker}>
+        <TextInput 
+        // placeholder="Start Time"
+        style={styles.input}
+        value={inputTime}
+        editable={false}
+        // onPress={toggleTimePicker}
+        />
+        </TouchableOpacity>
 
           {showTimePicker && (
             <DateTimePicker
@@ -407,13 +426,14 @@ export default function CreatePost({ route, navigation }) {
         </>
     )}
 
-  
+    <Text style={styles.label}>Max Capacity</Text>
     <TextInput
-      placeholder="Max Capacity"
+      // placeholder="Max Capacity"
       value={limit}
       onChangeText={setLimit}
       style={styles.input}
     />
+    <Text style={styles.label}>Location</Text>
     <CusPressable
       pressedHandler={() => navigation.navigate('ChangeLocation', { 
         onReturn: (selectedLocation) => {
@@ -442,32 +462,55 @@ export default function CreatePost({ route, navigation }) {
       componentStyle={styles.locationButton}
     >
       <View style={styles.locationButtonContent}>
-        <FontAwesome6 name="location-dot" size={24} color="black" />
+        <FontAwesome6 name="location-dot" size={20} color="#363678" />
         <Text style={styles.locationText}>{address || "Select Location"}</Text>
       </View>
     </CusPressable>
+    
     <View style={styles.descriptionContainer}>
-    <TextInput
-      placeholder="Description"
+    <Text style={styles.label}>Description</Text>
+    <CusPressable
+          componentStyle={styles.AIbutton}
+          pressedStyle={styles.AIbuttonPressed}
+          pressedHandler={openInputPrompt}
+      >
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 5}}>
+          <FontAwesome5 
+        name="magic" 
+        size={18} 
+        color={'#363678'} 
+      />
+          <Text style={{color: 'black'}}>Ai-generate</Text>
+          </View>
+      </CusPressable>
+
+  </View>
+  <TextInput
+      // placeholder="Description"
       value={description}
       onChangeText={setDescription}
       style={[styles.input, styles.descriptionInput]}
       multiline
     />
-    <TouchableOpacity 
-      style={styles.aiButton}
-      onPress={openInputPrompt}
-    >
-      <FontAwesome5 
-        name="magic" 
-        size={20} 
-        color={'#363678'} 
-      />
-    </TouchableOpacity>
-  </View>
     <View style={styles.buttonContainer}>
+    <CusPressable
+          componentStyle={[styles.button, {backgroundColor: '#f0f0f0'}]}
+          pressedStyle={[styles.buttonPressed, {backgroundColor: 'gray'}]}
+          pressedHandler={handleCancel}
+      >
+          <Text style={[styles.buttonText, {color:'black'}]}>Cancel</Text>
+      </CusPressable>
+      <CusPressable
+          componentStyle={styles.button}
+          pressedStyle={styles.buttonPressed}
+          pressedHandler={handleSubmit}
+      >
+          <Text style={styles.buttonText}>Submit</Text>
+      </CusPressable>
+      
+{/* 
       <Button title="Cancel" onPress={handleCancel} />
-      <Button title="Submit" onPress={handleSubmit} />
+      <Button title="Submit" onPress={handleSubmit} /> */}
     </View>
     <Modal
       visible={modalVisible}
@@ -516,33 +559,38 @@ export default function CreatePost({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  label: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: 'gray',
+    marginStart: 5,
+  },
   input: {
-    borderWidth: 1,
+    height: 40,
     borderColor: 'lightgray',
     borderRadius: 5,
-    // backgroundColor: colors.textBackground,
-    padding: 5,
-    fontSize: 16,
-    marginBottom: 10,
+    borderWidth: 1,
+    marginBottom: 15,
+    // marginTop: 8,
+    paddingHorizontal: 10,
 },
   descriptionContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     marginBottom: 10,
+    // gap: 10,
+    justifyContent: 'space-between',
   },
   descriptionInput: {
-    flex: 1,
+    // flex: 1,
     height: 150,
     textAlignVertical: 'top',
   },
-  aiButton: {
-    padding: 10,
-    marginLeft: 10,
-    alignSelf: 'flex-start',
-  },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 20,
+    alignItems: 'center',
     // marginTop: 20,
     marginHorizontal: 30,
   },
@@ -559,31 +607,34 @@ const styles = StyleSheet.create({
     // marginBottom: 100,
   },
   locationButton: {
-    backgroundColor: 'lightblue',
-    height: "10%",
+    backgroundColor: 'white',
+    // height: "10%",
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: 10,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    borderRadius: 5,
+    borderColor: 'lightgray',
+    borderWidth: 1,
+    // elevation: 5,
+    // shadowColor: 'black',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
     marginBottom: 10,
-    minWidth: '45%', 
-    maxWidth: '90%',
+    // minWidth: '45%', 
+    // maxWidth: '90%',
+    width: '100%',
     alignSelf: 'flex-start'
   },
   locationButtonContent: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
     paddingHorizontal: 3,
-    gap: 5,
+    gap: 10,
   },
   locationText: {
-    fontSize: 16,
+    fontSize: 14,
     flexShrink: 1, 
     numberOfLines: 1, 
     ellipsizeMode: 'tail',
@@ -632,5 +683,33 @@ const styles = StyleSheet.create({
   },
   submitText: {
     color: 'white',
+  },
+  AIbutton: {
+    backgroundColor: 'White',
+    // borderColor: 'lightgray',
+    // borderWidth: 1,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#363678',
+    paddingVertical: 10,
+    paddingHorizontal: 50,
+    borderRadius: 5,
+    // width: '100%', 
+    alignItems: 'center', 
+    marginTop: 10,
+    marginBottom: 50,
+  },
+  buttonPressed: {
+    backgroundColor: '#1884c7', 
+    transform: [{ scale: 0.98 }], 
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 })

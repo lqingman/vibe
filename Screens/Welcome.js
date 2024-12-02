@@ -28,7 +28,7 @@ const Welcome = () => {
             </CusPressable>
             
             <CusPressable
-                componentStyle={[styles.button, {backgroundColor: 'lightgray'}]}
+                componentStyle={[styles.button, {backgroundColor: '#f0f0f0'}]}
                 pressedStyle={[styles.buttonPressed, {backgroundColor: 'gray'}]}
                 pressedHandler={() => navigation.navigate('Login')}
             >
