@@ -95,16 +95,6 @@ export default function Joined({navigation}) {
           />
         </View>
       ) : (
-        // <FlatList
-        //   data={postData}
-        //   renderItem={({ item }) => (
-        //     <ActivityCard
-        //       data={item}
-        //       onPress={() => navigation.navigate('Details', { activity: item })}
-        //     />
-        //   )}
-        //   keyExtractor={(item) => item.id}
-        // />
         <TimeLine data={postData} />
       )
       }
