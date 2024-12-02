@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   modalButtonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
     fontWeight: '500',
   },
