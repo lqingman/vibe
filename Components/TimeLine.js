@@ -79,7 +79,7 @@ export default function TimeLine({data}) {
           innerCircle={'dot'}
           separator={false}
           timeContainerStyle={{minWidth:52, marginTop: -5}}
-          timeStyle={{textAlign: 'center', backgroundColor:'#ff9797', color:'white', padding:5, borderRadius:13}}
+          timeStyle={{textAlign: 'center', backgroundColor:'powderblue', color:'black', padding:5, borderRadius:13}}
           detailContainerStyle={{
             marginBottom: 0,
             paddingLeft: 0,

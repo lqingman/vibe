@@ -1,14 +1,15 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert, Image } from 'react-native'
+import { View, TextInput, Button, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert, Image, KeyboardAvoidingView } from 'react-native'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField, getUsernameById, fetchImageUrlFromDB } from '../Firebase/firestoreHelper';
+import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField, getUsernameById, fetchImageUrlFromDB, deleteComment, addCommentToPost } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
 import {Picker} from '@react-native-picker/picker';
 import Color from '../Styles/Color';
+import { Platform } from 'react-native';
 
 // Details screen
 export default function Details({route, navigation}) {
@@ -20,7 +21,7 @@ export default function Details({route, navigation}) {
   const [comments, setComments] = useState([]);
   // State for number of attendees
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
-  console.log("details", data)
+  //console.log("details", data)
   // State for modal visibility
   const [modalVisible, setModalVisible] = useState(false);
   // State for selected time
@@ -31,6 +32,15 @@ export default function Details({route, navigation}) {
   const flatListRef = useRef(null); 
   // State for usernames
   const [usernames, setUsernames] = useState({});
+  // State for comment edit modal visibility
+  const [commentEditModalVisible, setCommentEditModalVisible] = useState(false);
+  const [selectedComment, setSelectedComment] = useState(null);
+  // State for reply input
+  const [replyModalVisible, setReplyModalVisible] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const inputRef = useRef(null);
+
+
 
   // Check if the user has joined the activity
   useEffect(() => {
@@ -149,7 +159,42 @@ export default function Details({route, navigation}) {
     });
   }
 
-  // Add this to handle scroll fail
+  // Handle comment long press
+  function handleCommentLongPress(comment) {
+    //console.log("comment long press", comment)
+    setSelectedComment(comment);
+    setCommentEditModalVisible(true);
+  }
+
+// // reply to a comment
+// function handleReplyComment() {
+//   console.log("Reply button pressed");
+//   setCommentEditModalVisible(false);
+//   setReplyModalVisible(true);
+// }
+
+// // submit the reply
+// function handleSubmitReply() {
+//   if (replyText.trim()) {
+//     addCommentToPost(data.id, selectedComment.id, replyText);
+//     setReplyText('');
+//   }
+//   setReplyModalVisible(false);
+// }
+
+// delete a comment
+function handleDeleteComment() {
+  setCommentEditModalVisible(false);
+  Alert.alert("Delete comment", "Are you sure you want to delete this comment?", [
+    {text: "Cancel", style: "cancel"},
+    {text: "Delete", onPress: () => {
+      //console.log("delete comment", selectedComment)
+      deleteComment(data.id, selectedComment.id);
+      setComments(prevComments => prevComments.filter(comment => comment.id !== selectedComment.id));
+    }}
+  ]);
+}
+  // function to handle scroll fail
   const handleScrollToIndexFailed = (info) => {
     const wait = new Promise(resolve => setTimeout(resolve, 500));
     wait.then(() => {
@@ -161,7 +206,7 @@ export default function Details({route, navigation}) {
     });
   };
 
-  // Add this useEffect to load usernames when comments change
+  // function to load usernames when comments change
   useEffect(() => {
     const loadUsernames = async () => {
       const usernamesMap = {};
@@ -204,6 +249,7 @@ export default function Details({route, navigation}) {
           const photoURL = await fetchImageUrlFromDB(ownerData.picture[0]);
           
           return (
+            <TouchableOpacity onLongPress={() => handleCommentLongPress(item)}>
             <View style={[
               styles.comment,
               isCurrentUser && styles.userComment
@@ -212,14 +258,17 @@ export default function Details({route, navigation}) {
                 <TouchableOpacity onPress={() => {navigation.navigate('UserProfile', { userId: item.owner })}}>
                   <Image source={{uri: photoURL}} style={styles.commentOwnerPicture}/>
                 </TouchableOpacity>
-                <View style={{flexDirection: 'column'}}>
-                  <Text style={styles.commentUsername}>
-                    {username}:
-                  </Text>
-                  <Text style={styles.commentText}>{item.text}</Text>
-                </View>
+                
+                  <View style={{flexDirection: 'column'}}>
+                    <Text style={styles.commentUsername}>
+                      {username}:
+                    </Text>
+                    <Text style={styles.commentText}>{item.text}</Text>
+                  </View>
+                
               </View>
             </View>
+            </TouchableOpacity>
           );
         }}
         ListHeaderComponent={
@@ -306,40 +355,67 @@ export default function Details({route, navigation}) {
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-        <View style={styles.pickerContainer}>
-          <TouchableOpacity
-            style={styles.doneButton} 
-            onPress={() => {
-              if (selectedTime) {
-                handleTimeSelect(selectedTime);
-              }
-              setModalVisible(false);
-              Alert.alert('Notification set successfully!');
-            }}
-          >
-            <Text>Done</Text>
-          </TouchableOpacity>
-          <Picker
-            selectedValue={selectedLanguage}
-            onValueChange={(itemValue, itemIndex) =>
-              {
-                setSelectedLanguage(itemValue),
-                setSelectedTime(itemValue)
-              }
-            }>
-            <Picker.Item label="None" value="None" />
-            <Picker.Item label="At time of event" value="At time of event" />
-            <Picker.Item label="30 minutes before" value="30 minutes before" />
-            <Picker.Item label="1 hour before" value="1 hour before" />
-            <Picker.Item label="2 hours before" value="2 hours before" />
-            <Picker.Item label="1 day before" value="1 day before" />
-            <Picker.Item label="2 days before" value="2 days before" />
-            <Picker.Item label="1 week before" value="1 week before" />
-          </Picker>
+            <View style={styles.pickerContainer}>
+              <TouchableOpacity
+                style={styles.doneButton} 
+                onPress={() => {
+                  if (selectedTime) {
+                    handleTimeSelect(selectedTime);
+                  }
+                  setModalVisible(false);
+                  Alert.alert('Notification set successfully!');
+                }}
+              >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </TouchableOpacity>
+              <Picker
+                selectedValue={selectedLanguage}
+                onValueChange={(itemValue, itemIndex) =>
+                {
+                  setSelectedLanguage(itemValue),
+                  setSelectedTime(itemValue)
+                }
+              }>
+                <Picker.Item label="None" value="None" />
+                <Picker.Item label="At time of event" value="At time of event" />
+                <Picker.Item label="30 minutes before" value="30 minutes before" />
+                <Picker.Item label="1 hour before" value="1 hour before" />
+                <Picker.Item label="2 hours before" value="2 hours before" />
+                <Picker.Item label="1 day before" value="1 day before" />
+                <Picker.Item label="2 days before" value="2 days before" />
+                <Picker.Item label="1 week before" value="1 week before" />
+              </Picker>
+            </View>
           </View>
-        </View>
         </Modal>
       </View>
+      {/* Comment edit modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={commentEditModalVisible}
+        onRequestClose={() => setCommentEditModalVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setCommentEditModalVisible(false)}
+        >
+          <View style={styles.commentEditModalContainer}>
+            <View style={styles.modalContent}>
+              {/* <Button
+                title="Reply"
+                onPress={handleReplyComment}
+              /> */}
+              <Button
+                title="Delete"
+                color="red"
+                onPress={handleDeleteComment}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   )
 }
@@ -465,13 +541,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -527,5 +596,80 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     marginLeft: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  commentEditModalContainer: {
+    backgroundColor: 'white',
+    height: '20%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalButton: {
+    backgroundColor: '#363678',
+    padding: 15,
+    borderRadius: 8,
+    width: '80%',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  replyModalContainer: {
+    backgroundColor: 'white',
+    height: '30%',  // Changed from maxHeight to fixed height
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    width: '100%',
+    position: 'absolute',  // Add this
+    bottom: 0,  // Add this
+  },
+  replyInputContainer: {
+    padding: 20,
+    height: '100%',  // Add this
+    justifyContent: 'space-between',  // Add this
+  },
+  replyInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 10,
+    height: '60%',  // Change this from minHeight/maxHeight
+    textAlignVertical: 'top',
+    fontSize: 16,
+  },
+  replyButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,  // Add this
+  },
+  replyButton: {
+    padding: 12,
+    borderRadius: 8,
+    width: '45%',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  submitButton: {
+    backgroundColor: '#363678',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#363678',  // Add this for cancel button
   },
 })

@@ -9,5 +9,5 @@ export default {
     gold: '#e3ae1a',
     blue: 'blue',
     gray: 'gray',
-    lightgray: 'f0f0f0',
+    lightgray: '#f0f0f0',
 }
