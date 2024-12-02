@@ -35,9 +35,9 @@ export default function ActivityCard ({data, cardStyle, contentStyle, onPress}) 
   useEffect(() => {
     const fetchImage = async () => {
       // Get download URL for the post image
-      if (data?.image) {
+      if (data?.image && data.image.length > 0) {
         const storage = getStorage();
-        const postImageRef = ref(storage, data.image);
+        const postImageRef = ref(storage, data.image[0]);
         try {
           const url = await getDownloadURL(postImageRef);
           setImageUrl(url);
