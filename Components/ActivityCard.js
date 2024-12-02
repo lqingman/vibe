@@ -7,7 +7,7 @@ import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/fir
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 
 
-export default function ActivityCard ({data, cardStyle, contentStyle, onPress}) {
+export default function ActivityCard ({data, cardStyle, contentStyle, onPress, favButtonStyle}) {
   // Only render if data exists
   if (!data) return null; 
   //console.log('activity card data', data);
@@ -78,11 +78,11 @@ export default function ActivityCard ({data, cardStyle, contentStyle, onPress}) 
           <Text style={styles.text}>{data.city}</Text>
         </View>
         <FavoriteButton
-          componentStyle={{
+          componentStyle={[{
             position: 'absolute',
             top: 260,
             right: 10,
-          }}
+          }, favButtonStyle]}
           childrenStyle={{
             paddingRight: 10,
           }}
