@@ -8,6 +8,7 @@ import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
 import {Picker} from '@react-native-picker/picker';
+import Color from '../Styles/Color';
 
 // Details screen
 export default function Details({route, navigation}) {
@@ -80,7 +81,7 @@ export default function Details({route, navigation}) {
       navigation.setOptions({
         headerRight: () => (
           <Pressable onPress={() => navigation.navigate('CreatePost', { post: data })}>
-            <FontAwesome5 name="edit" size={24} color="white" style={{ marginRight: 15 }} />
+            <FontAwesome5 name="edit" size={24} color={Color.navigatorBg} />
           </Pressable>
         ),
       });
@@ -248,7 +249,7 @@ export default function Details({route, navigation}) {
           childrenStyle={{
             flexDirection: 'row',
             padding: 10,
-            backgroundColor: 'purple',
+            backgroundColor: '#363678',
             borderRadius: 10,
             alignItems: 'center',
             justifyContent: 'center',
@@ -272,7 +273,7 @@ export default function Details({route, navigation}) {
           pressedHandler={handleNotificationPress} 
           //pressedHandler={()=> <DropDown/>}
         >
-          <Ionicons name="notifications" size={30} color="purple" />
+          <Ionicons name="notifications" size={30} color="#363678" />
         </CusPressable>
       </View>
       :
@@ -285,7 +286,7 @@ export default function Details({route, navigation}) {
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: 'purple',
+            backgroundColor: '#363678',
             borderRadius: 10,
             alignItems: 'center',
           }}
@@ -455,7 +456,7 @@ const styles = StyleSheet.create({
     width: '70%',
     height: 50,
     padding: 10,
-    backgroundColor: 'lightgrey',
+    backgroundColor: '#f0f0f0',
     borderRadius: 10,
     marginBottom: 10,
   },
@@ -479,7 +480,7 @@ const styles = StyleSheet.create({
   modalOption: {
     fontSize: 18,
     paddingVertical: 10,
-    color: 'purple',
+    color: '#363678',
   },
   closeButton: {
     marginTop: 20,
@@ -516,7 +517,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'purple',
+    color: '#363678',
   },
   comment: {
     marginTop: 5,
