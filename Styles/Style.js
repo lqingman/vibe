@@ -43,7 +43,7 @@ export default Style = StyleSheet.create({
     },
     profileTabBarIndicator: {
       backgroundColor: '#363678',
-      height: 5,
+      height: 3,
       borderRadius: 3,
     },
     profileTabBarLabel: {

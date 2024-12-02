@@ -3,7 +3,7 @@ import React from 'react'
 import Style from '../Styles/Style';
 
 // Custom Pressable component that allows for custom styling when pressed
-export default function CusPressable({ children, pressedHandler, componentStyle, pressedStyle, childrenStyle, android_ripple, longPressHandler }) { 
+export default function CusPressable({ children, pressedHandler, componentStyle, pressedStyle, childrenStyle, android_ripple, longPressHandler, disabled }) { 
   return (
     <Pressable 
       onPress={pressedHandler} 
@@ -15,6 +15,7 @@ export default function CusPressable({ children, pressedHandler, componentStyle,
       ]}
       android_ripple={android_ripple}
       onLongPress={longPressHandler}
+      disabled={disabled}
     >
       {({ pressed }) => (
         <View style={childrenStyle}>

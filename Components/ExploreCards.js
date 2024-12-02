@@ -1,5 +1,4 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import Animated, {FadeInDown} from 'react-native-reanimated';
 import ExploreCard from './ExploreCard';
 
@@ -36,48 +35,3 @@ export default function ExploreCards ({data, index, onPress}) {
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    marginLeft: 20,
-    width: "90%",
-    height: 300,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    margin: 10,
-  },
-  inner: {
-    width: '100%',
-    height: '100%',
-  },
-  media: {
-    flex: 1,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    overflow: 'hidden',
-  },
-  image: {
-    flex: 1,
-    height: '90%',
-    width: '100%',
-    resizeMode: 'cover',
-    marginBottom: 10,
-  },
-  content: {
-    flexDirection: 'row',
-    height: '10%',
-  },
-  text: {
-    paddingLeft: 15,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  titleText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    paddingLeft: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    color: 'purple',
-  },
-});

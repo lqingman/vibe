@@ -48,7 +48,7 @@ export default function PostsList({ postIds }) {
     );
   }
   return (
-    <View style={Style.container}>
+    <View style={[Style.container, {paddingTop: 3}]}>
       {/* <FlatList
         data={posts}
         keyExtractor={item => item.id}

@@ -132,6 +132,12 @@ export default function Details({route, navigation}) {
     return numAttendees >= limit;
   }
 
+  // function to check if the user is the owner
+  function isUserOwner(owner) {
+    //console.log(owner===auth.currentUser.uid)
+    return auth.currentUser && owner === auth.currentUser.uid;
+  }
+
   // Add a comment to the activity
   async function handleJoinPress() {
     const isJoining = !joined; 
@@ -370,18 +376,24 @@ function handleDeleteComment() {
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit) ? 'grey' : '#363678',
+            backgroundColor: isEventInPast(data.date, data.time) || 
+                    isEventFull(numAttendees, data.limit) || 
+                    isUserOwner(data.owner) ? 'grey' : '#363678',
             borderRadius: 10,
             alignItems: 'center',
           }}
           pressedHandler={handleJoinPress}
-          disabled={isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit)}
+          disabled={isEventInPast(data.date, data.time) || 
+            isEventFull(numAttendees, data.limit) || 
+            isUserOwner(data.owner)}
         >
           <Text style={styles.joinButtonText}>
-            {isEventInPast(data.date, data.time) 
-              ? 'Event Ended' 
-              : isEventFull(numAttendees, data.limit)
-                ? 'Event Full'
+          {isEventInPast(data.date, data.time) 
+            ? 'Event Ended' 
+            : isEventFull(numAttendees, data.limit)
+              ? 'Event Full'
+              : isUserOwner(data.owner)
+                ? 'Your Event'
                 : joined ? 'Leave' : 'Join'}
           </Text>
         </CusPressable>
