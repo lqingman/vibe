@@ -5,7 +5,7 @@ import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/fire
 import ActivityCard from '../Components/ActivityCard';
 import { useNavigation } from '@react-navigation/native';
 import { deleteArrayField } from '../Firebase/firestoreHelper';
-
+import ExploreList from '../Components/ExploreList';
 // My posts screen
 export default function PostsList({ postIds }) {
   const [posts, setPosts] = useState([]);
@@ -48,14 +48,17 @@ export default function PostsList({ postIds }) {
   }
   return (
     <View style={styles.container}>
-      <FlatList
+      {/* <FlatList
         data={posts}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <ActivityCard data={item} onPress={() => navigation.navigate('Details', { activity: item })}/>
+          
+
         )}
         ListEmptyComponent={<Text>No posts found</Text>}
-      />
+      /> */}
+      <ExploreList list={posts} />
     </View>
   );
 }
@@ -63,6 +66,8 @@ export default function PostsList({ postIds }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    // padding: 10,
+    backgroundColor: 'white',
+
   },
 });

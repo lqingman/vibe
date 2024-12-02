@@ -98,14 +98,17 @@ const userId = route.params?.userId || auth.currentUser?.uid;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    // padding: 10,
+    backgroundColor: 'white',
   },
   profileContainer: {
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom: 10,
+    // marginBottom: 10,
     gap: 20,
     padding: 10,
+    paddingTop: 20,
+    paddingLeft: 20,
   },
   profileImage: {
     width: 100,

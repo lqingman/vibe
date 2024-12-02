@@ -176,9 +176,10 @@ export default function ChangeLocation() {
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: selectedLocation ? 'purple' : 'grey',
+            backgroundColor: selectedLocation ? '#363678' : 'grey',
             borderRadius: 10,
             alignItems: 'center',
+            
           }}
           pressedHandler={saveLocationHandler}
           disabled={!selectedLocation}

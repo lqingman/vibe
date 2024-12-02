@@ -82,7 +82,7 @@ export default function Setting({ navigation }) {
         <ImageManager 
         receiveImageUris={setPicture} 
         initialImages={picture} 
-        imageStyle={{borderRadius: 50, backgroundColor: '#e1e1e1'}} 
+        imageStyle={{borderRadius: 50}} 
         singleImageMode={true}/>
       </View>
       <Text style={styles.label}>Name</Text>
@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'center',
     padding: 20,
+    backgroundColor: 'white',
   },
   label: {
     fontSize: 14,
