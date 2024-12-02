@@ -6,56 +6,55 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addCommentToPost, getUserData } from '../Firebase/firestoreHelper';
+import { addCommentToPost, fetchImageUrlFromDB, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import Map from './Map';
 import { useNavigation } from '@react-navigation/native';
-
+import Carousel from './Carousel';
 
 export default function StaticDetail({data, updateComments, numAttendees}) {
-  //console.log("received data:",data)
-  if (!data) return null; // Only render if data exists
+  if (!data) return null;
+  //console.log("1. Component render - received data:", data);
+
   const [comment, setComment] = useState('');
   const [ownerData, setOwnerData] = useState(null);
   const [ownerImageUrl, setOwnerImageUrl] = useState(null);  
-  const [postImageUrl, setPostImageUrl] = useState(null);  // Add this state
+  const [postImageUrls, setPostImageUrls] = useState([]);  
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const loadData = async () => {
-      // Load owner data
-      const userData = await getUserData(data.owner);
-      setOwnerData(userData);
-      
-      // Get download URL for the owner's profile picture
-      if (userData?.picture) {
-        const storage = getStorage();
-        const imageRef = ref(storage, userData.picture);
-        try {
-          const url = await getDownloadURL(imageRef);
-          setOwnerImageUrl(url);
-        } catch (error) {
-          console.error("Error getting owner image URL:", error);
+  useEffect(() => {    
+    try {
+      const loadData = async () => {
+        
+        const userData = await getUserData(data.owner);
+        //console.log("userData", userData)
+        setOwnerData(userData);
+        const ownerImageUrl = await fetchImageUrlFromDB(userData.picture[0]);
+        //console.log("ownerImageUrl", ownerImageUrl)
+        setOwnerImageUrl(ownerImageUrl);
+                
+        if (Array.isArray(data.image) && data.image.length > 0) {
+          try {
+            const urls = await Promise.all(data.image.map(async (image) => {
+              const url = await fetchImageUrlFromDB(image);
+              return url;
+            }));
+            setPostImageUrls(urls);
+          } catch (error) {
+            console.error("Error in image processing:", error);
+          }
+        } else {
+          console.log("No valid images array to process");
         }
-      }
+      };
 
-      // Get download URL for the post image
-      if (data?.image) {
-        const storage = getStorage();
-        const postImageRef = ref(storage, data.image);
-        try {
-          const url = await getDownloadURL(postImageRef);
-          setPostImageUrl(url);
-        } catch (error) {
-          console.error("Error getting post image URL:", error);
-        }
-      }
-    };
-
-    loadData();
-  }, []);
+      loadData()
+    } catch (error) {
+      console.error("Error in useEffect:", error);
+    }
+  }, [data]);
 
   // Handle the add comment button press
   function handleAddComment() {
@@ -95,14 +94,14 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       >
         <Image 
           style={styles.ownerImage} 
-          source={ownerImageUrl ? {uri: ownerImageUrl} : null}  // Add a default image
+          source={ownerImageUrl ? {uri: ownerImageUrl} : null} 
         />
         <Text style={styles.ownerName}>{ownerData?.name}</Text>
       </TouchableOpacity>
 
       {/* show image */}
       <View style={styles.media}>
-        <Image style={styles.image} source={postImageUrl ? {uri: postImageUrl} : null} />
+        <Carousel data={postImageUrls} />
       </View>
 
       {/* show title */}
@@ -127,7 +126,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       </View>
 
       <View style={styles.descriptionView}>
-      <MaterialIcons name="description" size={24} color="purple" />
+        <MaterialIcons name="description" size={24} color="purple" />
         <Text style={styles.descriptionText}>{data.description}</Text>
       </View>
 
@@ -143,6 +142,11 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
 
       {/* show comment input and button */}
       <View style={styles.commentView}>
+        {/* show comments */}
+        <View style={styles.commentsView}>
+          <Text style={styles.commentText}>Comments</Text>
+        </View>
+
         <View style={styles.commentButtonContainer}>
           <TextInput 
             style={styles.commentInput} 
@@ -152,7 +156,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
             />
           <CusPressable
             componentStyle={{
-              width: '30%',
+              width: '20%',
               alignSelf: 'center',
               justifyContent: 'center',
               marginLeft: 10,
@@ -167,13 +171,8 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
             }}
             pressedHandler={handleAddComment}
           >
-            <Text style={styles.joinButtonText}>Comment</Text>
+            <Text style={styles.commentButtonText}>Send</Text>
           </CusPressable>
-        </View>
-        
-        {/* show comments */}
-        <View style={styles.commentsView}>
-          <Text style={styles.commentText}>Comments</Text>
         </View>
       </View>
     </View>
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    padding: 10,
+    //padding: 10,
   },
   media: {
     flex: 1,
@@ -197,6 +196,7 @@ const styles = StyleSheet.create({
   },
   dateView: {
     marginVertical: 10,
+    marginLeft: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
   },
   timeView: {
     marginVertical: 10,
+    marginLeft: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -215,6 +216,7 @@ const styles = StyleSheet.create({
   },
   locationView: {
     marginVertical: 10,
+    marginLeft: 10,
     flexDirection: 'row',
     //alignItems: 'center',
   },
@@ -223,17 +225,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   descriptionView: {
-    marginVertical: 10,
+    marginTop: 10,
+    marginLeft: 10,
     flexDirection: 'row',
     //alignItems: 'center',
   },
   descriptionText: {
     marginLeft: 10,
     fontSize: 16,
-    width: '90%',
+    width: '85%',
+    textAlign: 'justify',
   },
   titleView: {
     marginVertical: 10,
+    marginTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -246,14 +251,14 @@ const styles = StyleSheet.create({
   mapView: {
     height: 200,
     width: '90%',
-    marginBottom: 20,
+    //marginBottom: 20,
     alignSelf: 'center',
   },
   map: {
     width: '90%',
     height: 200,
     borderRadius: 16,
-    marginBottom: 30,
+    //marginBottom: 30,
   },
   joinView: {
     position: 'absolute',
@@ -284,12 +289,14 @@ const styles = StyleSheet.create({
   },
   commentView: {
     marginVertical: 10,
-    marginBottom: 10,
+    //marginLeft: 10,
   },
   commentText: {
     fontSize: 16,
     marginBottom: 5,
-    marginLeft: 10,
+    marginLeft: 25,
+    marginTop: 10,
+    fontWeight: 'bold',
   },
   commentInput: {
     width: '70%',
@@ -304,18 +311,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    //alignSelf: 'center',
+    marginRight: 10,
+    width: '100%',
+    alignContent: 'flex-start',
   },
   commentsView: {
     marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
+    borderTopWidth: 1,
+    borderTopColor: 'lightgrey',
     width: '110%',
     marginLeft: -10,
     paddingBottom: 5,
   },
+  commentButtonText: {
+    color: 'white',
+    fontSize: 15,
+  },
   attendeesView: {
     marginVertical: 10,
+    marginLeft: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },

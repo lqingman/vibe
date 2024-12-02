@@ -31,7 +31,7 @@ export default function Explore({ navigation }) {
     setSearch(search);
   };
 
-  // Add this function to verify permissions
+  // function to verify location permissions
   async function verifyPermissions() {
     const { status: existingStatus } = await Location.getForegroundPermissionsAsync();
     let finalStatus = existingStatus;
@@ -61,7 +61,7 @@ export default function Explore({ navigation }) {
     return true;
   }
 
-  // Add this useEffect for location permission and initial location
+  // useEffect to get user location
   useEffect(() => {
     if (isFocused) {
       (async () => {
@@ -97,53 +97,111 @@ export default function Explore({ navigation }) {
   }, [isFocused]);
 
   // Effect to set up the snapshot listener
-  useEffect(() => {
-    let unsubscribe;
+  // useEffect(() => {
+  //   let unsubscribe;
   
-    const authListener = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, set up the snapshot listener
-        unsubscribe = onSnapshot(
-          collection(database, 'posts'),
-          (querySnapshot) => {
-            const allPosts = [];
-            querySnapshot.forEach((docSnapshot) => {
-              allPosts.push({
-                id: docSnapshot.id,
-                ...docSnapshot.data(),
-              });
-            });
-            setResults(allPosts);
-            setLoading(false);
-            //console.log("Explore results:", allPosts);
-          },
-          (err) => console.error("Explore results:", err)
-        );
-      } else {
-        // User is signed out, clear results
-        setResults([]);
-        setLoading(false);
-        //console.log("User signed out, listener removed.");
-      }
-    });
+  //   const authListener = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       // User is signed in, set up the snapshot listener
+  //       unsubscribe = onSnapshot(
+  //         collection(database, 'posts'),
+  //         (querySnapshot) => {
+  //           const allPosts = [];
+  //           querySnapshot.forEach((docSnapshot) => {
+  //             allPosts.push({
+  //               id: docSnapshot.id,
+  //               ...docSnapshot.data(),
+  //             });
+  //           });
+  //           setResults(allPosts);
+  //           setLoading(false);
+  //           //console.log("Explore results:", allPosts);
+  //         },
+  //         (err) => console.error("Explore results:", err)
+  //       );
+  //     } else {
+  //       // User is signed out, clear results
+  //       setResults([]);
+  //       setLoading(false);
+  //       //console.log("User signed out, listener removed.");
+  //     }
+  //   });
 
-    //Clean up both listeners on unmount
-    return () => {
-      if (unsubscribe) unsubscribe();
-      if (authListener) authListener();
-    };
-  }, []);
-
-  // Effect to fetch results when the search changes
+  //   //Clean up both listeners on unmount
+  //   return () => {
+  //     if (unsubscribe) unsubscribe();
+  //     if (authListener) authListener();
+  //   };
+  // }, []);
   useFocusEffect(
     useCallback(() => {
-      if (search.trim() !== '') {
-        fetchResults(search.toLowerCase());
-      } else {
-        fetchResults(''); // Load all posts
-      }
-    }, [search]) // Dependency array ensures it re-fetches if `search` changes
+      let unsubscribe;
+      
+      const setupSnapshotListener = () => {
+        if (auth.currentUser) {
+          // If there's a search term, use the search query
+          if (search.trim() !== '') {
+            const searchTerm = search.toLowerCase();
+            searchByTitleKeyword(searchTerm)
+              .then(searchResults => {
+                setResults(searchResults);
+                setFilteredResults(searchResults);
+                setLoading(false);
+              })
+              .catch(error => {
+                console.error("Error searching:", error);
+                setLoading(false);
+              });
+          } else {
+            // Otherwise, listen to all posts
+            unsubscribe = onSnapshot(
+              collection(database, 'posts'),
+              (querySnapshot) => {
+                const allPosts = [];
+                querySnapshot.forEach((docSnapshot) => {
+                  allPosts.push({
+                    id: docSnapshot.id,
+                    ...docSnapshot.data(),
+                  });
+                });
+                setResults(allPosts);
+                setFilteredResults(allPosts);
+                setLoading(false);
+              },
+              (err) => {
+                console.error("Explore results:", err);
+                setLoading(false);
+              }
+            );
+          }
+        } else {
+          setResults([]);
+          setFilteredResults([]);
+          setLoading(false);
+        }
+      };
+
+      setupSnapshotListener();
+
+      // Cleanup function
+      return () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    }, [search]) // Add search as a dependency
   );
+
+  // Effect to fetch results when the search changes
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (search.trim() !== '') {
+  //       fetchResults(search.toLowerCase());
+  //     } else {
+  //       fetchResults(''); // Load all posts
+  //     }
+  //   }, [search]) // Dependency array ensures it re-fetches if `search` changes
+  // );
 
   // Function to fetch results
   async function fetchResults(keyword) {
@@ -244,7 +302,7 @@ function handleFilterSelection(filter) {
 }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={styles.container}>
         {/* Search bar */}
         <SearchBar

@@ -3,19 +3,18 @@ import {Image, StyleSheet, Text, View} from 'react-native';
 import CusPressable from './CusPressable';
 import FavoriteButton from './FavoriteButton';
 import { auth } from '../Firebase/firebaseSetup';
-import { deleteArrayField, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
+import { deleteArrayField, fetchImageUrlFromDB, getUserData, updateArrayField } from '../Firebase/firestoreHelper';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import { FontAwesome } from '@expo/vector-icons';
 
 
 export default function ExploreCard ({data, cardStyle, contentStyle, onPress}) {
   // Only render if data exists
   if (!data) return null; 
-  //console.log('data', data);
+  //console.log('explore card data', data);
   // State for favorited  
   const [favorited, setFavorited] = useState(false);
-  // State for image url
   const [imageUrl, setImageUrl] = useState(null);
-
   useEffect(() => {
     // Check if the activity is already favorited when the component mounts
     async function checkFavorited() {
@@ -30,21 +29,12 @@ export default function ExploreCard ({data, cardStyle, contentStyle, onPress}) {
     }
     checkFavorited();
   }, [data.id]);
-  
+
   //fetch image from firebase storage
   useEffect(() => {
     const fetchImage = async () => {
-      // Get download URL for the post image
-      if (data?.image) {
-        const storage = getStorage();
-        const postImageRef = ref(storage, data.image);
-        try {
-          const url = await getDownloadURL(postImageRef);
-          setImageUrl(url);
-        } catch (error) {
-          console.error("Error getting post image URL:", error);
-        }
-      }
+      const url = await fetchImageUrlFromDB(data.image[0]);
+      setImageUrl(url);
     };
     fetchImage();
   }, [data.image]);
@@ -74,8 +64,14 @@ export default function ExploreCard ({data, cardStyle, contentStyle, onPress}) {
         </View>
         <Text style={styles.titleText}>{data.title}</Text>
         <View style={[styles.content, contentStyle]}>
-          <Text style={styles.text}>{data.date}</Text>
-          <Text style={styles.text}>{data.city}</Text>
+          <View style={styles.dateView}>
+            <FontAwesome name="calendar" size={18} color="black" />
+            <Text style={styles.text}>{data.date}</Text>
+          </View>
+          <View style={styles.locationView}>
+            <FontAwesome name="map-marker" size={18} color="black" />
+            <Text style={styles.text}>{data.city}</Text>
+          </View>
         </View>
         <FavoriteButton
           componentStyle={{
@@ -99,6 +95,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   inner: {
     width: '100%',
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   text: {
-    paddingLeft: 15,
+    paddingLeft: 5,
     fontSize: 16,
     //fontWeight: 'bold',
     paddingBottom: 5,
@@ -129,9 +130,18 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 20,
     fontWeight: 'bold',
-    paddingLeft: 15,
+    paddingLeft: 10,
     //paddingTop: 5,
     paddingBottom: 5,
     color: 'purple',
+  },
+  dateView: {
+    flexDirection: 'row',
+    paddingLeft: 10,
+    //alignItems: 'center',
+  },
+  locationView: {
+    flexDirection: 'row',
+    paddingLeft: 10,
   },
 });
