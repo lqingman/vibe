@@ -158,6 +158,7 @@ export default function App() {
         tabBarActiveTintColor: Color.navigatorBg,
         tabBarActiveBackgroundColor: Color.background,
         tabBarInactiveBackgroundColor: Color.background,
+        tabBarInactiveTintColor: "lightgray",
         tabBarStyle: {
           height: '8%',
           paddingBottom: 0,
@@ -168,6 +169,10 @@ export default function App() {
         },
         tabBarItemStyle: {
           paddingBottom: 0,
+        },
+        tabBarShowLabel: false,
+        tabBarIconStyle: {
+          marginTop: 10,
         },
         headerStyle: {
           backgroundColor: Color.background,
@@ -187,7 +192,7 @@ export default function App() {
               <FontAwesome5 name="map-marked" size={22} color={Color.navigatorBg} style={{ marginRight: 15 }} />
             </Pressable>
           ),
-          tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
+          tabBarIcon: ({color}) => <FontAwesome5 name="home" size={28} color={color} />,
         })}
       />
       {/* Create the CreatePost screen */}
@@ -197,7 +202,7 @@ export default function App() {
         options = {{
           title: 'Create Post',
           // headerShown: false,
-          tabBarIcon: ({color}) => <FontAwesome5 name="plus-circle" size={24} color={color} />
+          tabBarIcon: ({color}) => <FontAwesome5 name="plus-circle" size={28} color={color} />
         }}
       />
       {/* Create the Profile screen */}
@@ -213,7 +218,7 @@ export default function App() {
           ),
           headerStyle: { backgroundColor: Color.background },
           headerTintColor: Color.black,
-          tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
+          tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={28} color={color} />
 
         })}
       />

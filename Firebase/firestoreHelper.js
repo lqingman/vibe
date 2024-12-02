@@ -322,6 +322,17 @@ export async function fetchComments(postId) {
     }
   }
 
+  // Delete a comment from the database
+  export async function deleteComment(postId, commentId) {
+    console.log("delete comment", postId, commentId)
+    try {
+      const commentRef = doc(database, 'posts', postId, 'comments', commentId);
+      await deleteDoc(commentRef);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  }
+
   export function isFirebaseStorageUri (uri) {
     return uri && (uri.startsWith('images/'));
   };
