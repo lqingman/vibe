@@ -7,10 +7,20 @@ import { useNavigation } from '@react-navigation/native';
 import { deleteArrayField } from '../Firebase/firestoreHelper';
 import ExploreList from '../Components/ExploreList';
 import Style from '../Styles/Style';
+import LottieView from "lottie-react-native";
+
 // My posts screen
 export default function PostsList({ postIds, title }) {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
+  const getAnimationSource = (title) => {
+    switch (title) {
+      case 'posted':
+        return require('../assets/posted.json');
+      case 'liked':
+        return require('../assets/liked.json');
+    }
+  };
   useEffect(() => {
     if (!auth.currentUser || !postIds || postIds.length === 0) {
       setPosts([]);
@@ -59,7 +69,18 @@ export default function PostsList({ postIds, title }) {
         )}
         ListEmptyComponent={<Text>No posts found</Text>}
       /> */}
-      {posts.length === 0 && <Text style={[Style.slogan, {color:'lightgray', padding: 20, marginTop: 10}]}>You haven't {title} any posts yet.</Text>}
+      {posts.length === 0 && 
+      <>
+      <LottieView 
+      source={getAnimationSource(title)} 
+      style={{ width: 200,
+        height: 200,
+        alignSelf: 'center',}}
+      autoPlay 
+      loop
+    />
+    <Text style={[Style.slogan, {color:'lightgray', padding: 20, marginTop: 10}]}>You haven't {title} any posts yet.</Text>
+    </>}
       <ExploreList list={posts} />
 
     </View>
