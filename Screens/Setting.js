@@ -125,7 +125,7 @@ export default function Setting({ navigation }) {
       
       {/* <Button title="Update Profile" onPress={handleUpdateProfile} /> */}
       <CusPressable
-          componentStyle={Style.button}
+          componentStyle={[Style.button, {marginTop: 10}]}
           pressedStyle={Style.buttonPressed}
           pressedHandler={handleUpdateProfile}
       >
