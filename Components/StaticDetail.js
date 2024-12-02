@@ -166,7 +166,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
             }}
             childrenStyle={{
               padding: 10,
-              backgroundColor: 'purple',
+              backgroundColor: '#363678',
               borderRadius: 10,
               alignItems: 'center',
             }}
