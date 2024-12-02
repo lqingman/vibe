@@ -40,6 +40,7 @@
     "react-native-safe-area-context": "^4.12.0",
     "react-native-screens": "~4.0.0",
     "react-native-tab-view": "^4.0.1",
+    "react-native-timeline-flatlist": "^0.8.0",
     "reanimated-masonry-list": "^1.0.1"
   },
   "devDependencies": {
