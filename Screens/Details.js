@@ -40,6 +40,8 @@ export default function Details({route, navigation}) {
   const [replyText, setReplyText] = useState('');
   const inputRef = useRef(null);
 
+  const [contentHeight, setContentHeight] = useState(0);
+  const [layoutHeight, setLayoutHeight] = useState(0);
 
 
   // Check if the user has joined the activity
@@ -98,6 +100,38 @@ export default function Details({route, navigation}) {
     }
   }, [auth.currentUser, navigation, data.owner, data, auth.currentUser.uid]); 
   
+  //function to check if the event is in the past
+  function isEventInPast(dateStr, timeStr) {
+
+    const timeRegex = /(\d+):(\d+):00\s(AM|PM)/; 
+    const matches = timeStr.match(timeRegex);
+    
+    if (matches) {
+        const [_, hours, minutes, period] = matches;
+        let hour24 = parseInt(hours);
+                  
+        // Convert PM times to 24-hour format
+        if (period === 'PM') {
+            hour24 = hour24 === 12 ? 12 : hour24 + 12;
+        } else if (period === 'AM' && hour24 === 12) {
+            hour24 = 0;
+        }
+        // Create date in local timezone with correct date
+        const [year, month, day] = (dateStr || '').split('-');
+        const activityDate = new Date(year, month - 1, day);
+        activityDate.setHours(hour24, parseInt(minutes), 0);
+        
+        const now = new Date();
+    
+        return activityDate < now;
+    }
+  }
+
+  // function to check if event is full
+  function isEventFull(numAttendees, limit) {
+    return numAttendees >= limit;
+  }
+
   // Add a comment to the activity
   async function handleJoinPress() {
     const isJoining = !joined; 
@@ -146,15 +180,16 @@ export default function Details({route, navigation}) {
     setComments(prevComments => {
       const newComments = [...prevComments, newComment];
       
-      // Wait for state to update before scrolling
+      // Scroll after a short delay to ensure layout is complete
       setTimeout(() => {
-        flatListRef.current?.scrollToIndex({
-          index: newComments.length - 1,  // Scroll to last comment
-          animated: true,
-          viewPosition: 0.5  // Center the comment in view
-        });
+        if (flatListRef.current && contentHeight > layoutHeight) {
+          flatListRef.current.scrollToOffset({
+            offset: contentHeight - layoutHeight,
+            animated: true
+          });
+        }
       }, 100);
-
+  
       return newComments;
     });
   }
@@ -162,9 +197,12 @@ export default function Details({route, navigation}) {
   // Handle comment long press
   function handleCommentLongPress(comment) {
     //console.log("comment long press", comment)
-    setSelectedComment(comment);
-    setCommentEditModalVisible(true);
+    if (comment.owner === auth.currentUser.uid) {
+      setSelectedComment(comment);
+      setCommentEditModalVisible(true);
+    }
   }
+
 
 // // reply to a comment
 // function handleReplyComment() {
@@ -194,17 +232,6 @@ function handleDeleteComment() {
     }}
   ]);
 }
-  // function to handle scroll fail
-  const handleScrollToIndexFailed = (info) => {
-    const wait = new Promise(resolve => setTimeout(resolve, 500));
-    wait.then(() => {
-      flatListRef.current?.scrollToIndex({
-        index: info.index,
-        animated: true,
-        viewPosition: 0.5
-      });
-    });
-  };
 
   // function to load usernames when comments change
   useEffect(() => {
@@ -279,10 +306,14 @@ function handleDeleteComment() {
           // navigation={navigation}  
           />}
         ItemSeparatorComponent={() => <View style={{ height: 20, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }} />}
-        onScrollToIndexFailed={handleScrollToIndexFailed}
         maintainVisibleContentPosition={{
           minIndexForVisible: 0,
-          autoscrollToTopThreshold: 1
+        }}
+        onLayout={(event) => {
+          setLayoutHeight(event.nativeEvent.layout.height);
+        }}
+        onContentSizeChange={(width, height) => {
+          setContentHeight(height);
         }}
       />
       {/* Join/Leave button */}
@@ -304,8 +335,13 @@ function handleDeleteComment() {
             justifyContent: 'center',
           }}
           pressedHandler={handleJoinPress}
+          disabled={isEventInPast(data.date, data.time)}
         >
-          <Text style={styles.joinButtonText}>Leave Event!</Text>
+          <Text style={styles.joinButtonText}>
+            {isEventInPast(data.date, data.time) 
+              ? 'Event Ended' 
+              : joined ? 'Leave' : 'Join'}
+          </Text>
         </CusPressable>
         <CusPressable
           componentStyle={{
@@ -320,7 +356,6 @@ function handleDeleteComment() {
             alignItems: 'center',
           }}
           pressedHandler={handleNotificationPress} 
-          //pressedHandler={()=> <DropDown/>}
         >
           <Ionicons name="notifications" size={30} color="#363678" />
         </CusPressable>
@@ -329,19 +364,26 @@ function handleDeleteComment() {
       <View style={styles.joinView}>
         <CusPressable
           componentStyle={{
-            width: '30%',
+            width: '40%',
+            maxWidth: '50%',
             alignSelf: 'center',
-            justifyContent: 'center',
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: '#363678',
+            backgroundColor: isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit) ? 'grey' : '#363678',
             borderRadius: 10,
             alignItems: 'center',
           }}
           pressedHandler={handleJoinPress}
+          disabled={isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit)}
         >
-          <Text style={styles.joinButtonText}>Join!</Text>
+          <Text style={styles.joinButtonText}>
+            {isEventInPast(data.date, data.time) 
+              ? 'Event Ended' 
+              : isEventFull(numAttendees, data.limit)
+                ? 'Event Full'
+                : joined ? 'Leave' : 'Join'}
+          </Text>
         </CusPressable>
       </View>
       }
@@ -495,7 +537,7 @@ const styles = StyleSheet.create({
   joinView: {
     position: 'absolute',
     bottom: 10,
-    width: '110%',
+    width: '100%',
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

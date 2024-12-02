@@ -67,6 +67,7 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
       .then(commentDoc => console.log('Comment added:', commentDoc))
       .catch(error => console.error(error));
     updateComments(newComment);
+    setComment('');
   }
 
   return (
