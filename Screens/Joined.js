@@ -1,11 +1,11 @@
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ActivityCard from '../Components/ActivityCard';
-import { getPostData } from '../Firebase/firestoreHelper';
+import { getPostData, getUserData } from '../Firebase/firestoreHelper';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
 import LottieView from "lottie-react-native";
-
+import TimeLine from '../Components/TimeLine';
 
 // Display the activities that the user has joined
 export default function Joined({navigation}) {
@@ -35,6 +35,15 @@ export default function Joined({navigation}) {
     // Cleanup on unmount
     return () => unsubscribe();
   }, [auth.currentUser]);
+  //fetch joined activities from database
+  // useEffect(() => {
+  //   const fetchJoinedActivities = async () => {
+  //     const userData = await getUserData(auth.currentUser.uid);
+  //     const joinedActivities = userData.joined;
+  //     setJoinedActivities(joinedActivities);
+  //   };
+  //   fetchJoinedActivities();
+  // }, []);
 
   // Fetch post data for each joined activity
   useEffect(() => {
@@ -86,17 +95,19 @@ export default function Joined({navigation}) {
           />
         </View>
       ) : (
-        <FlatList
-          data={postData}
-          renderItem={({ item }) => (
-            <ActivityCard
-              data={item}
-              onPress={() => navigation.navigate('Details', { activity: item })}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      )}
+        // <FlatList
+        //   data={postData}
+        //   renderItem={({ item }) => (
+        //     <ActivityCard
+        //       data={item}
+        //       onPress={() => navigation.navigate('Details', { activity: item })}
+        //     />
+        //   )}
+        //   keyExtractor={(item) => item.id}
+        // />
+        <TimeLine data={postData} />
+      )
+      }
     </View>
   );
 }
