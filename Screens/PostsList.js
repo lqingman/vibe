@@ -8,7 +8,7 @@ import { deleteArrayField } from '../Firebase/firestoreHelper';
 import ExploreList from '../Components/ExploreList';
 import Style from '../Styles/Style';
 // My posts screen
-export default function PostsList({ postIds }) {
+export default function PostsList({ postIds, title }) {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
   useEffect(() => {
@@ -59,7 +59,9 @@ export default function PostsList({ postIds }) {
         )}
         ListEmptyComponent={<Text>No posts found</Text>}
       /> */}
+      {posts.length === 0 && <Text style={[Style.slogan, {color:'lightgray', padding: 20, marginTop: 10}]}>You haven't {title} any posts yet.</Text>}
       <ExploreList list={posts} />
+
     </View>
   );
 }

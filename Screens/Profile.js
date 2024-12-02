@@ -84,10 +84,10 @@ const userId = route.params?.userId || auth.currentUser?.uid;
           }}
         >
           <Tab.Screen name="PostedPosts" options={{ title: 'Posted' }}>
-            {() => <PostsList  postIds={userData.posts} />}
+            {() => <PostsList  postIds={userData.posts} title={'posted'}/>}
           </Tab.Screen>
           <Tab.Screen name="LikedPosts" options={{ title: 'Liked' }}>
-            {() => <PostsList postIds={userData.favorites} />}
+            {() => <PostsList postIds={userData.favorites} title={'liked'} />}
           </Tab.Screen>
         </Tab.Navigator>
       </View>
