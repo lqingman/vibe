@@ -4,6 +4,8 @@ import ActivityCard from '../Components/ActivityCard';
 import { getPostData } from '../Firebase/firestoreHelper';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
+import LottieView from "lottie-react-native";
+
 
 // Display the activities that the user has joined
 export default function Joined({navigation}) {
@@ -65,11 +67,23 @@ export default function Joined({navigation}) {
   }
 
   return (
-    <View>
+    <View style={styles.mainContainer}>
       {joinedActivities.length === 0 ? (
-        <View style={styles.container}>
-          <Text style={styles.text}>No joined activities!</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.text}>No joined activities.</Text>
           <Text style={styles.text}>Explore to find more!</Text>
+          <LottieView 
+            source={require('../assets/Animation - arrow.json')} 
+            style={styles.arrowLottie}
+            autoPlay 
+            loop
+          />
+          <LottieView 
+            source={require('../assets/Animation - no joined.json')} 
+            style={styles.noJoinedLottie}
+            autoPlay 
+            loop={false}
+          />
         </View>
       ) : (
         <FlatList
@@ -77,10 +91,7 @@ export default function Joined({navigation}) {
           renderItem={({ item }) => (
             <ActivityCard
               data={item}
-              onPress={() => {
-                //console.log('item', item);
-                navigation.navigate('Details', { activity: item });
-              }}
+              onPress={() => navigation.navigate('Details', { activity: item })}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -91,15 +102,31 @@ export default function Joined({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
+  mainContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  emptyContainer: {
+    flex: 1,
+    //justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 60,
   },
   text: {
-    marginTop: 20,
     fontSize: 20,
     color: 'black',
+    marginTop: 10,
   },
-})
+  noJoinedLottie: {
+    width: 300,
+    height: 300,
+    alignSelf: 'center',
+  },
+  arrowLottie: {
+    width: 70,
+    height: 70,
+    position: 'absolute',
+    top: -10,
+    left: 60,
+  },
+});
