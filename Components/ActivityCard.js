@@ -125,15 +125,16 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingLeft: 15,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    // color: 'gray'
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     paddingLeft: 15,
     paddingTop: 5,
-    paddingBottom: 5,
-    color: 'purple',
+    paddingBottom: 10,
+    color: '#363678',
   },
 });

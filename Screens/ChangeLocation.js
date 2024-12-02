@@ -127,7 +127,9 @@ export default function ChangeLocation() {
             textInput: {
               height: 40,
               borderRadius: 20,
-              backgroundColor: 'lightgrey',
+              backgroundColor: '#f0f0f0',
+              borderWidth: 1,
+              borderColor: 'lightgrey',
               marginHorizontal: 10,
               marginTop: 10,
             },

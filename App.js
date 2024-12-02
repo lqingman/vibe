@@ -155,22 +155,24 @@ export default function App() {
       initialRouteName="Home"
       safeAreaInsets={{bottom: 0}}
       screenOptions={{
-        tabBarActiveTintColor: Color.gold,
-        tabBarActiveBackgroundColor: Color.navigatorBg,
-        tabBarInactiveBackgroundColor: Color.navigatorBg,
+        tabBarActiveTintColor: Color.navigatorBg,
+        tabBarActiveBackgroundColor: Color.background,
+        tabBarInactiveBackgroundColor: Color.background,
         tabBarStyle: {
           height: '8%',
           paddingBottom: 0,
           borderTopWidth: 0,
           elevation: 0,
+          borderTopWidth: 1, // Add this line
+          borderTopColor: '#f0f0f0', // Light gray color for the line
         },
         tabBarItemStyle: {
           paddingBottom: 0,
         },
         headerStyle: {
-          backgroundColor: Color.navigatorBg,
+          backgroundColor: Color.background,
         },
-        headerTintColor: Color.white,
+        headerTintColor: Color.black,
     }}
     >
       {/* Create the Home screen */}
@@ -182,7 +184,7 @@ export default function App() {
           headerShown: true,
           headerRight: () => (
             <Pressable onPress={() => navigation.navigate('ChangeLocation')}>
-              <FontAwesome5 name="map-marked" size={22} color={Color.white} style={{ marginRight: 15 }} />
+              <FontAwesome5 name="map-marked" size={22} color={Color.navigatorBg} style={{ marginRight: 15 }} />
             </Pressable>
           ),
           tabBarIcon: ({color}) => <FontAwesome5 name="home" size={24} color={color} />,
@@ -206,11 +208,11 @@ export default function App() {
           title: 'Profile',
           headerRight: () => (
             <Pressable onPress={() => navigation.navigate('Setting')}>
-              <FontAwesome5 name="cog" size={24} color={Color.white} style={{ marginRight: 15 }} />
+              <FontAwesome5 name="cog" size={24} color={Color.navigatorBg} style={{ marginRight: 15 }} />
             </Pressable>
           ),
-          headerStyle: { backgroundColor: Color.navigatorBg },
-          headerTintColor: Color.white,
+          headerStyle: { backgroundColor: Color.background },
+          headerTintColor: Color.black,
           tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />
 
         })}
@@ -239,8 +241,8 @@ export default function App() {
             component={ChangeLocation} 
             options={{
               title:"Choose a Location", 
-              headerStyle:{backgroundColor:Color.navigatorBg}, 
-              headerTintColor: Color.white,
+              headerStyle:{backgroundColor:Color.background}, 
+              headerTintColor: Color.black,
               headerBackTitle: "Back",
             }}/>
             <Stack.Screen 
@@ -248,8 +250,8 @@ export default function App() {
               component={Details} 
               options={{
                 title: "Details", 
-                headerStyle: { backgroundColor: Color.navigatorBg }, 
-                headerTintColor: Color.white,
+                headerStyle: { backgroundColor: Color.background }, 
+                headerTintColor: Color.black,
                 headerBackTitle: "Home",
               }}
             />
@@ -260,11 +262,11 @@ export default function App() {
               title: "Settings",
               headerRight: () => (
                 <Pressable onPress={() => signOut(auth)}>
-                  <AntDesign name="logout" size={24} color="white" />
+                  <AntDesign name="logout" size={24} color={Color.navigatorBg} />
                 </Pressable>
               ),
-              headerStyle: { backgroundColor: Color.navigatorBg },
-              headerTintColor: Color.white,
+              headerStyle: { backgroundColor: Color.background },
+              headerTintColor: Color.black,
             }}
             />
             <Stack.Screen
@@ -272,8 +274,8 @@ export default function App() {
               component={CreatePost}
               options={{
                 title: "Edit Post",
-                headerStyle: { backgroundColor: Color.navigatorBg },
-                headerTintColor: Color.white,
+                headerStyle: { backgroundColor: Color.background },
+                headerTintColor: Color.black,
                 // headerShown: false
               }}
             />
@@ -282,8 +284,8 @@ export default function App() {
             component={Profile} 
             options={{
               title: "Profile",
-              headerStyle: { backgroundColor: Color.navigatorBg },
-              headerTintColor: Color.white,
+              headerStyle: { backgroundColor: Color.background },
+              headerTintColor: Color.black,
               headerBackTitle: "Back"
             }}
             />
