@@ -23,6 +23,8 @@ import { auth } from './Firebase/firebaseSetup';
 import Details from './Screens/Details';
 import Welcome from './Screens/Welcome';
 import 'react-native-reanimated';
+import { signOut } from 'firebase/auth';
+import { AntDesign } from '@expo/vector-icons';
 
 
 // Create the Stack Navigator
@@ -256,6 +258,11 @@ export default function App() {
             component={Setting}
             options={{
               title: "Settings",
+              headerRight: () => (
+                <Pressable onPress={() => signOut(auth)}>
+                  <AntDesign name="logout" size={24} color="white" />
+                </Pressable>
+              ),
               headerStyle: { backgroundColor: Color.navigatorBg },
               headerTintColor: Color.white,
             }}
