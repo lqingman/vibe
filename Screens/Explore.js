@@ -288,12 +288,12 @@ function handleFilterSelection(filter) {
   let newResult = [];
   if (filter === 'Nearest') {
     newResult = sortResultsByDistance(results, userLocation.latitude, userLocation.longitude);
-    console.log("Nearest results:", newResult);
+    //console.log("Nearest results:", newResult);
     setFilteredResults(newResult);
   }
   else if (filter === 'Latest'){
     newResult = sortResultsByDate(results);
-    console.log("Latest results:", newResult);
+    //console.log("Latest results:", newResult);
     setFilteredResults(newResult);
   }
   else {

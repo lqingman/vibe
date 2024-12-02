@@ -31,7 +31,7 @@ export default function Carousel({ data }) {
             <Image source={{ uri: item }} style={styles.image} />
           </View>
         }}
-        keyExtractor={(item) => item.index}
+        keyExtractor={(item) => item}
       />
       <View style={styles.indicatorContainer}>
         {/* <Pressable>
