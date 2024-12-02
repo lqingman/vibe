@@ -1,15 +1,13 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert, Image } from 'react-native'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CusPressable from '../Components/CusPressable';
-import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField, getUsernameById } from '../Firebase/firestoreHelper';
+import { addOrUpdateNotification, deleteArrayField, fetchComments, getUserData, updateArrayField, getUsernameById, fetchImageUrlFromDB } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
-import DropDown from '../Components/FilterMenu';
 import {Picker} from '@react-native-picker/picker';
-
 
 // Details screen
 export default function Details({route, navigation}) {
@@ -21,13 +19,11 @@ export default function Details({route, navigation}) {
   const [comments, setComments] = useState([]);
   // State for number of attendees
   const [numAttendees, setNumAttendees] = useState(data.attendee.length);
-  //console.log("details", data)
+  console.log("details", data)
   // State for modal visibility
   const [modalVisible, setModalVisible] = useState(false);
   // State for selected time
   const [selectedTime, setSelectedTime] = useState(null);
-  // State for dropdown visibility
-  const [dropdownVisible, setDropdownVisible] = useState(false);
   // State for selected language
   const [selectedLanguage, setSelectedLanguage] = useState();
   // Ref for FlatList
@@ -199,19 +195,29 @@ export default function Details({route, navigation}) {
           paddingBottom: 70  // Height of join/leave button view
         }}
         keyExtractor={(item) => {return(item.id)}}
-        renderItem={({ item }) => {
+        renderItem={async ({ item }) => {
           const isCurrentUser = item.owner === auth.currentUser.uid;
           const username = usernames[item.owner] || 'Loading...';
+          //fetch the photoURL from the user
+          const ownerData = await getUserData(item.owner);
+          const photoURL = await fetchImageUrlFromDB(ownerData.picture[0]);
           
           return (
             <View style={[
               styles.comment,
               isCurrentUser && styles.userComment
             ]}>
-              <Text style={styles.commentUsername}>
-                {username}:
-              </Text>
-              <Text style={styles.commentText}>{item.text}</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => {navigation.navigate('UserProfile', { userId: item.owner })}}>
+                  <Image source={{uri: photoURL}} style={styles.commentOwnerPicture}/>
+                </TouchableOpacity>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={styles.commentUsername}>
+                    {username}:
+                  </Text>
+                  <Text style={styles.commentText}>{item.text}</Text>
+                </View>
+              </View>
             </View>
           );
         }}
@@ -514,5 +520,11 @@ const styles = StyleSheet.create({
   },
   comment: {
     marginTop: 5,
+  },
+  commentOwnerPicture: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 10,
   },
 })

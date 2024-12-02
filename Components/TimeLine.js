@@ -33,7 +33,10 @@ export default function TimeLine({data}) {
           } else if (period === 'AM' && hour24 === 12) {
               hour24 = 0;
           }
-          let displayTime = `${hour24}:${minutes} ${period}`;
+          //format the time to display in the timeline
+          let displayTime = `${hour24}:${minutes}`;
+          //save the original time to display in the details screen
+          item.originalTime = item.time;
 
           // Create date in local timezone with correct date
           const [year, month, day] = (item.date || '').split('-');
@@ -67,14 +70,18 @@ export default function TimeLine({data}) {
           renderDetail={(item) => (
             <ActivityCard data={item} cardStyle={styles.card} onPress={() => navigation.navigate('Details', {activity: item})}/>
           )}
+          options={{
+            style:{paddingTop:20}
+          }}
           isUsingFlatlist={true}
           columnFormat="single-column-left"
           lineWidth={2}
           innerCircle={'dot'}
           separator={false}
-          timeContainerStyle={{minWidth: 52}}
+          timeContainerStyle={{minWidth:52, marginTop: -5}}
+          timeStyle={{textAlign: 'center', backgroundColor:'#ff9797', color:'white', padding:5, borderRadius:13}}
           detailContainerStyle={{
-            marginBottom: 20,
+            marginBottom: 0,
             paddingLeft: 0,
             marginLeft: 0
           }}
@@ -119,7 +126,6 @@ export default function TimeLine({data}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
     paddingLeft: 10,
   },
   card: {
