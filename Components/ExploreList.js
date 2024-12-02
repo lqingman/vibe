@@ -5,8 +5,9 @@ import MasonryList from 'reanimated-masonry-list';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ExploreList({list}) {
+  //console.log("list", list)
   const navigation = useNavigation();
-  
+
   return (
     <MasonryList
       data={list}

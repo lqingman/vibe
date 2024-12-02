@@ -128,9 +128,9 @@ export default function App() {
           width: "100%",
         },
         tabBarIndicatorStyle: {
-          height: 5,
+          height: 2,
           borderRadius: 5,
-          backgroundColor: "#1DA1F2",
+          backgroundColor: Color.navigatorBg,
         },
         tabBarShowLabel: true,
       }}>

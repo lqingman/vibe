@@ -273,7 +273,7 @@ export default function Details({route, navigation}) {
       <View style={styles.joinView}>
         <CusPressable
           componentStyle={{
-            width: '50%',
+            width: '30%',
             alignSelf: 'center',
             justifyContent: 'center',
           }}
@@ -285,7 +285,7 @@ export default function Details({route, navigation}) {
           }}
           pressedHandler={handleJoinPress}
         >
-          <Text style={styles.joinButtonText}>Join Event</Text>
+          <Text style={styles.joinButtonText}>Join!</Text>
         </CusPressable>
       </View>
       }

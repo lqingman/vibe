@@ -5,6 +5,7 @@ import ExploreCard from './ExploreCard';
 
 export default function ExploreCards ({data, index, onPress}) {
   if (!data) return null; 
+  //console.log("data", data)
   
   const even = index % 2 === 0;
   const spacing = 12;
