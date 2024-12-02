@@ -85,7 +85,7 @@ export default function Explore({ navigation }) {
             setUserLocation(userLocation);
             
             // Update user's location in Firestore
-            if (auth.currentUser) {
+            if (auth.currentUser && userLocation) {
               await updateDB(auth.currentUser.uid, { location: userLocation }, 'users');
             }
           }
