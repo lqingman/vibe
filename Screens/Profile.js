@@ -33,6 +33,8 @@ const userId = route.params?.userId || auth.currentUser?.uid;
           } catch (error) {
             console.error('Error fetching profile picture:', error);
           }
+        } else {
+          setProfilePicUrl('');
         }
 
         console.log("profile results:", userDoc.data());
