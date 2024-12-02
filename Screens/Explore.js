@@ -14,6 +14,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import FilterMenu from '../Components/FilterMenu';
 import * as Location from 'expo-location';
 import ExploreList from '../Components/ExploreList';
+import LottieView from "lottie-react-native";
+
 
 
 // Explore screen to search for activities
@@ -286,7 +288,7 @@ function sortResultsByDate(results) {
 function handleFilterSelection(filter) {
   setFilter(filter);
   let newResult = [];
-  if (filter === 'Nearest') {
+  if (filter === 'Nearest' && userLocation && userLocation.latitude && userLocation.longitude) {
     newResult = sortResultsByDistance(results, userLocation.latitude, userLocation.longitude);
     //console.log("Nearest results:", newResult);
     setFilteredResults(newResult);
@@ -329,9 +331,17 @@ function handleFilterSelection(filter) {
       </View>
       {/* A list of activity cards as search results */}
       {loading ? (
-      <Text style={{ textAlign: 'center', marginTop: 20 }}>Loading...</Text>
+      <Text style={styles.text}>Loading...</Text>
     ) : results.length === 0 ? (
-      <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found.</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={styles.text}>No results found.</Text>
+        <LottieView 
+            source={require('../assets/Animation - no results.json')} 
+            style={styles.noResultsLottie}
+            autoPlay 
+            loop
+          />
+      </View>
     ) : (
       <ExploreList list={filteredResults} />
     )}
@@ -348,7 +358,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'black',
   },
   modalContainer: {
@@ -380,5 +390,9 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'red',
     fontSize: 16,
+  },
+  noResultsLottie: {
+    width: 200,
+    height: 200,
   },
 })
