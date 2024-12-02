@@ -12,7 +12,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import CusPressable from '../Components/CusPressable';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Location from 'expo-location';
-
+import Color from '../Styles/Color';
 
 // Create post screen
 export default function CreatePost({ route, navigation }) {
@@ -125,7 +125,7 @@ export default function CreatePost({ route, navigation }) {
       navigation.setOptions({
         headerRight: () => (
           <Pressable onPress={confirmDelete}>
-            <FontAwesome5 name="trash" size={24} color="white" style={{ marginRight: 15 }} />
+            <FontAwesome5 name="trash" size={24} color={Color.navigatorBg} />
           </Pressable>
         ),
       });

@@ -65,12 +65,12 @@ export default function ExploreCard ({data, cardStyle, contentStyle, onPress}) {
         <Text style={styles.titleText}>{data.title}</Text>
         <View style={[styles.content, contentStyle]}>
           <View style={styles.dateView}>
-            <FontAwesome name="calendar" size={18} color="black" />
+            <FontAwesome name="calendar" size={16} color="gray" />
             <Text style={styles.text}>{data.date}</Text>
           </View>
           <View style={styles.locationView}>
-            <FontAwesome name="map-marker" size={18} color="black" />
-            <Text style={styles.text}>{data.city}</Text>
+            <FontAwesome name="map-marker" size={16} color="gray" />
+            <Text style={[styles.text, {marginBottom:5}]}>{data.city}</Text>
           </View>
         </View>
         <FavoriteButton
@@ -123,17 +123,18 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingLeft: 5,
-    fontSize: 16,
+    fontSize: 14,
     //fontWeight: 'bold',
     paddingBottom: 5,
+    color: 'gray'
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     paddingLeft: 10,
     //paddingTop: 5,
-    paddingBottom: 5,
-    color: 'purple',
+    paddingBottom: 10,
+    color: '#363678',
   },
   dateView: {
     flexDirection: 'row',

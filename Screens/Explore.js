@@ -317,7 +317,7 @@ function handleFilterSelection(filter) {
             borderTopColor: 'transparent',
           }}
           inputContainerStyle={{
-            backgroundColor: 'lightgrey',
+            backgroundColor: '#f0f0f0',
             borderRadius: 20,
             height: 40,
           }}
