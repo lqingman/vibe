@@ -5,7 +5,7 @@ import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import PostsList from './PostsList';
-
+import Style from '../Styles/Style';
 // Create tab navigator
 const Tab = createMaterialTopTabNavigator();
 
@@ -47,7 +47,7 @@ const userId = route.params?.userId || auth.currentUser?.uid;
   // If the user is not logged in, show a message
   if (!userId) {
     return (
-      <View style={styles.container}>
+      <View style={Style.container}>
         <Text>Please log in to view your profile.</Text>
       </View>
     );
@@ -55,32 +55,32 @@ const userId = route.params?.userId || auth.currentUser?.uid;
   // If the user data is not loaded, show a loading message
   if (!userData) {
     return (
-      <View style={styles.container}>
+      <View style={Style.container}>
         <Text>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileContainer}>
-        <Image source={{ uri: profilePicUrl ? profilePicUrl : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={styles.profileImage} />
+    <View style={Style.container}>
+      <View style={Style.profileContainer}>
+        <Image source={{ uri: profilePicUrl ? profilePicUrl : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541' }} style={Style.profileImage} />
         <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{userData.name}</Text>
-        {userData.gender && <Text style={styles.info}>{userData.gender}</Text>}
-        <Text style={styles.info}>{userData.bio?userData.bio:'Bio coming soon...'}</Text>
+        <Text style={Style.profileName}>{userData.name}</Text>
+        {userData.gender && <Text style={Style.profileInfo}>{userData.gender}</Text>}
+        <Text style={Style.profileInfo}>{userData.bio?userData.bio:'Bio coming soon...'}</Text>
         
-        <Text style={styles.info}>Joined: {userData.joined.length}   Posted: {userData.posts.length}</Text>
+        <Text style={Style.profileInfo}>Joined: {userData.joined.length}   Posted: {userData.posts.length}</Text>
 
         </View>
       </View>
       
-      <View style={styles.tabContainer}>
+      <View style={{flex:1}}>
         <Tab.Navigator
           screenOptions={{
-            tabBarStyle: styles.tabBar,
-            tabBarIndicatorStyle: styles.tabBarIndicator,
-            tabBarLabelStyle: styles.tabBarLabel,
+            tabBarStyle: Style.profileTabBar,
+            tabBarIndicatorStyle: Style.profileTabBarIndicator,
+            tabBarLabelStyle: Style.profileTabBarLabel,
           }}
         >
           <Tab.Screen name="PostedPosts" options={{ title: 'Posted' }}>
@@ -94,57 +94,4 @@ const userId = route.params?.userId || auth.currentUser?.uid;
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // padding: 10,
-    backgroundColor: 'white',
-  },
-  profileContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    // marginBottom: 10,
-    gap: 20,
-    padding: 10,
-    paddingTop: 20,
-    paddingLeft: 20,
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  bio: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  info: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: 'gray',
-  },
-  tabContainer: {
-    flex: 1,
-  },
-  tabBar: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-  },
-  tabBarIndicator: {
-    backgroundColor: '#363678',
-    height: 5,
-    borderRadius: 3,
-  },
-  tabBarLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#363678',
-  },
-});
+//styles

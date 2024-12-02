@@ -13,6 +13,7 @@ import CusPressable from '../Components/CusPressable';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Location from 'expo-location';
 import Color from '../Styles/Color';
+import Style from '../Styles/Style';
 
 // Create post screen
 export default function CreatePost({ route, navigation }) {
@@ -72,15 +73,15 @@ export default function CreatePost({ route, navigation }) {
   };
 
   const openInputPrompt = () => {
-    if (Platform.OS === 'ios') {
-      Alert.prompt(
-        "Generate Description",
-        "Provide more details for the event!",
-        async (input) => await handleGenerateDescription(input)
-      );
-    } else {
+    // if (Platform.OS === 'ios') {
+    //   Alert.prompt(
+    //     "Generate Description",
+    //     "Provide more details for the event!",
+    //     async (input) => await handleGenerateDescription(input)
+    //   );
+    // } else {
       setModalVisible(true); // Show modal for Android
-    }
+    // }
   };
   // Effect to set the post data if editing
   useEffect(() => {
@@ -337,11 +338,7 @@ export default function CreatePost({ route, navigation }) {
 
   return (
     <ScrollView
-      style={{
-        flex: 1,
-        padding: 20,
-        backgroundColor: 'white',
-      }}
+      style={[Style.container, {padding: 20,}]}
     >
     {/* image feature to be improved */}
       <ImageManager 
@@ -349,12 +346,12 @@ export default function CreatePost({ route, navigation }) {
         initialImages={isEditing ? images : []} 
       />
 
-    <Text style={styles.label}>Title</Text>
+    <Text style={Style.label}>Title</Text>
     <TextInput
       // placeholder="Title"
       value={title}
       onChangeText={setTitle}
-      style={styles.input}
+      style={Style.input}
       // onSubmitEditing={Keyboard.dismiss}
     />
 
@@ -363,10 +360,10 @@ export default function CreatePost({ route, navigation }) {
       //   justifyContent: 'space-between',
       //   alignItems: 'center'}}>
       <View>
-      <Text style={styles.label}>Start Time</Text>
+      <Text style={Style.label}>Start Time</Text>
       <TextInput 
         // placeholder="Start Time"
-        style={styles.input}
+        style={Style.input}
         value={inputDate?inputDate + '  ' + inputTime:''}
         editable={false}
         onPress={() => setShowDatePicker(!showDatePicker)}
@@ -384,11 +381,11 @@ export default function CreatePost({ route, navigation }) {
       </View>
     ) : (
       <>
-      <Text style={styles.label}>Start Date</Text>
+      <Text style={Style.label}>Start Date</Text>
       <TouchableOpacity onPress={toggleDatePicker}>
       <TextInput 
         // placeholder="Start Time"
-        style={styles.input}
+        style={Style.input}
         value={inputDate}
         editable={false}
         // onPress={toggleDatePicker}
@@ -404,11 +401,11 @@ export default function CreatePost({ route, navigation }) {
             
           />
         )}
-        <Text style={styles.label}>Start Time</Text>
+        <Text style={Style.label}>Start Time</Text>
         <TouchableOpacity onPress={toggleTimePicker}>
         <TextInput 
         // placeholder="Start Time"
-        style={styles.input}
+        style={Style.input}
         value={inputTime}
         editable={false}
         // onPress={toggleTimePicker}
@@ -426,14 +423,14 @@ export default function CreatePost({ route, navigation }) {
         </>
     )}
 
-    <Text style={styles.label}>Max Capacity</Text>
+    <Text style={Style.label}>Max Capacity</Text>
     <TextInput
       // placeholder="Max Capacity"
       value={limit}
       onChangeText={setLimit}
-      style={styles.input}
+      style={Style.input}
     />
-    <Text style={styles.label}>Location</Text>
+    <Text style={Style.label}>Location</Text>
     <CusPressable
       pressedHandler={() => navigation.navigate('ChangeLocation', { 
         onReturn: (selectedLocation) => {
@@ -459,19 +456,19 @@ export default function CreatePost({ route, navigation }) {
           });
         }
       })}
-      componentStyle={styles.locationButton}
+      componentStyle={Style.locationButton}
     >
-      <View style={styles.locationButtonContent}>
+      <View style={Style.locationButtonContent}>
         <FontAwesome6 name="location-dot" size={20} color="#363678" />
-        <Text style={styles.locationText}>{address || "Select Location"}</Text>
+        <Text style={Style.locationText}>{address || "Select Location"}</Text>
       </View>
     </CusPressable>
     
-    <View style={styles.descriptionContainer}>
-    <Text style={styles.label}>Description</Text>
+    <View style={Style.descriptionContainer}>
+    <Text style={Style.label}>Description</Text>
     <CusPressable
-          componentStyle={styles.AIbutton}
-          pressedStyle={styles.AIbuttonPressed}
+          componentStyle={Style.AIbutton}
+          // pressedStyle={Style.AIbuttonPressed}
           pressedHandler={openInputPrompt}
       >
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 5}}>
@@ -489,66 +486,64 @@ export default function CreatePost({ route, navigation }) {
       // placeholder="Description"
       value={description}
       onChangeText={setDescription}
-      style={[styles.input, styles.descriptionInput]}
+      style={[Style.input, Style.descriptionInput]}
       multiline
     />
-    <View style={styles.buttonContainer}>
+    <View style={Style.buttonContainer}>
     <CusPressable
-          componentStyle={[styles.button, {backgroundColor: '#f0f0f0'}]}
-          pressedStyle={[styles.buttonPressed, {backgroundColor: 'gray'}]}
+          componentStyle={[Style.createButton, {backgroundColor: '#f0f0f0'}]}
+          pressedStyle={[Style.buttonPressed, {backgroundColor: 'gray'}]}
           pressedHandler={handleCancel}
       >
-          <Text style={[styles.buttonText, {color:'black'}]}>Cancel</Text>
+          <Text style={[Style.buttonText, {color:'black'}]}>Cancel</Text>
       </CusPressable>
       <CusPressable
-          componentStyle={styles.button}
-          pressedStyle={styles.buttonPressed}
+          componentStyle={Style.createButton}
+          pressedStyle={Style.buttonPressed}
           pressedHandler={handleSubmit}
       >
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={Style.buttonText}>Submit</Text>
       </CusPressable>
-      
-{/* 
-      <Button title="Cancel" onPress={handleCancel} />
-      <Button title="Submit" onPress={handleSubmit} /> */}
     </View>
     <Modal
       visible={modalVisible}
       transparent={true}
-      animationType="slide"
+      animationType='fade'
       onRequestClose={() => setModalVisible(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Generate Description</Text>
+      <View style={Style.modalOverlay}>
+        <View style={Style.modalContent}>
+          <Text style={Style.modalTitle}>AI Auto Generate Description</Text>
           <TextInput
-            style={styles.modalInput}
+            style={Style.modalInput}
             placeholder="Provide more details for the event!"
             value={modalInput}
             onChangeText={setModalInput}
             multiline
           />
-          <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={styles.modalButton} 
-              onPress={() => {
-                setModalVisible(false);
-                setModalInput('');
-              }}
-            >
-              <Text>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.submitButton]} 
-              onPress={async () => {
-                setModalVisible(false);
-                await handleGenerateDescription(modalInput);
-                setModalInput('');
-              }}
-            >
-              <Text style={styles.submitText}>Generate</Text>
-            </TouchableOpacity>
-          </View>
+              <View style={Style.buttonContainer}>
+              <CusPressable
+                    componentStyle={[Style.modalButton, {backgroundColor: '#f0f0f0'}]}
+                    pressedStyle={[Style.buttonPressed, {backgroundColor: 'gray'}]}
+                    pressedHandler={() => {
+                      setModalVisible(false);
+                      setModalInput('');
+                    }}
+                >
+                    <Text style={[Style.buttonText, {color:'black'}]}>Cancel</Text>
+                </CusPressable>
+                <CusPressable
+                    componentStyle={Style.modalButton}
+                    pressedStyle={Style.buttonPressed}
+                    pressedHandler={async () => {
+                      setModalVisible(false);
+                      await handleGenerateDescription(modalInput);
+                      setModalInput('');
+                    }}
+                >
+                    <Text style={Style.buttonText}>Generate</Text>
+                </CusPressable>
+              </View>
         </View>
       </View>
     </Modal>
@@ -557,159 +552,3 @@ export default function CreatePost({ route, navigation }) {
   </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: 'gray',
-    marginStart: 5,
-  },
-  input: {
-    height: 40,
-    borderColor: 'lightgray',
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: 15,
-    // marginTop: 8,
-    paddingHorizontal: 10,
-},
-  descriptionContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: 10,
-    // gap: 10,
-    justifyContent: 'space-between',
-  },
-  descriptionInput: {
-    // flex: 1,
-    height: 150,
-    textAlignVertical: 'top',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 20,
-    alignItems: 'center',
-    // marginTop: 20,
-    marginHorizontal: 30,
-  },
-  mapView: {
-    // marginTop: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  map: {
-    width: '90%',
-    height: 150,
-    borderRadius: 10,
-    // marginBottom: 100,
-  },
-  locationButton: {
-    backgroundColor: 'white',
-    // height: "10%",
-    justifyContent: 'center',
-    // alignItems: 'center',
-    padding: 10,
-    borderRadius: 5,
-    borderColor: 'lightgray',
-    borderWidth: 1,
-    // elevation: 5,
-    // shadowColor: 'black',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
-    marginBottom: 10,
-    // minWidth: '45%', 
-    // maxWidth: '90%',
-    width: '100%',
-    alignSelf: 'flex-start'
-  },
-  locationButtonContent: {
-    flexDirection: 'row',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    paddingHorizontal: 3,
-    gap: 10,
-  },
-  locationText: {
-    fontSize: 14,
-    flexShrink: 1, 
-    numberOfLines: 1, 
-    ellipsizeMode: 'tail',
-    paddingTop: 3,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    width: '80%',
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: 'lightgray',
-    borderRadius: 5,
-    padding: 10,
-    minHeight: 100,
-    marginBottom: 15,
-    textAlignVertical: 'top',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-  modalButton: {
-    padding: 10,
-    borderRadius: 5,
-    minWidth: 70,
-    alignItems: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#007AFF',
-  },
-  submitText: {
-    color: 'white',
-  },
-  AIbutton: {
-    backgroundColor: 'White',
-    // borderColor: 'lightgray',
-    // borderWidth: 1,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    padding: 10,
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#363678',
-    paddingVertical: 10,
-    paddingHorizontal: 50,
-    borderRadius: 5,
-    // width: '100%', 
-    alignItems: 'center', 
-    marginTop: 10,
-    marginBottom: 50,
-  },
-  buttonPressed: {
-    backgroundColor: '#1884c7', 
-    transform: [{ scale: 0.98 }], 
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-})

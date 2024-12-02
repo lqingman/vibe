@@ -6,6 +6,7 @@ import ActivityCard from '../Components/ActivityCard';
 import { useNavigation } from '@react-navigation/native';
 import { deleteArrayField } from '../Firebase/firestoreHelper';
 import ExploreList from '../Components/ExploreList';
+import Style from '../Styles/Style';
 // My posts screen
 export default function PostsList({ postIds }) {
   const [posts, setPosts] = useState([]);
@@ -41,13 +42,13 @@ export default function PostsList({ postIds }) {
   }, [postIds]);
   if (!auth.currentUser) {
     return (
-      <View style={styles.container}>
+      <View style={Style.container}>
         <Text>Please log in to view your posts.</Text>
       </View>
     );
   }
   return (
-    <View style={styles.container}>
+    <View style={Style.container}>
       {/* <FlatList
         data={posts}
         keyExtractor={item => item.id}
@@ -62,12 +63,4 @@ export default function PostsList({ postIds }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // padding: 10,
-    backgroundColor: 'white',
-
-  },
-});
+//styles

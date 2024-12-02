@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import ImageManager from '../Components/ImageManager';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 import CusPressable from '../Components/CusPressable';
+import Style from '../Styles/Style';
 
 // Setting screen
 export default function Setting({ navigation }) {
@@ -70,53 +71,53 @@ export default function Setting({ navigation }) {
   // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
-      <View style={styles.container}>
+      <View style={[Style.container, {padding:20}]}>
         <Text>Please log in to update your profile.</Text>
       </View>
     );
   }
   return (
-    <View style={styles.container}>
+    <View style={[Style.container, {padding:20}]}>
       {/* <Text style={styles.header}>Update Profile</Text> */}
-      <View style={styles.imagePicker}>
+      <View style={Style.settingImagePicker}>
         <ImageManager 
         receiveImageUris={setPicture} 
         initialImages={picture} 
         imageStyle={{borderRadius: 50}} 
         singleImageMode={true}/>
       </View>
-      <Text style={styles.label}>Name</Text>
+      <Text style={Style.label}>Name</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         // placeholder="Name"
         value={name}
         onChangeText={setName}
       />
-      <Text style={styles.label}>Email</Text>
+      <Text style={Style.label}>Email</Text>
       <TextInput
-        style={[styles.input, {color: 'gray'}]}
+        style={[Style.input, {color: 'gray'}]}
         // placeholder="Email"
         value={email}
         editable={false}
       />
-      <Text style={styles.label}>Bio</Text>
+      <Text style={Style.label}>Bio</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         // placeholder="Bio"
         value={bio}
         onChangeText={setBio}
       />
-      <Text style={styles.label}>Age</Text>
+      <Text style={Style.label}>Age</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         // placeholder="Age"
         value={age}
         onChangeText={setAge}
         keyboardType="numeric"
       />
-      <Text style={styles.label}>Pronoun</Text>
+      <Text style={Style.label}>Pronoun</Text>
       <TextInput
-        style={styles.input}
+        style={Style.input}
         // placeholder="Pronoun"
         value={gender}
         onChangeText={setGender}
@@ -124,63 +125,13 @@ export default function Setting({ navigation }) {
       
       {/* <Button title="Update Profile" onPress={handleUpdateProfile} /> */}
       <CusPressable
-          componentStyle={styles.button}
-          pressedStyle={styles.buttonPressed}
+          componentStyle={Style.button}
+          pressedStyle={Style.buttonPressed}
           pressedHandler={handleUpdateProfile}
       >
-          <Text style={styles.buttonText}>Update Profile</Text>
+          <Text style={Style.buttonText}>Update Profile</Text>
       </CusPressable>
       {/* <Button title="Sign out" onPress={() => signOut(auth)} /> */}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: 'center',
-    padding: 20,
-    backgroundColor: 'white',
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: 'gray',
-    marginStart: 5,
-  },
-  input: {
-    height: 40,
-    borderColor: 'lightgray',
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  imagePicker: {
-    alignItems: 'center',
-    justifyContent: 'center',
-
-  },
-  image: {
-    width: 100,
-    height: 100,
-  },
-  button: {
-    backgroundColor: '#363678',
-    paddingVertical: 10,
-    // paddingHorizontal: 30,
-    marginTop: 20,
-    borderRadius: 5,
-    width: '100%', 
-    alignItems: 'center', 
-  },
-  buttonPressed: {
-    backgroundColor: '#1884c7', 
-    transform: [{ scale: 0.98 }], 
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
