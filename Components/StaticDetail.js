@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -9,21 +9,29 @@ import CusPressable from '../Components/CusPressable';
 import { addCommentToPost, fetchImageUrlFromDB, getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 import { useState } from 'react';
-import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import Map from './Map';
 import { useNavigation } from '@react-navigation/native';
 import Carousel from './Carousel';
+import Style from '../Styles/Style';
+import Color from '../Styles/Color';
 
+// Component to display the details of a post except for the comments
 export default function StaticDetail({data, updateComments, numAttendees}) {
   if (!data) return null;
   //console.log("1. Component render - received data:", data);
 
+  // State for comment
   const [comment, setComment] = useState('');
+  // State for owner data
   const [ownerData, setOwnerData] = useState(null);
+  // State for owner image url
   const [ownerImageUrl, setOwnerImageUrl] = useState(null);  
+  // State for post image urls
   const [postImageUrls, setPostImageUrls] = useState([]);  
+  // Navigation
   const navigation = useNavigation();
 
+  // Load user data and image urls
   useEffect(() => {    
     try {
       const loadData = async () => {
@@ -49,7 +57,6 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
           console.log("No valid images array to process");
         }
       };
-
       loadData()
     } catch (error) {
       console.error("Error in useEffect:", error);
@@ -71,10 +78,10 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={Style.staticDetailContainer}>
       {/* show owner's profile picture and name */}
       <TouchableOpacity 
-        style={styles.ownerInfo}
+        style={Style.ownerInfo}
         onPress={() => {
           if (data.owner === auth.currentUser?.uid) {
             // If it's the current user's profile, navigate to the Profile tab
@@ -94,63 +101,63 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
         }}
       >
         <Image 
-          style={styles.ownerImage} 
+          style={Style.ownerImage} 
           source={ownerImageUrl ? {uri: ownerImageUrl} : null} 
         />
-        <Text style={styles.ownerName}>{ownerData?.name}</Text>
+        <Text style={Style.ownerName}>{ownerData?.name}</Text>
       </TouchableOpacity>
 
       {/* show image */}
-      <View style={styles.media}>
+      <View style={{flex: 1}}>
         <Carousel data={postImageUrls} />
       </View>
 
       {/* show title */}
-      <View style={styles.titleView}>
-        <Text style={styles.titleText}>{data.title}</Text>
+      <View style={Style.staticDetailTitleView}>
+        <Text style={Style.staticDetailTitleText}>{data.title}</Text>
       </View>
 
       {/* show date, time, location, attendees, description */}
-      <View style={styles.dateView}>
-        <FontAwesome name="calendar" size={24} color="purple" />
-        <Text style={styles.dateText}>{data.date}</Text>
+      <View style={Style.staticDetailFieldView}>
+        <FontAwesome name="calendar" size={24} color={Color.navigatorBg} />
+        <Text style={Style.staticDetailFieldText}>{data.date}</Text>
       </View>
 
-      <View style={styles.timeView}>
-        <FontAwesome5 name="clock" size={24} color="purple" />
-        <Text style={styles.timeText}>{data.time}</Text>
+      <View style={Style.staticDetailFieldView}>
+        <FontAwesome5 name="clock" size={24} color={Color.navigatorBg} />
+        <Text style={Style.staticDetailFieldText}>{data.time}</Text>
       </View>
 
-      <View style={styles.attendeesView}>
-        <Ionicons name="people" size={24} color="purple" />
-        <Text style={styles.attendeesText}>{numAttendees}/{data.limit}</Text>
+      <View style={Style.staticDetailFieldView}>
+        <Ionicons name="people" size={24} color={Color.navigatorBg} />
+        <Text style={Style.staticDetailFieldText}>{numAttendees}/{data.limit}</Text>
       </View>
 
-      <View style={styles.descriptionView}>
-        <MaterialIcons name="description" size={24} color="purple" />
-        <Text style={styles.descriptionText}>{data.description}</Text>
+      <View style={Style.staticDetailDescriptionView}>
+        <MaterialIcons name="description" size={24} color={Color.navigatorBg} />
+        <Text style={Style.staticDetailDescriptionText}>{data.description}</Text>
       </View>
 
       {/* show map */}
-      <View style={styles.locationView}>
-        <Entypo name="location-pin" size={24} color="purple" />
-        <Text style={styles.locationText}>{data.address}</Text>
+      <View style={Style.staticDetailFieldView}>
+        <Entypo name="location-pin" size={24} color={Color.navigatorBg} />
+        <Text style={Style.staticDetailFieldText}>{data.address}</Text>
       </View>
 
-      <View style={styles.mapView}>
+      <View style={Style.staticDetailMapView}>
         <Map latitude={data?.coordinates?.latitude} longitude={data?.coordinates?.longitude} />
       </View>
 
       {/* show comment input and button */}
-      <View style={styles.commentView}>
+      <View style={{marginVertical: 10}}>
         {/* show comments */}
-        <View style={styles.commentsView}>
-          <Text style={styles.commentText}>Comments</Text>
+        <View style={Style.staticDetailCommentsView}>
+          <Text style={Style.staticDetailCommentsText}>Comments</Text>
         </View>
 
-        <View style={styles.commentButtonContainer}>
+        <View style={Style.commentButtonContainer}>
           <TextInput 
-            style={styles.commentInput} 
+            style={Style.commentInput} 
             placeholder="Add a comment..." 
             value={comment}
             onChangeText={setComment}
@@ -172,194 +179,10 @@ export default function StaticDetail({data, updateComments, numAttendees}) {
             }}
             pressedHandler={handleAddComment}
           >
-            <Text style={styles.commentButtonText}>Send</Text>
+            <Text style={Style.commentButtonText}>Send</Text>
           </CusPressable>
         </View>
       </View>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    //padding: 10,
-  },
-  media: {
-    flex: 1,
-  },
-  image: {
-    width: '100%',
-    height: 300,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  dateView: {
-    marginVertical: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dateText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  timeView: {
-    marginVertical: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  timeText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  locationView: {
-    marginVertical: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-    //alignItems: 'center',
-  },
-  locationText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  descriptionView: {
-    marginTop: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-    //alignItems: 'center',
-  },
-  descriptionText: {
-    marginLeft: 10,
-    fontSize: 16,
-    width: '85%',
-    textAlign: 'justify',
-  },
-  titleView: {
-    marginVertical: 10,
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  mapView: {
-    height: 200,
-    width: '90%',
-    //marginBottom: 20,
-    alignSelf: 'center',
-  },
-  map: {
-    width: '90%',
-    height: 200,
-    borderRadius: 16,
-    //marginBottom: 30,
-  },
-  joinView: {
-    position: 'absolute',
-    bottom: 10,
-    width: '110%',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    borderTopColor: 'lightgrey',
-    borderTopWidth: 1,
-  },
-  joinButtonText: {
-    color: 'white',
-    fontSize: 18,
-  },
-  leaveView: {
-    position: 'absolute',
-    bottom: 10,
-    width: '110%',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-    backgroundColor: 'white',
-    borderTopColor: 'lightgrey',
-    borderTopWidth: 1,
-  },
-  commentView: {
-    marginVertical: 10,
-    //marginLeft: 10,
-  },
-  commentText: {
-    fontSize: 16,
-    marginBottom: 5,
-    marginLeft: 25,
-    marginTop: 10,
-    fontWeight: 'bold',
-  },
-  commentInput: {
-    width: '70%',
-    height: 50,
-    padding: 10,
-    backgroundColor: 'lightgrey',
-    borderRadius: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-  },
-  commentButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-    width: '100%',
-    alignContent: 'flex-start',
-  },
-  commentsView: {
-    marginTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'lightgrey',
-    width: '110%',
-    marginLeft: -10,
-    paddingBottom: 5,
-  },
-  commentButtonText: {
-    color: 'white',
-    fontSize: 15,
-  },
-  attendeesView: {
-    marginVertical: 10,
-    marginLeft: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  attendeesText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  ownerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
-    width: '110%',
-    marginLeft: -10,  
-    paddingLeft: 10,
-  },
-  ownerImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginBottom: 10,
-    marginLeft: 10,
-    resizeMode: 'cover',
-  },
-  ownerName: {
-    marginLeft: 10,
-    fontSize: 20,
-    color: 'black',
-    marginBottom: 10,
-  },
-})

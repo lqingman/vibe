@@ -1,7 +1,7 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
-import { auth } from '../Firebase/firebaseSetup'; // Import the Auth service instance
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; // Import the signInWithEmailAndPassword function
+import { auth } from '../Firebase/firebaseSetup'; 
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; 
 import CusPressable from '../Components/CusPressable';
 import Style from '../Styles/Style';
 
@@ -38,7 +38,6 @@ export default function Login({ navigation }) {
 
   // Function to handle login
   const handleLogin = async () => {
-    // Handle login logic here
     // console.log('Login:', email, password);
     // Validate input fields
     if (!email || !password) {

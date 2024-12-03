@@ -59,7 +59,7 @@ export default function App() {
     })
   }, []);
 
-  // Add this useEffect for notification setup
+  //useEffect for notification setup
   useEffect(() => {
     async function configurePushNotifications() {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -158,14 +158,14 @@ export default function App() {
         tabBarActiveTintColor: Color.navigatorBg,
         tabBarActiveBackgroundColor: Color.background,
         tabBarInactiveBackgroundColor: Color.background,
-        tabBarInactiveTintColor: "lightgray",
+        tabBarInactiveTintColor: Color.lightgray,
         tabBarStyle: {
           height: '8%',
           paddingBottom: 0,
           borderTopWidth: 0,
           elevation: 0,
-          borderTopWidth: 1, // Add this line
-          borderTopColor: '#f0f0f0', // Light gray color for the line
+          borderTopWidth: 1, 
+          borderTopColor: Color.lightgray,
         },
         tabBarItemStyle: {
           paddingBottom: 0,
@@ -238,7 +238,7 @@ export default function App() {
               children={tabNavigator} 
               options={{ 
                 headerShown: false,
-                headerBackTitle: "Home"  // Add this for iOS
+                headerBackTitle: "Home" 
               }}
             />            
             {/* Create the Home screen */}

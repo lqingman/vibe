@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import PostsList from './PostsList';
 import Style from '../Styles/Style';
+
 // Create tab navigator
 const Tab = createMaterialTopTabNavigator();
 
 // Profile screen
 export default function Profile({ route }) {
+  // State for user data
   const [userData, setUserData] = useState(null);
+  // State for profile picture URL
   const [profilePicUrl, setProfilePicUrl] = useState('');
-// Get userId from route params, fallback to current user's ID if not provided
-const userId = route.params?.userId || auth.currentUser?.uid;
+  // Get userId from route params, fallback to current user's ID if not provided
+  const userId = route.params?.userId || auth.currentUser?.uid;
+
   // Effect to set up the snapshot listener
   useEffect(() => {
     if (!userId) {
@@ -23,7 +27,7 @@ const userId = route.params?.userId || auth.currentUser?.uid;
     const userDocRef = doc(database, 'users', userId);
     const unsubscribe = onSnapshot(userDocRef,async (userDoc) => {
       if (userDoc.exists()) {
-        const data = userDoc.data(); // Define data here
+        const data = userDoc.data(); 
         setUserData(data);
 
         if (data.picture && data.picture.length > 0 && data.picture[0].startsWith('images/')) {
@@ -94,4 +98,3 @@ const userId = route.params?.userId || auth.currentUser?.uid;
     </View>
   );
 }
-//styles

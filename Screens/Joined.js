@@ -1,14 +1,14 @@
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import ActivityCard from '../Components/ActivityCard';
-import { getPostData, getUserData } from '../Firebase/firestoreHelper';
+import { getPostData } from '../Firebase/firestoreHelper';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { doc, onSnapshot } from 'firebase/firestore';
 import LottieView from "lottie-react-native";
 import TimeLine from '../Components/TimeLine';
+import Style from '../Styles/Style';
 
 // Display the activities that the user has joined
-export default function Joined({navigation}) {
+export default function Joined() {
   const [postData, setPostData] = useState([]);
   const [joinedActivities, setJoinedActivities] = useState([]);
 
@@ -18,13 +18,13 @@ export default function Joined({navigation}) {
       return;
     }
     const unsubscribe = onSnapshot(
-      doc(database, 'users', auth.currentUser.uid), // Reference to the user's document in the 'users' collection
+      doc(database, 'users', auth.currentUser.uid),
       (docSnapshot) => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
           setJoinedActivities(userData.joined || []);
         } else {
-          setJoinedActivities([]); // No data for this user
+          setJoinedActivities([]);
         }
       },
       (error) => {
@@ -35,15 +35,6 @@ export default function Joined({navigation}) {
     // Cleanup on unmount
     return () => unsubscribe();
   }, [auth.currentUser]);
-  //fetch joined activities from database
-  // useEffect(() => {
-  //   const fetchJoinedActivities = async () => {
-  //     const userData = await getUserData(auth.currentUser.uid);
-  //     const joinedActivities = userData.joined;
-  //     setJoinedActivities(joinedActivities);
-  //   };
-  //   fetchJoinedActivities();
-  // }, []);
 
   // Fetch post data for each joined activity
   useEffect(() => {
@@ -69,27 +60,31 @@ export default function Joined({navigation}) {
   // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
-      <View style={styles.container}>
+      <View style={Style.container}>
         <Text>Please log in to view your joined activities.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.mainContainer}>
+      <View style={Style.container}>
       {joinedActivities.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.text}>No joined activities.</Text>
-          <Text style={styles.text}>Explore to find more!</Text>
+        <View style={{
+          flex: 1,
+          alignItems: 'center',
+          paddingTop: 60,
+        }}>
+          <Text style={Style.noJoinedText}>No joined activities.</Text>
+          <Text style={Style.noJoinedText}>Explore to find more!</Text>
           <LottieView 
             source={require('../assets/Animation - arrow.json')} 
-            style={styles.arrowLottie}
+            style={Style.arrowLottie}
             autoPlay 
             loop
           />
           <LottieView 
             source={require('../assets/Animation - no joined.json')} 
-            style={styles.noJoinedLottie}
+            style={Style.noJoinedLottie}
             autoPlay 
             loop={false}
           />
@@ -101,33 +96,3 @@ export default function Joined({navigation}) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  emptyContainer: {
-    flex: 1,
-    //justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 60,
-  },
-  text: {
-    fontSize: 20,
-    color: 'black',
-    marginTop: 10,
-  },
-  noJoinedLottie: {
-    width: 300,
-    height: 300,
-    alignSelf: 'center',
-  },
-  arrowLottie: {
-    width: 70,
-    height: 70,
-    position: 'absolute',
-    top: -10,
-    left: 60,
-  },
-});
