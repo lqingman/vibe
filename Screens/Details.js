@@ -226,16 +226,33 @@ export default function Details({route, navigation}) {
 // }
 
 // delete a comment
-function handleDeleteComment() {
-  setCommentEditModalVisible(false);
-  Alert.alert("Delete comment", "Are you sure you want to delete this comment?", [
-    {text: "Cancel", style: "cancel"},
-    {text: "Delete", onPress: () => {
-      //console.log("delete comment", selectedComment)
-      deleteComment(data.id, selectedComment.id);
-      setComments(prevComments => prevComments.filter(comment => comment.id !== selectedComment.id));
-    }}
-  ]);
+async function handleDeleteComment() {
+  try {
+    setCommentEditModalVisible(false);
+    
+    Alert.alert(
+      "Delete comment", 
+      "Are you sure you want to delete this comment?", 
+      [
+        {text: "Cancel", style: "cancel"},
+        {
+          text: "Delete", 
+          onPress: async () => {
+            if (selectedComment) {
+              await deleteComment(data.id, selectedComment.id);
+              // Update local state after successful deletion
+              setComments(prevComments => 
+                prevComments.filter(comment => comment.id !== selectedComment.id)
+              );
+            }
+          }
+        }
+      ]
+    );
+  } catch (error) {
+    console.error("Error in handleDeleteComment:", error);
+    Alert.alert("Error", "Failed to delete comment. Please try again.");
+  }
 }
 
   // function to load usernames when comments change
@@ -461,7 +478,7 @@ function handleDeleteComment() {
           onPress={() => setCommentEditModalVisible(false)}
         >
           <View style={Style.commentEditModalContainer}>
-            <View style={Style.modalContent}>
+            <View style={Style.commentEditModalContent}>
               {/* <Button
                 title="Reply"
                 onPress={handleReplyComment}

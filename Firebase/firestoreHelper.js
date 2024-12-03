@@ -324,12 +324,17 @@ export async function fetchComments(postId) {
 
   // Delete a comment from the database
   export async function deleteComment(postId, commentId) {
-    console.log("delete comment", postId, commentId)
     try {
-      const commentRef = doc(database, 'posts', postId, 'comments', commentId);
+      // Get reference to the comment in the subcollection
+      const commentRef = doc(collection(database, 'posts', postId, 'comments'), commentId);
+      
+      // Delete the comment document
       await deleteDoc(commentRef);
+      
+      console.log(`Comment ${commentId} deleted successfully from post ${postId}`);
     } catch (error) {
       console.error("Error deleting comment:", error);
+      throw error;
     }
   }
 
