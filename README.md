@@ -66,6 +66,10 @@ CreatePost screen:
 
 <img src="assets/CreatePost.png" alt="CreatePost screen" width="300"/>
 
+AI auto generate modal: 
+
+<img src="assets/autogenerate.jpg" alt="Auto generate modal" width="300"/>
+
 EditPost screen: 
 
 <img src="assets/EditPost.png" alt="EditPost screen" width="300"/>
@@ -255,5 +259,14 @@ EXPO_PUBLIC_GEMINI_API_KEY=
 - Screens:
     `Updated Login, Signup, Profile, PostsList, Setting, CreatePost, Details, Explore screens and added Welcome screen`
 
+#### Iteration 3:
 
+- Components:
+    `Modified ActivityCard for image preview, modified ImageManager for uploading multiple images for create and edit post, added a single image mode for profile image update.`
+
+- Screens:
+    `Updated Signup and Signin screens to handle firebase error notification, updated multiple images for CreatePost screen, updated Profile and Setting screens for user picture read and update, updated PostsList to use ExploreCard component and added a default status display`
+
+- Styles:
+    `Updated theme color for the whole app, modified styles for multiple pages`
 
