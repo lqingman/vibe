@@ -115,6 +115,10 @@ export default function CreatePost({ route, navigation }) {
       setLimit(post.limit.toString());
       setIsEditing(true);
       setPostId(post.id);
+      setCoordinates(post.coordinates);
+      setAddress(post.address);
+      setCity(post.city);
+      
     }
   }, [route.params?.post]);
 
