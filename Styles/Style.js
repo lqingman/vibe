@@ -234,7 +234,7 @@ export default Style = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
-    modalContent: {
+    AImodalContent: {
       backgroundColor: Color.white,
       borderRadius: 10,
       padding: 20,
@@ -671,7 +671,7 @@ export default Style = StyleSheet.create({
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
     },
-    modalContent: {
+    AI: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
