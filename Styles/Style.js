@@ -667,9 +667,18 @@ export default Style = StyleSheet.create({
     },
     commentEditModalContainer: {
       backgroundColor: 'white',
-      height: '20%',
+      height: '10%',
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    commentEditModalContent: {
+      width: '80%',
+      padding: 20,
+      backgroundColor: 'white',
+      borderRadius: 10,
+      alignItems: 'center',
     },
     AI: {
       flex: 1,
