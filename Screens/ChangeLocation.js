@@ -205,7 +205,7 @@ export default function ChangeLocation() {
                         cardStyle={Style.calloutCard}
                         favButtonStyle={{
                           position: 'absolute',
-                          top: 150,
+                          top: 130,
                           right: 10,
                         }}
                       />
