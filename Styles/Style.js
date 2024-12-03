@@ -341,10 +341,9 @@ export default Style = StyleSheet.create({
     },
     exploreCard: {
       width: "100%",
-      marginLeft: 10,
-      marginBottom: 12,
+      marginLeft: 9,
+      marginBottom: 0,
       borderRadius: 16,
-
     },
     exploreCardInner: {
       backgroundColor: Color.white,
@@ -631,15 +630,16 @@ export default Style = StyleSheet.create({
     },
     leaveView: {
       position: 'absolute',
-      bottom: 10,
-      width: '110%',
-      height: 50,
+      bottom: 0,
+      width: '100%',
+      height: 60,
       flexDirection: 'row',
       justifyContent: 'center',
-      alignContent: 'center',
+      alignItems: 'center',
       backgroundColor: Color.white,
       borderTopColor: Color.lightgrey,
       borderTopWidth: 1,
+      paddingBottom: 10,
     },
     joinButtonText: {
       color: Color.white,
