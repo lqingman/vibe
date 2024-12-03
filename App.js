@@ -158,7 +158,7 @@ export default function App() {
         tabBarActiveTintColor: Color.navigatorBg,
         tabBarActiveBackgroundColor: Color.background,
         tabBarInactiveBackgroundColor: Color.background,
-        tabBarInactiveTintColor: Color.lightgray,
+        tabBarInactiveTintColor: 'lightgray',
         tabBarStyle: {
           height: '8%',
           paddingBottom: 0,

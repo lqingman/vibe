@@ -330,7 +330,8 @@ function handleDeleteComment() {
       <View style={Style.leaveView}>
         <CusPressable
           componentStyle={{
-            width: '50%',
+            width: '40%',
+            height: 60,
             alignSelf: 'center',
             justifyContent: 'center',
             marginLeft: 30,
@@ -355,6 +356,7 @@ function handleDeleteComment() {
         <CusPressable
           componentStyle={{
             width: '20%',
+            height: 60,
             justifyContent: 'center',
             marginLeft: 10,
           }}
@@ -373,6 +375,7 @@ function handleDeleteComment() {
         <CusPressable
           componentStyle={{
             width: '40%',
+            height: 50,
             maxWidth: '50%',
             alignSelf: 'center',
           }}

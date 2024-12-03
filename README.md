@@ -155,6 +155,9 @@ The database looks like the following sreenshots:
 #### Read
     Function: fetchComments(postId)
     Retrieves all comment documents from the comments sub-collection of the specified post.
+#### Delete
+    Function: deleteComment(postId, commentId)
+    Deletes a comment of the specified post from the database.
 
 ## Firebase Rules
 ```bash
@@ -213,6 +216,19 @@ EXPO_PUBLIC_GEMINI_API_KEY=
 
 - App.js:
     `Added a useEffect hook for notification setup`
+
+#### Iteration 3:
+- Firebase:
+    `Implemented deleteComment function in file firestoreHelper.js`
+
+- Components:
+    `Implemented Carousel, ExploreCard, ExploreCards, ExploreList, TimeLine components`
+
+- Screens:
+    `Updated ChangeLocation to show markers for activities on the map; Updated Details to allow user to delete their comments; Updated Explore to use MasonryList instead of FlatList; Updated Joined screen to show a timeline for all joined activities`
+
+- Styles:
+    `Updated Style and Color files`
 
 
 ### Alina:
