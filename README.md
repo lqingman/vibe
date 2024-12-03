@@ -90,13 +90,18 @@ Setting(update profile) screen:
         name: string,
         email: email,
         uid: uid,
-        picture: '',
+        location:{
+            latitude:'',
+            longitude:''
+        }
+        picture: [],
         bio: '',
         age: '',
         gender: '',
         posts: [],
         favorites: [],
         joined: []
+        notification: []
     }
 
 ### 2. posts
@@ -107,10 +112,16 @@ Setting(update profile) screen:
         date: Date,
         time: Time,
         description: '',
-        location: location,
-        image: 'https://nrs.objectstore.gov.bc.ca/kuwyyf/hiking_1110x740_72dpi_v1_d2c8d390f0.jpg',
+        coordinates:{
+            latitude:'',
+            longitude:''
+        },
+        city: '',
+        address: '',
+        image: [],
         limit: int,
         owner: uid,
+        attendee: [],
     }
 
 ### 3. comments
