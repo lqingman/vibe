@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import CusPressable from './CusPressable';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import {Dimensions} from 'react-native';
 import FilterOption from './FilterOption';
+import Style from '../Styles/Style';
 
-// Get window width
-const windowWidth = Dimensions.get('window').width;
-
-// Custom filter menu component
+// Custom filter menu component in the explore screen
 export default function FilterMenu({handleFilterSelection}) {
   // State for showing filter menu
   const [show, setShow] = useState(false);
@@ -59,17 +56,16 @@ export default function FilterMenu({handleFilterSelection}) {
       setAllTextColor('black');
       setLatestTextColor('black');
     }
-    //console.log(`Filter set for ${selectedFilter}`);
   }
 
   return (
     <View style={{flex:1}}>
-      <CusPressable pressedHandler={startAnimation} componentStyle={styles.iconContainer}>
+      <CusPressable pressedHandler={startAnimation} componentStyle={Style.filterIconContainer}>
         <FontAwesome5 name="filter" size={24} color="lightgrey" />
       </CusPressable>
-      <Animated.View style={[styles.container, animatedStyle]}>
+      <Animated.View style={[Style.filterMenuContainer, animatedStyle]}>
         {show && (
-          <View style={styles.filterContainer}>
+          <View style={Style.filterContainer}>
             <FilterOption filterHandler={() => filterHandler('All')} filterText="All" textColor={allTextColor} />
             <FilterOption filterHandler={() => filterHandler("Latest")} filterText="Latest" textColor={latestTextColor} />
             <FilterOption filterHandler={() => filterHandler("Nearest")} filterText="Nearest" textColor={nearestTextColor} />
@@ -79,45 +75,3 @@ export default function FilterMenu({handleFilterSelection}) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  iconContainer: {
-    backgroundColor: 'white',
-    paddingVertical: 20,
-    paddingRight: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    width: windowWidth*0.98,
-    backgroundColor: 'white',
-    position: 'absolute',
-    right: 5,
-    marginTop: 45,
-    borderRadius: 10,
-    top: 10,
-    overflow: 'hidden',
-    zIndex: 1,
-    paddingHorizontal: 20,
-  },
-  filterContainer: {
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  filterText: {
-    fontSize: 16,
-  },
-  filterButton: {
-    width: '25%',
-    height: 30,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: 'lightgrey',
-    borderWidth: 1,
-  },
-});

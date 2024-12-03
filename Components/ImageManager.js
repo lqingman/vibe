@@ -1,7 +1,7 @@
-import { View, Alert, Image, StyleSheet, TouchableOpacity, ScrollView, Text } from 'react-native'
+import { View, Alert, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import * as ImagePicker from 'expo-image-picker';
-import { FontAwesome5, FontAwesome} from '@expo/vector-icons';
+import { FontAwesome5} from '@expo/vector-icons';
 import {fetchImageUrlFromDB} from '../Firebase/firestoreHelper';
 import Feather from '@expo/vector-icons/Feather';
 
@@ -13,12 +13,13 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleI
     const [images, setImages] = useState([]);
     const [displayUrls, setDisplayUrls] = useState([]);
 
-    // Add useEffect to handle initialImage
+    //useEffect to handle initialImage
     useEffect(() => {
         async function fetchImageUrls() {
             if (initialImages && initialImages.length > 0) {
-                setImages(initialImages); // Set the images state with initial images
-                
+                // Set the images state with initial images
+                setImages(initialImages); 
+                // Fetch the image urls from the database
                 const urls = await Promise.all(
                     initialImages.map(async (image) => {
                         if (image.startsWith('images/')) {
@@ -40,16 +41,13 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleI
             if (response.granted) {
                 return true;
             }
-            // if so return true
-            // else ask for permission and return what user has selected
-            
+            // ask for permission
             const permissionResponse = await requestPermission();
             return permissionResponse.granted;
         }
         catch (err) {
             console.log(err);
         }
-    
     }
 
     // Function to take image
@@ -65,21 +63,16 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleI
             // Launch the camera
             const result = await ImagePicker.launchCameraAsync(
             {
-              
               allowsEditing: true,
             }
           );
-            console.log(result);
+            //console.log(result);
             // If the user did not cancel, set the image and send the uri back to the parent component
             if (!result.canceled) {
                 const newImage = result.assets[0].uri;
                 setImages((prevImages) => [...prevImages, newImage]);
                 receiveImageUris([...images, newImage]);
             }
-
-            // send uri back to the parent component
-            
-
         }
         catch (err) {
             console.log(err);
@@ -106,14 +99,16 @@ const ImageManager = ({receiveImageUris, initialImages = [], imageStyle, singleI
             Alert.alert('Error', 'Failed to pick image');
         }
     };
+
     // Function to delete image
     const deleteImageHandler = (index) => {
         const updatedImages = images.filter((_, i) => i !== index);
         setImages(updatedImages);
         receiveImageUris(updatedImages);
     };
+
   return (
-<View style={styles.container}>
+    <View style={styles.container}>
             {singleImageMode ? (
                 <View>
                     {images.map((image, index) => {

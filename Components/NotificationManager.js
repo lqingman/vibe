@@ -32,23 +32,13 @@ async function setupNotifications() {
       });
       finalStatus = status;
     }
-
-    console.log('Notification permission status:', finalStatus);
+    //console.log('Notification permission status:', finalStatus);
     return finalStatus === 'granted';
   } catch (error) {
-    console.error('Error setting up notifications:', error);
+    //console.error('Error setting up notifications:', error);
     return false;
   }
 }
-
-// // Add notification listeners
-// Notifications.addNotificationReceivedListener(notification => {
-//   console.log('Notification received:', notification);
-// });
-
-// Notifications.addNotificationResponseReceivedListener(response => {
-//   console.log('Notification response received:', response);
-// });
 
 // Helper function to calculate when to trigger the notification
 function calculateTriggerTime(eventDate, eventTime, timeOption) {
@@ -74,7 +64,7 @@ function calculateTriggerTime(eventDate, eventTime, timeOption) {
     const [year, month, day] = eventDate.split('-').map(num => parseInt(num));
     const event = new Date();
     event.setFullYear(year);
-    event.setMonth(month - 1); // Month is 0-based
+    event.setMonth(month - 1);
     event.setDate(day);
     event.setHours(hours, parseInt(minutes), parseInt(seconds));
     
@@ -110,15 +100,15 @@ function calculateTriggerTime(eventDate, eventTime, timeOption) {
       default:
         finalDate = event;
     }
-  
-    console.log('Final trigger time (local):', finalDate.toLocaleString());
+    //console.log('Final trigger time (local):', finalDate.toLocaleString());
     return finalDate;
   } catch (error) {
-    console.error('Error calculating trigger time:', error);
+    //console.error('Error calculating trigger time:', error);
     return null;
   }
 }
 
+// Schedule a notification
 export async function scheduleNotificationHandler(eventTitle, eventDate, eventTime, timeOption) {
   try {
     const isSetup = await setupNotifications();
@@ -135,12 +125,12 @@ export async function scheduleNotificationHandler(eventTitle, eventDate, eventTi
     // Calculate seconds until trigger
     const secondsUntilTrigger = Math.floor((triggerDate.getTime() - now.getTime()) / 1000);
 
-    console.log('Time details:', {
-      currentLocalTime: now.toLocaleString(),
-      scheduledLocalTime: triggerDate.toLocaleString(),
-      secondsUntilTrigger: secondsUntilTrigger,
-      minutesUntilTrigger: Math.floor(secondsUntilTrigger / 60)
-    });
+    // console.log('Time details:', {
+    //   currentLocalTime: now.toLocaleString(),
+    //   scheduledLocalTime: triggerDate.toLocaleString(),
+    //   secondsUntilTrigger: secondsUntilTrigger,
+    //   minutesUntilTrigger: Math.floor(secondsUntilTrigger / 60)
+    // });
 
     if (secondsUntilTrigger <= 0) {
       console.log('Cannot schedule notifications for past dates');

@@ -2,10 +2,11 @@ import React from 'react';
 import Animated, {FadeInDown} from 'react-native-reanimated';
 import ExploreCard from './ExploreCard';
 
+// ExploreCards component to display the explore cards
 export default function ExploreCards ({data, index, onPress}) {
   if (!data) return null; 
-  //console.log("data", data)
   
+  // Determine if the card is even or odd
   const even = index % 2 === 0;
   const spacing = 12;
 
