@@ -512,7 +512,7 @@ export default function CreatePost({ route, navigation }) {
       onRequestClose={() => setModalVisible(false)}
     >
       <View style={Style.modalOverlay}>
-        <View style={Style.modalContent}>
+        <View style={Style.AImodalContent}>
           <Text style={Style.modalTitle}>AI Auto Generate Description</Text>
           <TextInput
             style={Style.modalInput}
