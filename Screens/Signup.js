@@ -1,8 +1,8 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import the createUserWithEmailAndPassword function
 import { auth } from '../Firebase/firebaseSetup'; // Import the auth object
-import { writeToDB, deleteFromDB, deleteAllFromDB } from '../Firebase/firestoreHelper';
+import { writeToDB} from '../Firebase/firestoreHelper';
 import CusPressable from '../Components/CusPressable';
 import Style from '../Styles/Style';
 
@@ -59,12 +59,7 @@ export default function Signup({ navigation }) {
 
   // Function to handle signup  
   const handleSignup = async () => {
-    // Handle signup logic here
     // console.log('Signup:', name, email, password);
-    // do validation
-    
-    
-
     // Create a new user with email and password
     try {
         // email, password and confirm password should not be empty
@@ -203,7 +198,6 @@ export default function Signup({ navigation }) {
       >
         Already have an account? Login
       </Text>
-
     </View>
   );
 }

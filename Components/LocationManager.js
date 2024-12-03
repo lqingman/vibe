@@ -1,14 +1,16 @@
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import React, { forwardRef, useEffect, useState, useImperativeHandle } from 'react'
 import MapView, { Marker } from "react-native-maps";
 import { getUserData } from '../Firebase/firestoreHelper';
 import { auth } from '../Firebase/firebaseSetup';
 
 const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, children }, ref) => {
+  // State for user location
   const [userLocation, setUserLocation] = useState(null);
+  // State for map reference
   const [mapRef, setMapRef] = useState(null);
 
-  // Default region (can be anywhere, will be updated once we have user location)
+  // Default region
   const defaultRegion = {
     latitude: 37.78825,
     longitude: -122.4324,
@@ -23,6 +25,7 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, childr
     }
   }));
 
+  // Fetch user location
   useEffect(() => {
     const getUserLocation = async () => {
       try {
@@ -42,7 +45,7 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, childr
       }
     };
     getUserLocation();
-  }, [mapRef]); // Add mapRef as dependency
+  }, [mapRef]); 
 
   // Update map when selectedLocation changes
   useEffect(() => {
@@ -59,14 +62,12 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, childr
   }, [selectedLocation, mapRef]);
 
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1, alignItems: 'center'}}>
       <MapView
         ref={setMapRef}
         initialRegion={defaultRegion}
-        style={styles.map}
+        style={{width: '100%', height: '100%'}}
         onPress={(e) => {
-          // Only set selected location if the user clicks on the map itself
-          // and not on a marker or callout
           if (e.nativeEvent.action !== 'marker-press' && e.nativeEvent.action !== 'callout-press') {
             onLocationSelect({
               latitude: e.nativeEvent.coordinate.latitude,
@@ -85,14 +86,3 @@ const LocationManager = forwardRef(({ selectedLocation, onLocationSelect, childr
 });
 
 export default LocationManager;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  map: {
-    width: '100%',
-    height: '100%',
-  },
-});

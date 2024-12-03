@@ -1,12 +1,17 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View } from 'react-native'
+import React from 'react'
 import Timeline from 'react-native-timeline-flatlist'
 import ActivityCard from './ActivityCard';
 import { useNavigation } from '@react-navigation/native';
+import Color from '../Styles/Color';
+import Style from '../Styles/Style';
 
+//timeline component in the joined screen
 export default function TimeLine({data}) {
+  //get the navigation object
   const navigation = useNavigation();
   //console.log(data);
+  //create a new array with the data from the data array
   let timelineData = data.map(item => ({
     time: item.time,
     title: item.title,
@@ -15,9 +20,8 @@ export default function TimeLine({data}) {
     ...item
   }));
 
-
-  //if data.date is in the future, add circle with text "Upcoming"
-  //if data.date is in the past, add circle with text "Past"
+  //if data.date is in the future, add circle color "royalblue"
+  //if data.date is in the past, add circle color "grey"
   timelineData.forEach(item => {
       // Parse time string like "4:16:00 PM"
       const timeRegex = /(\d+):(\d+):00\s(AM|PM)/; 
@@ -46,12 +50,10 @@ export default function TimeLine({data}) {
           const now = new Date();
 
           if (activityDate > now) {
-              item.circleColor = "royalblue";
-              item.circleText = "Upcoming";
+              item.circleColor = Color.royalblue;
               item.time = displayTime;
           } else {
-              item.circleColor = "grey";
-              item.circleText = "Past";
+              item.circleColor = Color.gray;
               item.time = displayTime;
           }
       }
@@ -59,8 +61,12 @@ export default function TimeLine({data}) {
 
   //sort timelineData by date in descending order
   timelineData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
   return (
-    <View style={styles.container}>
+    <View style={{
+      flex: 1,
+      paddingLeft: 10,
+    }}>
       {timelineData &&
         <Timeline
           data={timelineData}
@@ -68,7 +74,15 @@ export default function TimeLine({data}) {
           circleColor={item => item.circleColor}
           lineColor="grey"
           renderDetail={(item) => (
-            <ActivityCard data={item} cardStyle={styles.card} onPress={() => navigation.navigate('Details', {activity: item})}/>
+            <ActivityCard 
+            data={item} 
+            cardStyle={Style.timelineCard} 
+            favButtonStyle={{
+              position: 'absolute',
+              top: 220,
+              right: 10,
+            }}
+            onPress={() => navigation.navigate('Details', {activity: item})}/>
           )}
           options={{
             style:{paddingTop:20}
@@ -122,21 +136,3 @@ export default function TimeLine({data}) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingLeft: 10,
-  },
-  card: {
-    width: "90%",
-    backgroundColor: 'white',
-    borderRadius: 16,
-    //margin: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-});

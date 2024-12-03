@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { signOut } from 'firebase/auth';
+import { View, Text, TextInput, Alert } from 'react-native';
 import { auth, database } from '../Firebase/firebaseSetup';
 import { updateUserProfile } from '../Firebase/firestoreHelper';
 import { doc, getDoc } from 'firebase/firestore';
@@ -8,6 +7,7 @@ import ImageManager from '../Components/ImageManager';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 import CusPressable from '../Components/CusPressable';
 import Style from '../Styles/Style';
+import Color from '../Styles/Color';
 
 // Setting screen
 export default function Setting({ navigation }) {
@@ -76,6 +76,7 @@ export default function Setting({ navigation }) {
       </View>
     );
   }
+
   return (
     <View style={[Style.container, {padding:20}]}>
       {/* <Text style={styles.header}>Update Profile</Text> */}
@@ -95,7 +96,7 @@ export default function Setting({ navigation }) {
       />
       <Text style={Style.label}>Email</Text>
       <TextInput
-        style={[Style.input, {color: 'gray'}]}
+        style={[Style.input, {color: Color.gray}]}
         // placeholder="Email"
         value={email}
         editable={false}

@@ -1,12 +1,10 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, TextInput,Pressable, Button, Image, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput,Pressable, TouchableOpacity, Alert, Modal, ScrollView, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { auth, database } from '../Firebase/firebaseSetup';
+import { auth } from '../Firebase/firebaseSetup';
 import { writeToDB, updateArrayField, updatePost, deletePost, deleteArrayField } from '../Firebase/firestoreHelper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ImageManager from '../Components/ImageManager';
-import { ref, uploadBytesResumable } from 'firebase/storage';
-import { storage } from '../Firebase/firebaseSetup';
 import { isFirebaseStorageUri, fetchAndUploadImage } from '../Firebase/firestoreHelper';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import CusPressable from '../Components/CusPressable';
@@ -72,6 +70,7 @@ export default function CreatePost({ route, navigation }) {
     } 
   };
 
+  // Function to open the input prompt
   const openInputPrompt = () => {
     // if (Platform.OS === 'ios') {
     //   Alert.prompt(
@@ -83,6 +82,7 @@ export default function CreatePost({ route, navigation }) {
       setModalVisible(true); // Show modal for Android
     // }
   };
+
   // Effect to set the post data if editing
   useEffect(() => {
     if (route.params?.post) {
@@ -107,7 +107,6 @@ export default function CreatePost({ route, navigation }) {
         dateObj.setHours(hour, parseInt(minutes), parseInt(seconds));
         setDate(dateObj);
       }
-
 
       setInputDate(post.date);
       setInputTime(post.time);
@@ -169,6 +168,8 @@ export default function CreatePost({ route, navigation }) {
       Alert.alert('Error deleting post', error.message);
     }
   };
+
+  // Function to format the date
   const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -327,12 +328,9 @@ export default function CreatePost({ route, navigation }) {
         const postId = docRef.id;
         await updateArrayField('users', auth.currentUser.uid, 'posts', postId);
         Alert.alert('Post created successfully');
-        
       }
       // Reset the state variables
       handleCancel();
-
-      
     } catch (error) {
       console.error('Error saving post:', error);
       Alert.alert('Error saving post', error.message);
@@ -343,20 +341,20 @@ export default function CreatePost({ route, navigation }) {
     <ScrollView
       style={[Style.container, {padding: 20,}]}
     >
-    {/* image feature to be improved */}
+      {/* image feature to be improved */}
       <ImageManager 
         receiveImageUris={setImages}
         initialImages={isEditing ? images : []} 
       />
 
-    <Text style={Style.label}>Title</Text>
-    <TextInput
-      // placeholder="Title"
-      value={title}
-      onChangeText={setTitle}
-      style={Style.input}
-      // onSubmitEditing={Keyboard.dismiss}
-    />
+      <Text style={Style.label}>Title</Text>
+      <TextInput
+        // placeholder="Title"
+        value={title}
+        onChangeText={setTitle}
+        style={Style.input}
+        // onSubmitEditing={Keyboard.dismiss}
+      />
 
     {Platform.OS === 'ios'?(
       // <View style={{flexDirection: 'row',
@@ -401,7 +399,6 @@ export default function CreatePost({ route, navigation }) {
             // display="inline" // Use inline display for the date picker
             display="default"
             onChange={onChangeDate}
-            
           />
         )}
         <Text style={Style.label}>Start Time</Text>
@@ -462,29 +459,29 @@ export default function CreatePost({ route, navigation }) {
       componentStyle={Style.locationButton}
     >
       <View style={Style.locationButtonContent}>
-        <FontAwesome6 name="location-dot" size={20} color="#363678" />
+        <FontAwesome6 name="location-dot" size={20} color={Color.navigatorBg} />
         <Text style={Style.locationText}>{address || "Select Location"}</Text>
       </View>
     </CusPressable>
     
     <View style={Style.descriptionContainer}>
-    <Text style={Style.label}>Description</Text>
-    <CusPressable
-          componentStyle={Style.AIbutton}
-          // pressedStyle={Style.AIbuttonPressed}
-          pressedHandler={openInputPrompt}
+      <Text style={Style.label}>Description</Text>
+      <CusPressable
+        componentStyle={Style.AIbutton}
+        // pressedStyle={Style.AIbuttonPressed}
+        pressedHandler={openInputPrompt}
       >
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 5}}>
           <FontAwesome5 
-        name="magic" 
-        size={18} 
-        color={'#363678'} 
-      />
+            name="magic" 
+            size={18} 
+            color={Color.navigatorBg} 
+          />
           <Text style={{color: 'black'}}>Ai-generate</Text>
-          </View>
+        </View>
       </CusPressable>
-
   </View>
+
   <TextInput
       // placeholder="Description"
       value={description}
@@ -494,11 +491,11 @@ export default function CreatePost({ route, navigation }) {
     />
     <View style={Style.buttonContainer}>
     <CusPressable
-          componentStyle={[Style.createButton, {backgroundColor: '#f0f0f0'}]}
-          pressedStyle={[Style.buttonPressed, {backgroundColor: 'gray'}]}
+          componentStyle={[Style.createButton, {backgroundColor: Color.lightgray}]}
+          pressedStyle={[Style.buttonPressed, {backgroundColor: Color.gray}]}
           pressedHandler={handleCancel}
       >
-          <Text style={[Style.buttonText, {color:'black'}]}>Cancel</Text>
+          <Text style={[Style.buttonText, {color: Color.black}]}>Cancel</Text>
       </CusPressable>
       <CusPressable
           componentStyle={Style.createButton}
@@ -526,14 +523,14 @@ export default function CreatePost({ route, navigation }) {
           />
               <View style={Style.buttonContainer}>
               <CusPressable
-                    componentStyle={[Style.modalButton, {backgroundColor: '#f0f0f0'}]}
-                    pressedStyle={[Style.buttonPressed, {backgroundColor: 'gray'}]}
+                    componentStyle={[Style.modalButton, {backgroundColor: Color.lightgray}]}
+                    pressedStyle={[Style.buttonPressed, {backgroundColor: Color.gray}]}
                     pressedHandler={() => {
                       setModalVisible(false);
                       setModalInput('');
                     }}
                 >
-                    <Text style={[Style.buttonText, {color:'black'}]}>Cancel</Text>
+                    <Text style={[Style.buttonText, {color: Color.black}]}>Cancel</Text>
                 </CusPressable>
                 <CusPressable
                     componentStyle={Style.modalButton}
@@ -550,8 +547,6 @@ export default function CreatePost({ route, navigation }) {
         </View>
       </View>
     </Modal>
-
-
   </ScrollView>
   );
 }

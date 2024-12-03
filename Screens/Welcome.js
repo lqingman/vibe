@@ -1,8 +1,9 @@
-import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ImageBackground } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import CusPressable from '../Components/CusPressable';
 import Style from '../Styles/Style';
+import Color from '../Styles/Color';
 
 // Welcome screen
 const Welcome = () => {
@@ -29,8 +30,8 @@ const Welcome = () => {
             </CusPressable>
             
             <CusPressable
-                componentStyle={[Style.button, {backgroundColor: 'lightgray'}]}
-                pressedStyle={[Style.buttonPressed, {backgroundColor: 'gray'}]}
+                componentStyle={[Style.button, {backgroundColor: Color.lightgray}]}
+                pressedStyle={[Style.buttonPressed, {backgroundColor: Color.gray}]}
                 pressedHandler={() => navigation.navigate('Login')}
             >
                 <Text style={[Style.buttonText, {color:'black', fontSize: 18}]}>Log in</Text>

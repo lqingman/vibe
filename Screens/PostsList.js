@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { auth, database } from '../Firebase/firebaseSetup';
-import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
-import ActivityCard from '../Components/ActivityCard';
+import { doc, getDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { deleteArrayField } from '../Firebase/firestoreHelper';
 import ExploreList from '../Components/ExploreList';
@@ -11,8 +10,11 @@ import LottieView from "lottie-react-native";
 
 // My posts screen
 export default function PostsList({ postIds, title }) {
+  // State for posts
   const [posts, setPosts] = useState([]);
+  // Navigation
   const navigation = useNavigation();
+  // Get the animation source
   const getAnimationSource = (title) => {
     switch (title) {
       case 'posted':
@@ -21,6 +23,8 @@ export default function PostsList({ postIds, title }) {
         return require('../assets/liked.json');
     }
   };
+
+  // Fetch the posts
   useEffect(() => {
     if (!auth.currentUser || !postIds || postIds.length === 0) {
       setPosts([]);
@@ -50,6 +54,8 @@ export default function PostsList({ postIds, title }) {
 
     fetchPosts();
   }, [postIds]);
+
+  // If the user is not logged in, return a message
   if (!auth.currentUser) {
     return (
       <View style={Style.container}>
@@ -57,8 +63,9 @@ export default function PostsList({ postIds, title }) {
       </View>
     );
   }
+
   return (
-    <View style={Style.container}>
+    <View style={[Style.container, {paddingTop: 3}]}>
       {/* <FlatList
         data={posts}
         keyExtractor={item => item.id}
@@ -86,4 +93,3 @@ export default function PostsList({ postIds, title }) {
     </View>
   );
 }
-//styles

@@ -1,4 +1,4 @@
-import { View, TextInput, Button, Text, StyleSheet, FlatList, Pressable, Modal, TouchableOpacity, Alert, Image, KeyboardAvoidingView } from 'react-native'
+import { View, Button, Text, FlatList, Pressable, Modal, TouchableOpacity, Alert, Image } from 'react-native'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -9,7 +9,7 @@ import { useState } from 'react';
 import StaticDetail from '../Components/StaticDetail';
 import {Picker} from '@react-native-picker/picker';
 import Color from '../Styles/Color';
-import { Platform } from 'react-native';
+import Style from '../Styles/Style';
 
 // Details screen
 export default function Details({route, navigation}) {
@@ -42,7 +42,6 @@ export default function Details({route, navigation}) {
 
   const [contentHeight, setContentHeight] = useState(0);
   const [layoutHeight, setLayoutHeight] = useState(0);
-
 
   // Check if the user has joined the activity
   useEffect(() => {
@@ -130,6 +129,12 @@ export default function Details({route, navigation}) {
   // function to check if event is full
   function isEventFull(numAttendees, limit) {
     return numAttendees >= limit;
+  }
+
+  // function to check if the user is the owner
+  function isUserOwner(owner) {
+    //console.log(owner===auth.currentUser.uid)
+    return auth.currentUser && owner === auth.currentUser.uid;
   }
 
   // Add a comment to the activity
@@ -253,13 +258,19 @@ function handleDeleteComment() {
   // If the user is not logged in, show a message
   if (!auth.currentUser) {
     return (
-      <View style={styles.container}>
+      <View style={{
+        flex: 1,
+        backgroundColor: Color.white,
+      }}>
         <Text>Please log in to view the details.</Text>
       </View>
     );
   }
   return (
-    <View style={styles.container}>
+    <View style={{
+      flex: 1,
+      backgroundColor: Color.white,
+    }}>
       {/* Show all details */}
       <FlatList
         ref={flatListRef}
@@ -278,21 +289,19 @@ function handleDeleteComment() {
           return (
             <TouchableOpacity onLongPress={() => handleCommentLongPress(item)}>
             <View style={[
-              styles.comment,
-              isCurrentUser && styles.userComment
+              {marginTop: 5},
+              isCurrentUser && Style.userComment
             ]}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TouchableOpacity onPress={() => {navigation.navigate('UserProfile', { userId: item.owner })}}>
-                  <Image source={{uri: photoURL}} style={styles.commentOwnerPicture}/>
+                  <Image source={{uri: photoURL}} style={Style.commentOwnerPicture}/>
                 </TouchableOpacity>
-                
                   <View style={{flexDirection: 'column'}}>
-                    <Text style={styles.commentUsername}>
+                    <Text style={Style.commentUsername}>
                       {username}:
                     </Text>
-                    <Text style={styles.commentText}>{item.text}</Text>
+                    <Text style={Style.commentText}>{item.text}</Text>
                   </View>
-                
               </View>
             </View>
             </TouchableOpacity>
@@ -305,7 +314,7 @@ function handleDeleteComment() {
           numAttendees={numAttendees}
           // navigation={navigation}  
           />}
-        ItemSeparatorComponent={() => <View style={{ height: 20, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }} />}
+        ItemSeparatorComponent={() => <View style={{ height: 20, borderBottomWidth: 1, borderBottomColor: Color.lightgrey }} />}
         maintainVisibleContentPosition={{
           minIndexForVisible: 0,
         }}
@@ -318,7 +327,7 @@ function handleDeleteComment() {
       />
       {/* Join/Leave button */}
       {joined ?
-      <View style={styles.leaveView}>
+      <View style={Style.leaveView}>
         <CusPressable
           componentStyle={{
             width: '50%',
@@ -329,7 +338,7 @@ function handleDeleteComment() {
           childrenStyle={{
             flexDirection: 'row',
             padding: 10,
-            backgroundColor: '#363678',
+            backgroundColor: Color.navigatorBg,
             borderRadius: 10,
             alignItems: 'center',
             justifyContent: 'center',
@@ -337,7 +346,7 @@ function handleDeleteComment() {
           pressedHandler={handleJoinPress}
           disabled={isEventInPast(data.date, data.time)}
         >
-          <Text style={styles.joinButtonText}>
+          <Text style={Style.joinButtonText}>
             {isEventInPast(data.date, data.time) 
               ? 'Event Ended' 
               : joined ? 'Leave' : 'Join'}
@@ -351,17 +360,16 @@ function handleDeleteComment() {
           }}
           childrenStyle={{
             padding: 10,
-            //backgroundColor: 'purple',
             borderRadius: 10,
             alignItems: 'center',
           }}
           pressedHandler={handleNotificationPress} 
         >
-          <Ionicons name="notifications" size={30} color="#363678" />
+          <Ionicons name="notifications" size={30} color={Color.navigatorBg} />
         </CusPressable>
       </View>
       :
-      <View style={styles.joinView}>
+      <View style={Style.leaveView}>
         <CusPressable
           componentStyle={{
             width: '40%',
@@ -370,18 +378,24 @@ function handleDeleteComment() {
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit) ? 'grey' : '#363678',
+            backgroundColor: isEventInPast(data.date, data.time) || 
+                    isEventFull(numAttendees, data.limit) || 
+                    isUserOwner(data.owner) ? Color.gray : Color.navigatorBg,
             borderRadius: 10,
             alignItems: 'center',
           }}
           pressedHandler={handleJoinPress}
-          disabled={isEventInPast(data.date, data.time) || isEventFull(numAttendees, data.limit)}
+          disabled={isEventInPast(data.date, data.time) || 
+            isEventFull(numAttendees, data.limit) || 
+            isUserOwner(data.owner)}
         >
-          <Text style={styles.joinButtonText}>
-            {isEventInPast(data.date, data.time) 
-              ? 'Event Ended' 
-              : isEventFull(numAttendees, data.limit)
-                ? 'Event Full'
+          <Text style={Style.joinButtonText}>
+          {isEventInPast(data.date, data.time) 
+            ? 'Event Ended' 
+            : isEventFull(numAttendees, data.limit)
+              ? 'Event Full'
+              : isUserOwner(data.owner)
+                ? 'Your Event'
                 : joined ? 'Leave' : 'Join'}
           </Text>
         </CusPressable>
@@ -389,17 +403,17 @@ function handleDeleteComment() {
       }
       
       {/* Notification Modal */}
-      <View style={styles.modalContainer}>
+      <View style={Style.notifModalContainer}>
         <Modal
           animationType="slide"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.pickerContainer}>
+          <View style={Style.notifModalContainer}>
+            <View style={Style.pickerContainer}>
               <TouchableOpacity
-                style={styles.doneButton} 
+                style={Style.doneButton} 
                 onPress={() => {
                   if (selectedTime) {
                     handleTimeSelect(selectedTime);
@@ -408,7 +422,7 @@ function handleDeleteComment() {
                   Alert.alert('Notification set successfully!');
                 }}
               >
-                <Text style={styles.modalButtonText}>Done</Text>
+                <Text style={Style.modalButtonText}>Done</Text>
               </TouchableOpacity>
               <Picker
                 selectedValue={selectedLanguage}
@@ -439,12 +453,12 @@ function handleDeleteComment() {
         onRequestClose={() => setCommentEditModalVisible(false)}
       >
         <TouchableOpacity 
-          style={styles.modalOverlay}
+          style={Style.notifModalContainer}
           activeOpacity={1}
           onPress={() => setCommentEditModalVisible(false)}
         >
-          <View style={styles.commentEditModalContainer}>
-            <View style={styles.modalContent}>
+          <View style={Style.commentEditModalContainer}>
+            <View style={Style.modalContent}>
               {/* <Button
                 title="Reply"
                 onPress={handleReplyComment}
@@ -461,257 +475,3 @@ function handleDeleteComment() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    //paddingBottom: 100,
-  },
-  image: {
-    width: '100%',
-    height: 300,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  dateView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dateText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  timeView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  timeText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  locationView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  descriptionView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    //alignItems: 'center',
-  },
-  descriptionText: {
-    marginLeft: 10,
-    fontSize: 16,
-    width: '90%',
-  },
-  titleView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  mapView: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  map: {
-    width: '90%',
-    height: 200,
-    borderRadius: 16,
-    marginBottom: 30,
-  },
-  joinView: {
-    position: 'absolute',
-    bottom: 10,
-    width: '100%',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    borderTopColor: 'lightgrey',
-    borderTopWidth: 1,
-  },
-  joinButtonText: {
-    color: 'white',
-    fontSize: 18,
-  },
-  leaveView: {
-    position: 'absolute',
-    bottom: 10,
-    width: '110%',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-    backgroundColor: 'white',
-    borderTopColor: 'lightgrey',
-    borderTopWidth: 1,
-  },
-  commentView: {
-    marginVertical: 10,
-    marginBottom: 100,
-  },
-  commentText: {
-    marginLeft: 10,
-    fontSize: 16,
-    marginTop: 2,   
-  },
-  commentInput: {
-    width: '70%',
-    height: 50,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  commentButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  modalOption: {
-    fontSize: 18,
-    paddingVertical: 10,
-    color: '#363678',
-  },
-  closeButton: {
-    marginTop: 20,
-  },
-  closeButtonText: {
-    color: 'red',
-    fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  pickerContainer: {
-    backgroundColor: 'white',
-    width: '100%',
-    paddingBottom: 20, // Add padding for iOS home indicator
-  },
-  picker: {
-    height: 216, // Standard iOS picker height
-    backgroundColor: 'white',
-  },
-  doneButton: {
-    alignSelf: 'flex-end',
-    padding: 12,
-    backgroundColor: 'white',
-  },
-  userComment: {
-    borderLeftWidth: 3,
-    borderLeftColor: 'lightgrey',
-  },
-  commentUsername: {
-    marginLeft: 10,
-    marginTop: 5,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#363678',
-  },
-  comment: {
-    marginTop: 5,
-  },
-  commentOwnerPicture: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginLeft: 10,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  commentEditModalContainer: {
-    backgroundColor: 'white',
-    height: '20%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  modalContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalButton: {
-    backgroundColor: '#363678',
-    padding: 15,
-    borderRadius: 8,
-    width: '80%',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  modalButtonText: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  replyModalContainer: {
-    backgroundColor: 'white',
-    height: '30%',  // Changed from maxHeight to fixed height
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    width: '100%',
-    position: 'absolute',  // Add this
-    bottom: 0,  // Add this
-  },
-  replyInputContainer: {
-    padding: 20,
-    height: '100%',  // Add this
-    justifyContent: 'space-between',  // Add this
-  },
-  replyInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 10,
-    height: '60%',  // Change this from minHeight/maxHeight
-    textAlignVertical: 'top',
-    fontSize: 16,
-  },
-  replyButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,  // Add this
-  },
-  replyButton: {
-    padding: 12,
-    borderRadius: 8,
-    width: '45%',
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
-  submitButton: {
-    backgroundColor: '#363678',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#363678',  // Add this for cancel button
-  },
-})

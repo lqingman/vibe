@@ -1,5 +1,5 @@
 import 'react-native-get-random-values';  
-import { View, StyleSheet, Alert, Text, TouchableOpacity } from 'react-native'
+import { View, Alert, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import LocationManager from '../Components/LocationManager';
 import CusPressable from '../Components/CusPressable';
@@ -12,6 +12,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { Callout, Marker } from 'react-native-maps';
 import Color from '../Styles/Color';
 import ActivityCard from '../Components/ActivityCard';
+import Style from '../Styles/Style';
 
 // Change location screen
 export default function ChangeLocation() {
@@ -101,7 +102,6 @@ export default function ChangeLocation() {
       };
       setLocation(newLocation);
       setSelectedLocation(newLocation);
-      //updateDB(auth.currentUser.uid, { location: newLocation }, 'users');
       
       // Clear the search input when using current location
       if (autocompleteRef.current) {
@@ -116,7 +116,6 @@ export default function ChangeLocation() {
   //function to save location
   function saveLocationHandler() {
     if (!selectedLocation) return;
-    //console.log("Selected Location:", selectedLocation);
     updateDB(auth.currentUser.uid, { location: selectedLocation }, 'users');
     if (route.params?.onReturn) {
       route.params.onReturn(selectedLocation);
@@ -125,8 +124,11 @@ export default function ChangeLocation() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBar}>
+    <View style={{
+      flex: 1,
+      backgroundColor: Color.white,
+    }}>
+      <View style={Style.searchBar}>
         <GooglePlacesAutocomplete
           ref={autocompleteRef}
           placeholder='Search location'
@@ -149,7 +151,7 @@ export default function ChangeLocation() {
               borderRadius: 20,
               backgroundColor: '#f0f0f0',
               borderWidth: 1,
-              borderColor: 'lightgrey',
+              borderColor: Color.lightgrey,
               marginHorizontal: 10,
               marginTop: 10,
             },
@@ -158,12 +160,12 @@ export default function ChangeLocation() {
               top: 45,
               left: 10,
               right: 10,
-              backgroundColor: 'white',
+              backgroundColor: Color.white,
               borderRadius: 5,
               zIndex: 1000,
             },
             row: {
-              backgroundColor: 'white',
+              backgroundColor: Color.white,
             }
           }}
           enablePoweredByContainer={false}
@@ -172,7 +174,7 @@ export default function ChangeLocation() {
         />
       </View>
       
-      <View style={styles.mapView}>
+      <View style={{height: '90%', width: '100%'}}>
       <LocationManager 
           ref={mapRef}
           selectedLocation={selectedLocation}
@@ -197,11 +199,15 @@ export default function ChangeLocation() {
                     onPress={() => navigation.navigate('Details', { activity: activity })}
                     activeOpacity={0.9}
                   >
-                    <View style={styles.calloutContainer}>
+                    <View style={Style.calloutContainer}>
                       <ActivityCard 
                         data={activity}
-                        cardStyle={styles.calloutCard}
-                        favButtonStyle={styles.favButton}
+                        cardStyle={Style.calloutCard}
+                        favButtonStyle={{
+                          position: 'absolute',
+                          top: 150,
+                          right: 10,
+                        }}
                       />
                     </View>
                   </TouchableOpacity>
@@ -213,14 +219,14 @@ export default function ChangeLocation() {
       </View>
 
       <CusPressable
-        componentStyle={styles.locateButton}
-        childrenStyle={styles.locateIcon}
+        componentStyle={Style.locateButton}
+        childrenStyle={Style.locateIcon}
         pressedHandler={locateUserHandler}
       >
         <FontAwesome6 name="location-crosshairs" size={32} color="black" />
       </CusPressable>
       
-      <View style={styles.confirmButton}>
+      <View style={Style.confirmButton}>
         <CusPressable
           componentStyle={{
             width: '100%',
@@ -228,7 +234,7 @@ export default function ChangeLocation() {
           }}
           childrenStyle={{
             padding: 10,
-            backgroundColor: selectedLocation ? '#363678' : 'grey',
+            backgroundColor: selectedLocation ? Color.navigatorBg : Color.gray,
             borderRadius: 10,
             alignItems: 'center',
             
@@ -236,89 +242,9 @@ export default function ChangeLocation() {
           pressedHandler={saveLocationHandler}
           disabled={!selectedLocation}
         >
-          <Text style={styles.confirmButtonText}>Confirm</Text>
+          <Text style={Style.confirmButtonText}>Confirm</Text>
         </CusPressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container:{
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  searchBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 50,
-    zIndex: 1,
-  },
-  text: {
-    fontSize: 20,
-    color: 'black',
-  },
-  mapView: {
-    height: '90%',
-    width: '100%',
-  },
-  locateButton: {
-    position: 'absolute',
-    bottom: 75,
-    right: 10,
-  },
-  locateIcon:{
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    padding: 10,
-    borderRadius: 25,
-  },
-  confirmButton: {
-    width: '30%',
-    position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    elevation: 5,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  confirmButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  calloutContainer: {
-    width: 220, 
-    height: 200,
-    backgroundColor: 'transparent',
-    borderRadius: 16,
-  },
-  calloutCard: {
-    flex: 1,
-    margin: 0,
-    marginLeft: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  favButton: {
-    position: 'absolute',
-    top: 150,
-    right: 10,
-  },
-})

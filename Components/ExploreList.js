@@ -1,11 +1,12 @@
 import React from 'react'
 import ExploreCards from './ExploreCards';
-import { StyleSheet } from 'react-native';
 import MasonryList from 'reanimated-masonry-list';
 import { useNavigation } from '@react-navigation/native';
+import Style from '../Styles/Style';
 
+// ExploreList component to display the explore list using MasonryList
 export default function ExploreList({list}) {
-  //console.log("list", list)
+  // Get the navigation object
   const navigation = useNavigation();
 
   return (
@@ -13,17 +14,11 @@ export default function ExploreList({list}) {
       data={list}
       keyExtractor={item => item.id}
       numColumns={2}
-      contentContainerStyle={styles.masonry}
+      contentContainerStyle={Style.masonry}
       showsVerticalScrollIndicator={false}
       renderItem={({item, i}) => <ExploreCards data={item} index={i} onPress={() => navigation.navigate('Details', { activity: item })} />}
       refreshing={false}
     />
   );
 };
-    
-const styles = StyleSheet.create({
-  masonry: {
-    paddingRight: 18,
-  },
-});
     
