@@ -202,7 +202,7 @@ export default function Details({route, navigation}) {
   // Handle comment long press
   function handleCommentLongPress(comment) {
     //console.log("comment long press", comment)
-    if (comment.owner === auth.currentUser.uid) {
+    if (comment.owner === auth.currentUser.uid && comment.id) {
       setSelectedComment(comment);
       setCommentEditModalVisible(true);
     }
