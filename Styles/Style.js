@@ -341,10 +341,9 @@ export default Style = StyleSheet.create({
     },
     exploreCard: {
       width: "100%",
-      marginLeft: 10,
-      marginBottom: 12,
+      marginLeft: 9,
+      marginBottom: 0,
       borderRadius: 16,
-
     },
     exploreCardInner: {
       backgroundColor: Color.white,

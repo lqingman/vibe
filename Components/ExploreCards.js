@@ -8,7 +8,7 @@ export default function ExploreCards ({data, index, onPress}) {
   
   // Determine if the card is even or odd
   const even = index % 2 === 0;
-  const spacing = 12;
+  const spacing = 4;
 
   // Calculate card height based on index pattern
   const getCardHeight = (index) => {
