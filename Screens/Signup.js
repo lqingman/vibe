@@ -151,6 +151,10 @@ export default function Signup({ navigation }) {
         value={password}
         onChangeText={onChangePassword}
         secureTextEntry
+        textContentType="oneTimeCode"
+        // textContentType="none"
+        // autoCorrect={false}
+        // autoCompleteType='off'
       />
       <View style={Style.strengthIndicator}>
         {passwordStrength.label && (
@@ -181,6 +185,10 @@ export default function Signup({ navigation }) {
         value={confirmPassword}
         onChangeText={onChangeConfirmPassword}
         secureTextEntry
+        textContentType="oneTimeCode"
+        // textContentType="none"
+        // autoCorrect={false}
+        // autoCompleteType='off'
       />
       {confirmPasswordError ? (
         <Text style={Style.confirmText}>{confirmPasswordError}</Text>
