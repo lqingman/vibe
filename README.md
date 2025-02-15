@@ -1,9 +1,10 @@
 # Project Title
 
-Vibe
+<span style="font-size: 2em;">Vibe</span>
 
 ## Table of Contents
 
+- [Demo](#demo)
 - [Installation](#Installation)
 - [Install dependencies](#install-dependencies)
 - [Current State](#current-state)
@@ -12,6 +13,13 @@ Vibe
 - [Firebase Rules](#firebase-rules)
 - [env example](#env-example)
 - [Contributions](#contributions)
+
+
+## Demo
+
+Here is a demo of the project:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Xd8lfltuAjc?si=bZyTB2dlubYj_Vk-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Installation
 
