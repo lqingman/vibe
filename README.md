@@ -17,9 +17,9 @@
 
 ## Demo
 
-Here is a demo of the project:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Xd8lfltuAjc?si=bZyTB2dlubYj_Vk-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+Here is the demo link for this project
+    
+    https://youtu.be/Xd8lfltuAjc?si=b9z2sM-d_NnAsnTW
 
 ## Installation
 
