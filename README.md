@@ -17,9 +17,8 @@
 
 ## Demo
 
-Here is the demo link for this project
-    
-    https://youtu.be/Xd8lfltuAjc?si=b9z2sM-d_NnAsnTW
+[Watch the demo on YouTube](https://youtu.be/Xd8lfltuAjc?si=b9z2sM-d_NnAsnTW)
+
 
 ## Installation
 
